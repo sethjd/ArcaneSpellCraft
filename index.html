@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>ARCANE SHARDS — Phoenix Fix + UI Polish</title>
+    <title>ARCANE SHARDS — AI Health at Bottom, Popup Extended</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body {
@@ -29,6 +29,29 @@
             padding: 12px;
             backdrop-filter: blur(4px);
             border: 1px solid rgba(110, 80, 160, 0.4);
+            display: flex;
+            flex-direction: column;
+        }
+        /* AI area: battlefield on top, stats at bottom */
+        .opponent-area {
+            flex-direction: column;
+        }
+        .opponent-area .stats {
+            order: 2;  /* push stats to bottom */
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+        .opponent-area .battlefield-header {
+            order: 1;
+        }
+        .opponent-area .battlefield {
+            order: 1;
+        }
+        .opponent-area .hand-header {
+            order: 3;
+        }
+        .opponent-area .hand {
+            order: 4;
         }
         .stats {
             display: flex;
@@ -116,7 +139,6 @@
             justify-content: center;
             pointer-events: none;
         }
-        /* Face-down AI hand card */
         .card.face-down {
             background: #2a2a4a;
             border: 1px solid #aaa;
@@ -269,7 +291,7 @@
             padding: 20px 30px;
             text-align: center;
             z-index: 2000;
-            animation: fadeOut 1.2s forwards;
+            animation: fadeOut 2.5s forwards;
             pointer-events: none;
         }
         .ai-card-popup .card-name {
@@ -292,19 +314,24 @@
             border: 1px solid #aa88ff;
             box-shadow: 0 0 8px #8866ff;
         }
+        /* Headers for better readability */
+        .battlefield-header, .hand-header {
+            font-weight: bold;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
 <div class="game-container">
     <div class="opponent-area">
+        <div class="battlefield-header">⚔️ AI BATTLEFIELD</div>
+        <div id="aiBattlefield" class="battlefield"></div>
+        <div class="hand-header">🃏 AI HAND (face down)</div>
+        <div id="aiHand" class="hand"></div>
         <div class="stats">
             <div class="hp"><span class="hp-label">🤖 AI</span> <span id="aiHp">80</span></div>
             <span class="shard-pool">🔮 <span id="aiShardDisplay">0</span></span>
         </div>
-        <div><strong>⚔️ BATTLEFIELD</strong></div>
-        <div id="aiBattlefield" class="battlefield"></div>
-        <div><strong>🃏 AI HAND (face down)</strong></div>
-        <div id="aiHand" class="hand"></div>
     </div>
 
     <div class="shop-row" id="shopContainer"></div>
@@ -336,7 +363,7 @@
 </div>
 
 <script>
-    // ---------- CARD DATABASE ----------
+    // ---------- CARD DATABASE (unchanged, same as previous) ----------
     const CARD_DB = [
         { id: "inferno", name: "Inferno Blast", type: "spell", shopCost: 3, effect: "damage", damage: 4, desc: "🔥 4 damage" },
         { id: "surge", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "⚡ 2 damage" },
@@ -400,7 +427,7 @@
         popup.className = 'ai-card-popup';
         popup.innerHTML = `<div class="card-name">${cardName}</div><div class="card-type">AI plays</div>`;
         document.body.appendChild(popup);
-        setTimeout(() => { if(popup) popup.remove(); }, 1200);
+        setTimeout(() => { if(popup) popup.remove(); }, 2500);
     }
 
     function makeStarterDeck() {
@@ -423,7 +450,7 @@
         pendingAttacker = null;
         pendingSpellCallback = null;
         refreshUI();
-        addLog("Game ready! Phoenix revives with full HP. AI hand is face-down.");
+        addLog("Game ready! AI health at bottom, popup lasts 2.5s.");
         startPlayerTurn();
     }
 
@@ -658,7 +685,6 @@
         else if(card.effect === "revive") {
             if(owner.graveyard.length) {
                 let revived = owner.graveyard.pop();
-                // Reset to full HP using originalHp
                 let fullHp = revived.originalHp || revived.hp;
                 let newCreature = {...revived, hp: fullHp, currentHp: fullHp, owner: owner};
                 owner.field.push(newCreature);
