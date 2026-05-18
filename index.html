@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>ARCANE SHARDS — Fixed Win/Loss + Restart</title>
+    <title>ARCANE SHARDS — Defender Fix + AI Card Popup</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body {
@@ -159,6 +159,7 @@
             color: #bdadff;
         }
         .targetable { cursor: pointer; border: 2px solid #ffaa33; }
+        .disabled-target { opacity: 0.5; cursor: not-allowed; }
         .debug-area {
             margin-top: 10px;
             background: #0a0c14;
@@ -227,6 +228,37 @@
         }
         .victory { color: #4cff4c; }
         .defeat { color: #ff5555; }
+        /* AI card popup */
+        .ai-card-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000000cc;
+            backdrop-filter: blur(12px);
+            border: 2px solid #ffaa33;
+            border-radius: 2rem;
+            padding: 20px 30px;
+            text-align: center;
+            z-index: 2000;
+            animation: fadeOut 1.2s forwards;
+            pointer-events: none;
+        }
+        .ai-card-popup .card-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffdd88;
+            margin-bottom: 5px;
+        }
+        .ai-card-popup .card-type {
+            font-size: 1rem;
+            color: #ccccff;
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            70% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); display: none; }
+        }
     </style>
 </head>
 <body>
@@ -330,6 +362,15 @@
     function addLog(msg) { logMessages.unshift(msg); if(logMessages.length>15) logMessages.pop(); document.getElementById("gameLog").innerHTML = logMessages.map(m=>`✨ ${m}`).join('<br>'); }
     function debug(msg) { let db = document.getElementById("debugLog"); if(db) db.value += msg + "\n"; console.log(msg); }
 
+    // Show AI card popup
+    function showAIPlay(cardName) {
+        let popup = document.createElement('div');
+        popup.className = 'ai-card-popup';
+        popup.innerHTML = `<div class="card-name">${cardName}</div><div class="card-type">AI plays</div>`;
+        document.body.appendChild(popup);
+        setTimeout(() => { if(popup) popup.remove(); }, 1200);
+    }
+
     function makeStarterDeck() {
         let starter = [];
         for(let i=0;i<5;i++) starter.push({...SHARD_CARD_TEMPLATE, uid: Math.random()});
@@ -350,7 +391,7 @@
         pendingAttacker = null;
         pendingSpellCallback = null;
         refreshUI();
-        addLog("Game ready! Draw 5, play cards, buy, then tap your creature → enemy.");
+        addLog("Game ready! Defender rule fixed: cannot target player while Defender alive.");
         startPlayerTurn();
     }
 
@@ -385,17 +426,26 @@
         aiTurnLogic();
     }
 
-    function getLegalDamageTargets(attackerOwner) {
+    // Returns legal targets for damage spells/attacks (respects Defender)
+    function getLegalDamageTargets(attackerOwner, isSpell = false) {
         let defender = attackerOwner === player ? ai : player;
         let hasDefender = defender.field.some(c=>c.defender===true);
-        if(hasDefender) return defender.field.filter(c=>c.defender===true);
-        else return [...defender.field, defender];
+        if(hasDefender) {
+            // Can only target Defender creatures (not the player)
+            return defender.field.filter(c=>c.defender===true);
+        } else {
+            // No Defender: can target any creature OR the player
+            return [...defender.field, defender];
+        }
     }
 
     function playCardFromHand(owner, card, target=null) {
         let idx = owner.hand.findIndex(c=>c.uid===card.uid);
         if(idx===-1) return false;
         owner.hand.splice(idx,1);
+        // Show popup if AI
+        if(owner === ai) showAIPlay(card.name);
+        
         if(card.type === "economy") {
             owner.shards += card.shardGain;
             addLog(`${owner===player?"You":"AI"} play ${card.name} +${card.shardGain} shards.`);
@@ -426,6 +476,13 @@
         if(card.effect === "damage") {
             if(!target) return;
             if((owner===player && target===player) || (owner===ai && target===ai)) { addLog("Cannot target self."); return; }
+            // Defender rule already enforced by target list, but double-check
+            let defender = owner===player ? ai : player;
+            let hasDefender = defender.field.some(c=>c.defender===true);
+            if(hasDefender && target === defender) {
+                addLog("Defender blocks! Cannot target player while Defender alive.");
+                return;
+            }
             let dmg = card.damage;
             target.hp = Math.max(0, target.hp - dmg);
             addLog(`${card.name} deals ${dmg} to ${target.name || "enemy player"}.`);
@@ -438,7 +495,6 @@
                     addLog(`${target.name} dies.`);
                 }
             }
-            // Check win after damage
             checkWinConditions();
         }
         else if(card.effect === "heal") {
@@ -521,10 +577,17 @@
         }
         let defender = target === ai ? ai : (ai.field.includes(target) ? ai : null);
         if(!defender) { addLog("Must attack enemy."); return false; }
+        // Defender rule: if enemy has a Defender, target must be a Defender creature (not the player)
         let hasDefender = defender.field.some(c=>c.defender===true);
-        if(hasDefender && target !== defender && !defender.field.includes(target)) {
-            addLog("Defender blocks! Attack Defender first.");
-            return false;
+        if(hasDefender) {
+            if(target === defender) {
+                addLog("Defender blocks! Cannot attack player directly.");
+                return false;
+            }
+            if(!defender.field.includes(target) || !target.defender) {
+                addLog("Defender blocks! Attack Defender creatures first.");
+                return false;
+            }
         }
         let dmg = attacker.atk;
         let elementalCount = player.field.filter(c=>c.elemental).length;
@@ -581,7 +644,6 @@
     }
 
     function restartGame() {
-        // Reset all global state
         centralDeck = buildCentralDeck();
         shopCards = [];
         for(let i=0;i<4 && centralDeck.length;i++) shopCards.push(centralDeck.shift());
@@ -716,6 +778,11 @@
         renderField("playerBattlefield", player.field, false);
         renderField("aiBattlefield", ai.field, true);
         renderShop();
+        // Disable enemy HP bar if Defender exists (visual only)
+        let aiHpElem = document.getElementById("aiHp");
+        let hasDefender = ai.field.some(c=>c.defender===true);
+        if(hasDefender) aiHpElem.classList.add("disabled-target");
+        else aiHpElem.classList.remove("disabled-target");
     }
 
     function renderHand() {
@@ -835,28 +902,41 @@
             }
             container.appendChild(div);
         }
-        // Enemy HP targeting
-        let aiHp = document.getElementById("aiHp");
+        // Enemy HP targeting (only if no Defender)
+        let aiHpElem = document.getElementById("aiHp");
+        let hasDefender = ai.field.some(c=>c.defender===true);
         if(turn==="player" && gameActive) {
-            if(pendingSpellCallback) {
-                aiHp.style.cursor = "pointer";
-                aiHp.classList.add("targetable");
-                aiHp.onclick = ()=>{ pendingSpellCallback(ai); pendingSpellCallback=null; refreshUI(); };
+            if(pendingSpellCallback && !hasDefender) {
+                aiHpElem.style.cursor = "pointer";
+                aiHpElem.classList.add("targetable");
+                aiHpElem.onclick = ()=>{ pendingSpellCallback(ai); pendingSpellCallback=null; refreshUI(); };
             }
-            else if(pendingAttacker) {
-                aiHp.style.cursor = "pointer";
-                aiHp.classList.add("targetable");
-                aiHp.onclick = ()=>{ attemptManualAttack(pendingAttacker, ai); pendingAttacker=null; refreshUI(); };
+            else if(pendingAttacker && !hasDefender) {
+                aiHpElem.style.cursor = "pointer";
+                aiHpElem.classList.add("targetable");
+                aiHpElem.onclick = ()=>{ attemptManualAttack(pendingAttacker, ai); pendingAttacker=null; refreshUI(); };
             }
-            else { aiHp.style.cursor = "default"; aiHp.onclick = null; aiHp.classList.remove("targetable"); }
-        } else { aiHp.style.cursor = "default"; aiHp.onclick = null; aiHp.classList.remove("targetable"); }
+            else {
+                aiHpElem.style.cursor = "default";
+                aiHpElem.onclick = null;
+                aiHpElem.classList.remove("targetable");
+            }
+        } else {
+            aiHpElem.style.cursor = "default";
+            aiHpElem.onclick = null;
+            aiHpElem.classList.remove("targetable");
+        }
         // Self HP for healing spells
-        let playerHp = document.getElementById("playerHp");
+        let playerHpElem = document.getElementById("playerHp");
         if(turn==="player" && pendingSpellCallback && gameActive) {
-            playerHp.style.cursor = "pointer";
-            playerHp.classList.add("targetable");
-            playerHp.onclick = ()=>{ pendingSpellCallback(player); pendingSpellCallback=null; refreshUI(); };
-        } else { playerHp.style.cursor = "default"; playerHp.onclick = null; playerHp.classList.remove("targetable"); }
+            playerHpElem.style.cursor = "pointer";
+            playerHpElem.classList.add("targetable");
+            playerHpElem.onclick = ()=>{ pendingSpellCallback(player); pendingSpellCallback=null; refreshUI(); };
+        } else {
+            playerHpElem.style.cursor = "default";
+            playerHpElem.onclick = null;
+            playerHpElem.classList.remove("targetable");
+        }
     }
 
     function renderShop() {
