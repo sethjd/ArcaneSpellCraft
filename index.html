@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>ARCANE SHARDS — Defender Fix + AI Card Popup</title>
+    <title>ARCANE SHARDS — Full Card Descriptions</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body {
@@ -228,7 +228,6 @@
         }
         .victory { color: #4cff4c; }
         .defeat { color: #ff5555; }
-        /* AI card popup */
         .ai-card-popup {
             position: fixed;
             top: 50%;
@@ -303,32 +302,32 @@
 </div>
 
 <script>
-    // ---------- CARD DATABASE ----------
+    // ---------- CARD DATABASE WITH FULL DESCRIPTIONS ----------
     const CARD_DB = [
-        { id: "inferno", name: "Inferno Blast", type: "spell", shopCost: 3, effect: "damage", damage: 4, desc: "Deal 4 dmg" },
-        { id: "surge", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "Deal 2 dmg" },
-        { id: "healwave", name: "Healing Wave", type: "spell", shopCost: 3, effect: "heal", heal: 5, desc: "Heal yourself" },
-        { id: "frostshield_spell", name: "Frost Shield", type: "spell", shopCost: 2, effect: "summonDefender", hp:4, desc: "Summon 0/4 Defender" },
-        { id: "cloak", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "giveImmunity", desc: "Give Immune" },
-        { id: "mindcontrol", name: "Mind Control", type: "spell", shopCost: 5, effect: "mindControl", desc: "Steal creature" },
-        { id: "thunderstrike", name: "Thunderstrike", type: "spell", shopCost: 4, effect: "thunderstrike", damage:4, desc: "4 dmg to 2 targets" },
-        { id: "fire_ele", name: "Fire Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true },
-        { id: "earth_ele", name: "Earth Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true },
-        { id: "water_ele", name: "Water Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true },
-        { id: "storm_ele", name: "Storm Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true },
-        { id: "frostwolf", name: "Frostwolf Pack", type: "creature", shopCost: 3, atk:2, hp:4 },
-        { id: "panther", name: "Shadow Panther", type: "creature", shopCost: 3, atk:2, hp:4 },
-        { id: "hydra", name: "Venomous Hydra", type: "creature", shopCost: 2, atk:2, hp:2 },
-        { id: "unicorn", name: "Celestial Unicorn", type: "creature", shopCost: 3, atk:0, hp:4, startHeal:2 },
-        { id: "golem", name: "Earth Golem", type: "creature", shopCost: 6, atk:0, hp:6, defender:true, onSummonDiscard:true },
-        { id: "treant", name: "Ancient Treant", type: "creature", shopCost: 2, atk:0, hp:10, defender:true },
-        { id: "frostshield_creature", name: "Frost Shield", type: "creature", shopCost: 2, atk:0, hp:4, defender:true },
-        { id: "thunderbird", name: "Thunderbird", type: "creature", shopCost: 4, atk:4, hp:5, thunderSynergy:true },
-        { id: "behemoth", name: "Ironclad Behemoth", type: "creature", shopCost: 7, atk:5, hp:10 },
-        { id: "wraith", name: "Spectral Wraith", type: "oneshot", shopCost: 4, effect: "damage", damage: 4 },
-        { id: "lavadrake", name: "Lava Drake", type: "oneshot", shopCost: 5, effect: "damage", damage: 10 },
-        { id: "souleater", name: "Soul Eater", type: "oneshot", shopCost: 6, effect: "damage", damage: 4 },
-        { id: "phoenix", name: "Phoenix Reborn", type: "oneshot", shopCost: 7, effect: "revive" }
+        { id: "inferno", name: "Inferno Blast", type: "spell", shopCost: 3, effect: "damage", damage: 4, desc: "🔥 4 damage" },
+        { id: "surge", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "⚡ 2 damage" },
+        { id: "healwave", name: "Healing Wave", type: "spell", shopCost: 3, effect: "heal", heal: 5, desc: "💚 Heal 5 HP" },
+        { id: "frostshield_spell", name: "Frost Shield", type: "spell", shopCost: 2, effect: "summonDefender", hp:4, desc: "🛡️ Summon 0/4 Defender" },
+        { id: "cloak", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "giveImmunity", desc: "✨ Give Immune for turn" },
+        { id: "mindcontrol", name: "Mind Control", type: "spell", shopCost: 5, effect: "mindControl", desc: "🧠 Steal enemy creature" },
+        { id: "thunderstrike", name: "Thunderstrike", type: "spell", shopCost: 4, effect: "thunderstrike", damage:4, desc: "🌩️ 4 dmg to 2 targets" },
+        { id: "fire_ele", name: "Fire Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🔥 4/6 Elemental" },
+        { id: "earth_ele", name: "Earth Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🌍 4/6 Elemental" },
+        { id: "water_ele", name: "Water Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "💧 4/6 Elemental" },
+        { id: "storm_ele", name: "Storm Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🌪️ 4/6 Elemental" },
+        { id: "frostwolf", name: "Frostwolf Pack", type: "creature", shopCost: 3, atk:2, hp:4, desc: "🐺 2/4" },
+        { id: "panther", name: "Shadow Panther", type: "creature", shopCost: 3, atk:2, hp:4, desc: "🐈‍⬛ 2/4" },
+        { id: "hydra", name: "Venomous Hydra", type: "creature", shopCost: 2, atk:2, hp:2, desc: "🐍 2/2" },
+        { id: "unicorn", name: "Celestial Unicorn", type: "creature", shopCost: 3, atk:0, hp:4, startHeal:2, desc: "🦄 0/4, heals 2 each turn" },
+        { id: "golem", name: "Earth Golem", type: "creature", shopCost: 6, atk:0, hp:6, defender:true, onSummonDiscard:true, desc: "🛡️ 0/6 Defender, discard enemy card" },
+        { id: "treant", name: "Ancient Treant", type: "creature", shopCost: 2, atk:0, hp:10, defender:true, desc: "🌳 0/10 Defender" },
+        { id: "frostshield_creature", name: "Frost Shield", type: "creature", shopCost: 2, atk:0, hp:4, defender:true, desc: "❄️ 0/4 Defender" },
+        { id: "thunderbird", name: "Thunderbird", type: "creature", shopCost: 4, atk:4, hp:5, thunderSynergy:true, desc: "🦅 4/5, boosts Thunderstrike" },
+        { id: "behemoth", name: "Ironclad Behemoth", type: "creature", shopCost: 7, atk:5, hp:10, desc: "🦣 5/10" },
+        { id: "wraith", name: "Spectral Wraith", type: "oneshot", shopCost: 4, effect: "damage", damage: 4, desc: "👻 Deal 4 damage" },
+        { id: "lavadrake", name: "Lava Drake", type: "oneshot", shopCost: 5, effect: "damage", damage: 10, desc: "🐉 Deal 10 damage" },
+        { id: "souleater", name: "Soul Eater", type: "oneshot", shopCost: 6, effect: "damage", damage: 4, desc: "💀 Deal 4 damage" },
+        { id: "phoenix", name: "Phoenix Reborn", type: "oneshot", shopCost: 7, effect: "revive", desc: "🔥 Revive 1 creature from graveyard" }
     ];
 
     function buildCentralDeck() {
@@ -348,8 +347,8 @@
     function shuffleArray(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 
     let arcaneClustersRemaining = 6;
-    const ARCINE_CLUSTER_CARD = { id: "cluster", name: "Arcane Cluster", type: "economy", shopCost: 3, shardGain: 3 };
-    const SHARD_CARD_TEMPLATE = { id: "shard", name: "Shard Card", type: "economy", shardGain: 1 };
+    const ARCINE_CLUSTER_CARD = { id: "cluster", name: "Arcane Cluster", type: "economy", shopCost: 3, shardGain: 3, desc: "🔮 +3 Shards" };
+    const SHARD_CARD_TEMPLATE = { id: "shard", name: "Shard Card", type: "economy", shardGain: 1, desc: "💎 +1 Shard" };
 
     let centralDeck = [], shopCards = [];
     let player = { hp:80, field:[], hand:[], deck:[], discard:[], graveyard:[], shards:0, attackedThisTurn: new Set() };
@@ -362,7 +361,6 @@
     function addLog(msg) { logMessages.unshift(msg); if(logMessages.length>15) logMessages.pop(); document.getElementById("gameLog").innerHTML = logMessages.map(m=>`✨ ${m}`).join('<br>'); }
     function debug(msg) { let db = document.getElementById("debugLog"); if(db) db.value += msg + "\n"; console.log(msg); }
 
-    // Show AI card popup
     function showAIPlay(cardName) {
         let popup = document.createElement('div');
         popup.className = 'ai-card-popup';
@@ -391,7 +389,7 @@
         pendingAttacker = null;
         pendingSpellCallback = null;
         refreshUI();
-        addLog("Game ready! Defender rule fixed: cannot target player while Defender alive.");
+        addLog("Game ready! Full card descriptions now visible.");
         startPlayerTurn();
     }
 
@@ -426,15 +424,12 @@
         aiTurnLogic();
     }
 
-    // Returns legal targets for damage spells/attacks (respects Defender)
     function getLegalDamageTargets(attackerOwner, isSpell = false) {
         let defender = attackerOwner === player ? ai : player;
         let hasDefender = defender.field.some(c=>c.defender===true);
         if(hasDefender) {
-            // Can only target Defender creatures (not the player)
             return defender.field.filter(c=>c.defender===true);
         } else {
-            // No Defender: can target any creature OR the player
             return [...defender.field, defender];
         }
     }
@@ -443,7 +438,6 @@
         let idx = owner.hand.findIndex(c=>c.uid===card.uid);
         if(idx===-1) return false;
         owner.hand.splice(idx,1);
-        // Show popup if AI
         if(owner === ai) showAIPlay(card.name);
         
         if(card.type === "economy") {
@@ -476,7 +470,6 @@
         if(card.effect === "damage") {
             if(!target) return;
             if((owner===player && target===player) || (owner===ai && target===ai)) { addLog("Cannot target self."); return; }
-            // Defender rule already enforced by target list, but double-check
             let defender = owner===player ? ai : player;
             let hasDefender = defender.field.some(c=>c.defender===true);
             if(hasDefender && target === defender) {
@@ -577,7 +570,6 @@
         }
         let defender = target === ai ? ai : (ai.field.includes(target) ? ai : null);
         if(!defender) { addLog("Must attack enemy."); return false; }
-        // Defender rule: if enemy has a Defender, target must be a Defender creature (not the player)
         let hasDefender = defender.field.some(c=>c.defender===true);
         if(hasDefender) {
             if(target === defender) {
@@ -674,7 +666,6 @@
         debug(`Hand: ${ai.hand.map(c=>c.name).join(", ")}`);
         refreshUI();
         await delay(300);
-        // Play economy
         let played = true;
         while(played && gameActive) {
             played = false;
@@ -707,7 +698,6 @@
             } else break;
         }
         if(!gameActive) return;
-        // Buy shop
         for(let i=0;i<shopCards.length && gameActive;i++) {
             let card = shopCards[i];
             if(card && ai.shards >= card.shopCost) {
@@ -730,7 +720,6 @@
         }
         refreshUI();
         await delay(300);
-        // AI attacks
         for(let creature of ai.field) {
             if(!gameActive) break;
             if(ai.attackedThisTurn.has(creature.uid)) continue;
@@ -778,7 +767,6 @@
         renderField("playerBattlefield", player.field, false);
         renderField("aiBattlefield", ai.field, true);
         renderShop();
-        // Disable enemy HP bar if Defender exists (visual only)
         let aiHpElem = document.getElementById("aiHp");
         let hasDefender = ai.field.some(c=>c.defender===true);
         if(hasDefender) aiHpElem.classList.add("disabled-target");
@@ -792,8 +780,18 @@
         for(let card of player.hand) {
             let div = document.createElement("div");
             div.className = `card ${card.type}`;
-            let desc = card.desc || (card.atk? `⚔️${card.atk} ❤️${card.hp}` : (card.shardGain? `+${card.shardGain}` : ""));
-            div.innerHTML = `<b>${card.name}</b><br>${desc}`;
+            let displayText = `<b>${card.name}</b><br>`;
+            if(card.type === "economy") {
+                displayText += `💰 +${card.shardGain}<br>${card.desc || ""}`;
+            } else if(card.type === "spell" || card.type === "oneshot") {
+                if(card.damage) displayText += `⚔️ ${card.damage}<br>${card.desc || ""}`;
+                else displayText += `${card.desc || ""}`;
+            } else if(card.type === "creature") {
+                displayText += `⚔️${card.atk} ❤️${card.hp}<br>${card.desc || ""}`;
+            } else {
+                displayText += `${card.desc || ""}`;
+            }
+            div.innerHTML = displayText;
             div.onclick = (e)=>{
                 e.stopPropagation();
                 if(!gameActive) return;
@@ -869,7 +867,7 @@
             div.className = "card creature";
             if(!isEnemy && player.attackedThisTurn.has(c.uid)) div.classList.add("attacked");
             let def = c.defender?"🛡️DEF ":"";
-            div.innerHTML = `<b>${c.name}</b><br>${def}⚔️${c.atk} ❤️${c.hp}`;
+            div.innerHTML = `<b>${c.name}</b><br>${def}⚔️${c.atk} ❤️${c.hp}<br>${c.desc || ""}`;
             if(turn==="player" && !isEnemy && !pendingSpellCallback && !pendingAttacker && gameActive && !player.attackedThisTurn.has(c.uid)) {
                 div.style.cursor = "pointer";
                 div.classList.add("targetable");
@@ -902,7 +900,6 @@
             }
             container.appendChild(div);
         }
-        // Enemy HP targeting (only if no Defender)
         let aiHpElem = document.getElementById("aiHp");
         let hasDefender = ai.field.some(c=>c.defender===true);
         if(turn==="player" && gameActive) {
@@ -926,7 +923,6 @@
             aiHpElem.onclick = null;
             aiHpElem.classList.remove("targetable");
         }
-        // Self HP for healing spells
         let playerHpElem = document.getElementById("playerHp");
         if(turn==="player" && pendingSpellCallback && gameActive) {
             playerHpElem.style.cursor = "pointer";
@@ -947,7 +943,10 @@
             if(!card) { let empty = document.createElement("div"); empty.className="card shop-card disabled"; empty.innerText="EMPTY"; shopDiv.appendChild(empty); continue; }
             let div = document.createElement("div");
             div.className = "card shop-card";
-            div.innerHTML = `<b>${card.name}</b><br>💰 ${card.shopCost}<br>${card.desc||""}`;
+            let display = `<b>${card.name}</b><br>💰 ${card.shopCost}<br>`;
+            if(card.damage) display += `⚔️ ${card.damage}<br>`;
+            display += `${card.desc || ""}`;
+            div.innerHTML = display;
             if(turn==="player" && gameActive && !pendingSpellCallback && !pendingAttacker) div.onclick = ()=>attemptBuyStandard(i);
             shopDiv.appendChild(div);
         }
