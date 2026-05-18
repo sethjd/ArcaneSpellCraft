@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>ARCANE SHARDS — Thunderstrike Fixed</title>
+    <title>ARCANE SHARDS — Phoenix Fix + UI Polish</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body {
@@ -41,7 +41,23 @@
             padding: 8px 12px;
             border-radius: 2rem;
         }
-        .hp { font-size: 1.8rem; font-weight: bold; color: #ffb347; text-shadow: 0 0 5px #ff7b00; cursor: pointer; }
+        .hp {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffb347;
+            text-shadow: 0 0 5px #ff7b00;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .hp-label {
+            font-size: 1rem;
+            background: #00000066;
+            padding: 4px 10px;
+            border-radius: 2rem;
+            color: #ddd;
+        }
         .shard-pool { background: #241f3a; padding: 4px 12px; border-radius: 2rem; font-weight: bold; color: #d9c8ff; font-size: 0.9rem; }
         .hand, .battlefield {
             display: flex;
@@ -99,6 +115,19 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
+        }
+        /* Face-down AI hand card */
+        .card.face-down {
+            background: #2a2a4a;
+            border: 1px solid #aaa;
+            color: #ccc;
+            cursor: default;
+        }
+        .card.face-down::before {
+            content: "???";
+            font-size: 1.2rem;
+            display: block;
+            margin-top: 20px;
         }
         .shop-row {
             display: flex;
@@ -269,24 +298,24 @@
 <div class="game-container">
     <div class="opponent-area">
         <div class="stats">
-            <span>🧙‍♂️ <strong>AI</strong></span>
-            <span class="hp" id="aiHp">80</span>
+            <div class="hp"><span class="hp-label">🤖 AI</span> <span id="aiHp">80</span></div>
             <span class="shard-pool">🔮 <span id="aiShardDisplay">0</span></span>
         </div>
         <div><strong>⚔️ BATTLEFIELD</strong></div>
         <div id="aiBattlefield" class="battlefield"></div>
+        <div><strong>🃏 AI HAND (face down)</strong></div>
+        <div id="aiHand" class="hand"></div>
     </div>
 
     <div class="shop-row" id="shopContainer"></div>
 
     <div class="player-area">
         <div class="stats">
-            <span>✨ <strong>YOU</strong></span>
-            <span class="hp" id="playerHp">80</span>
+            <div class="hp"><span class="hp-label">✨ YOU</span> <span id="playerHp">80</span></div>
             <span class="shard-pool">💎 <span id="playerShardDisplay">0</span></span>
             <button id="endTurnBtn" class="end-turn">🔚 END TURN</button>
         </div>
-        <div><strong>🃏 HAND</strong></div>
+        <div><strong>🃏 YOUR HAND</strong></div>
         <div id="playerHand" class="hand"></div>
         <div><strong>🛡️ YOUR CREATURES</strong></div>
         <div id="playerBattlefield" class="battlefield"></div>
@@ -332,7 +361,7 @@
         { id: "wraith", name: "Spectral Wraith", type: "oneshot", shopCost: 4, effect: "damage", damage: 4, desc: "👻 Deal 4 damage" },
         { id: "lavadrake", name: "Lava Drake", type: "oneshot", shopCost: 5, effect: "damage", damage: 10, desc: "🐉 Deal 10 damage" },
         { id: "souleater", name: "Soul Eater", type: "oneshot", shopCost: 6, effect: "damage", damage: 4, desc: "💀 Deal 4 damage" },
-        { id: "phoenix", name: "Phoenix Reborn", type: "oneshot", shopCost: 7, effect: "revive", desc: "🔥 Revive 1 creature from graveyard" }
+        { id: "phoenix", name: "Phoenix Reborn", type: "oneshot", shopCost: 7, effect: "revive", desc: "🔥 Revive 1 creature from graveyard (full HP)" }
     ];
 
     function buildCentralDeck() {
@@ -394,11 +423,11 @@
         pendingAttacker = null;
         pendingSpellCallback = null;
         refreshUI();
-        addLog("Game ready! Thunderstrike works with 1 or 2 targets.");
+        addLog("Game ready! Phoenix revives with full HP. AI hand is face-down.");
         startPlayerTurn();
     }
 
-    function drawCard(p) {
+    function drawCard(p, isAI = false) {
         if(p.deck.length===0) {
             if(p.discard.length===0) return null;
             p.deck = shuffleArray([...p.discard]);
@@ -465,7 +494,7 @@
             owner.discard.push(card);
         }
         else if(card.type === "creature") {
-            let newCreature = {...card, currentHp: card.hp, owner:owner, defender:card.defender||false, elemental:card.elemental||false, thunderSynergy:card.thunderSynergy||false, startHeal:card.startHeal||false};
+            let newCreature = {...card, currentHp: card.hp, owner:owner, defender:card.defender||false, elemental:card.elemental||false, thunderSynergy:card.thunderSynergy||false, startHeal:card.startHeal||false, originalHp: card.hp};
             if(card.onSummonDiscard && owner===player && ai.hand.length) {
                 let discarded = ai.hand.pop();
                 addLog(`Earth Golem makes AI discard ${discarded.name}.`);
@@ -514,7 +543,7 @@
             addLog(`${card.name} heals ${card.heal} HP.`);
         }
         else if(card.effect === "summonDefender") {
-            let def = { name:"Frost Shield", atk:0, hp:card.hp, defender:true, type:"creature", owner:owner, uid:Math.random() };
+            let def = { name:"Frost Shield", atk:0, hp:card.hp, defender:true, type:"creature", owner:owner, uid:Math.random(), originalHp: card.hp };
             owner.field.push(def);
             addLog(`Summoned Defender (0/${card.hp}).`);
         }
@@ -540,7 +569,6 @@
                 addLog("No valid targets for Thunderstrike.");
                 return;
             }
-            // If only 1 target, just hit it once
             if(legalTargets.length === 1) {
                 let target = legalTargets[0];
                 if(isDamageBlockedByCloak(target, owner)) {
@@ -563,15 +591,14 @@
                 checkWinConditions();
                 return;
             }
-            // 2 or more targets: ask for two picks
             addLog(`Thunderstrike: tap first target`);
             pendingSpellCallback = (first) => {
-                // Filter out the first target from remaining legal targets for second pick
                 let remainingTargets = legalTargets.filter(t => t !== first);
                 if(remainingTargets.length === 0) {
-                    // Just hit first target again? Or just do one hit? We'll do one hit.
                     let dmg = card.damage;
-                    if(!isDamageBlockedByCloak(first, owner)) {
+                    if(isDamageBlockedByCloak(first, owner)) {
+                        addLog(`Cloak protects ${first.name || first===player?"you":"AI"} from Thunderstrike!`);
+                    } else {
                         first.hp = Math.max(0, first.hp - dmg);
                         addLog(`Thunderstrike deals ${dmg} to ${first.name || "enemy player"}.`);
                         if(first.hp<=0 && first !== owner && first !== (owner===player?ai:player)) {
@@ -583,8 +610,6 @@
                                 addLog(`${first.name} dies.`);
                             }
                         }
-                    } else {
-                        addLog(`Cloak protects ${first.name || first===player?"you":"AI"} from Thunderstrike!`);
                     }
                     owner.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
                     pendingSpellCallback = null;
@@ -633,8 +658,11 @@
         else if(card.effect === "revive") {
             if(owner.graveyard.length) {
                 let revived = owner.graveyard.pop();
-                owner.field.push({...revived, owner:owner, currentHp: revived.hp});
-                addLog(`Phoenix revives ${revived.name}.`);
+                // Reset to full HP using originalHp
+                let fullHp = revived.originalHp || revived.hp;
+                let newCreature = {...revived, hp: fullHp, currentHp: fullHp, owner: owner};
+                owner.field.push(newCreature);
+                addLog(`Phoenix Reborn revives ${revived.name} with full HP (${fullHp}).`);
             } else addLog("No creature in graveyard.");
         }
         checkWinConditions();
@@ -779,7 +807,6 @@
                         played=true;
                     } else if(anyCard.effect === "thunderstrike") {
                         let dmg = anyCard.damage;
-                        // AI picks up to 2 targets
                         let targetsToHit = targets.slice(0,2);
                         for(let t of targetsToHit) {
                             if(!isDamageBlockedByCloak(t, ai)) {
@@ -885,6 +912,15 @@
         renderField("playerBattlefield", player.field, false);
         renderField("aiBattlefield", ai.field, true);
         renderShop();
+        // Render AI hand as face-down cards
+        let aiHandContainer = document.getElementById("aiHand");
+        aiHandContainer.innerHTML = "";
+        for(let i=0;i<ai.hand.length;i++) {
+            let backDiv = document.createElement("div");
+            backDiv.className = "card face-down";
+            backDiv.innerText = "";
+            aiHandContainer.appendChild(backDiv);
+        }
         let aiHpElem = document.getElementById("aiHp");
         let hasDefender = ai.field.some(c=>c.defender===true);
         if(hasDefender) aiHpElem.classList.add("disabled-target");
@@ -943,7 +979,6 @@
                     else if(card.effect === "thunderstrike") {
                         let targets = getLegalDamageTargets(player, true);
                         if(targets.length===0) return;
-                        // If only one target, just hit it
                         if(targets.length === 1) {
                             let dmg = card.damage;
                             let t = targets[0];
@@ -974,7 +1009,6 @@
                         pendingSpellCallback = (first) => {
                             let remainingTargets = targets.filter(t => t !== first);
                             if(remainingTargets.length === 0) {
-                                // Only one target total, just hit first
                                 let dmg = card.damage;
                                 if(isDamageBlockedByCloak(first, player)) {
                                     addLog(`Cloak protects ${first.name || first===player?"you":"AI"} from Thunderstrike!`);
