@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>ARCANE SHARDS — Mobile Friendly</title>
+    <title>ARCANE SHARDS — Fixed Win/Loss + Restart</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body {
@@ -70,7 +70,6 @@
             color: #f0eef7;
             position: relative;
         }
-        /* Larger cards on bigger screens */
         @media (min-width: 700px) {
             .card { width: 110px; font-size: 0.75rem; padding: 8px 4px; }
         }
@@ -142,6 +141,13 @@
             width: 100%;
             margin-top: 8px;
         }
+        .restart-btn {
+            background: #2a6b3c;
+            font-size: 1rem;
+            padding: 10px;
+            margin-top: 8px;
+            width: 100%;
+        }
         .log {
             background: #03050be0;
             border-radius: 1rem;
@@ -187,11 +193,40 @@
         }
         .action-buttons { margin-top: 10px; }
         .attack-instruction { color: #ffaa66; font-size: 0.7rem; margin: 5px 0; text-align: center; }
-        .toggle-debug {
-            background: #3a3a5a;
-            padding: 4px 10px;
-            font-size: 0.7rem;
+        .game-over-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
         }
+        .game-over-box {
+            background: #1e1a2f;
+            border-radius: 2rem;
+            padding: 24px;
+            text-align: center;
+            border: 2px solid #ffd966;
+            max-width: 280px;
+            width: 80%;
+        }
+        .game-over-box h2 {
+            margin: 0 0 16px 0;
+            font-size: 2rem;
+        }
+        .game-over-box button {
+            background: #5e3a9c;
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            margin-top: 8px;
+        }
+        .victory { color: #4cff4c; }
+        .defeat { color: #ff5555; }
     </style>
 </head>
 <body>
@@ -221,6 +256,7 @@
         <div id="playerBattlefield" class="battlefield"></div>
         <div class="action-buttons">
             <div class="attack-instruction">💡 Tap creature → tap enemy to attack (✘ = already attacked)</div>
+            <button id="restartBtn" class="restart-btn">🔄 RESTART GAME</button>
         </div>
     </div>
     <div class="log" id="gameLog"></div>
@@ -235,7 +271,7 @@
 </div>
 
 <script>
-    // ---------- FULL GAME LOGIC (same as final version) ----------
+    // ---------- CARD DATABASE ----------
     const CARD_DB = [
         { id: "inferno", name: "Inferno Blast", type: "spell", shopCost: 3, effect: "damage", damage: 4, desc: "Deal 4 dmg" },
         { id: "surge", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "Deal 2 dmg" },
@@ -312,6 +348,7 @@
         gameActive = true;
         turn = "player";
         pendingAttacker = null;
+        pendingSpellCallback = null;
         refreshUI();
         addLog("Game ready! Draw 5, play cards, buy, then tap your creature → enemy.");
         startPlayerTurn();
@@ -401,6 +438,8 @@
                     addLog(`${target.name} dies.`);
                 }
             }
+            // Check win after damage
+            checkWinConditions();
         }
         else if(card.effect === "heal") {
             owner.hp = Math.min(99, owner.hp + card.heal);
@@ -456,6 +495,7 @@
                     let idx = owner.hand.findIndex(c=>c.uid===card.uid);
                     if(idx!==-1) owner.hand.splice(idx,1);
                     owner.discard.push(card);
+                    checkWinConditions();
                     refreshUI();
                 };
                 refreshUI();
@@ -470,6 +510,7 @@
                 addLog(`Phoenix revives ${revived.name}.`);
             } else addLog("No creature in graveyard.");
         }
+        checkWinConditions();
     }
 
     function attemptManualAttack(attacker, target) {
@@ -491,7 +532,6 @@
         if(target === defender) {
             defender.hp -= dmg;
             addLog(`⚔️ ${attacker.name} hits enemy hero for ${dmg}!`);
-            if(defender.hp<=0) endGame("You");
         } else {
             target.hp -= dmg;
             addLog(`⚔️ ${attacker.name} deals ${dmg} to ${target.name}.`);
@@ -506,7 +546,57 @@
         }
         player.attackedThisTurn.add(attacker.uid);
         refreshUI();
+        checkWinConditions();
         return true;
+    }
+
+    function checkWinConditions() {
+        if(!gameActive) return;
+        if(player.hp <= 0) {
+            gameActive = false;
+            showGameOver("You lost...", false);
+            return;
+        }
+        if(ai.hp <= 0) {
+            gameActive = false;
+            showGameOver("You win!", true);
+            return;
+        }
+    }
+
+    function showGameOver(message, isVictory) {
+        const overlay = document.createElement('div');
+        overlay.className = 'game-over-overlay';
+        overlay.innerHTML = `
+            <div class="game-over-box">
+                <h2 class="${isVictory ? 'victory' : 'defeat'}">${message}</h2>
+                <button id="gameOverRestartBtn">Play Again</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        document.getElementById('gameOverRestartBtn').onclick = () => {
+            overlay.remove();
+            restartGame();
+        };
+    }
+
+    function restartGame() {
+        // Reset all global state
+        centralDeck = buildCentralDeck();
+        shopCards = [];
+        for(let i=0;i<4 && centralDeck.length;i++) shopCards.push(centralDeck.shift());
+        arcaneClustersRemaining = 6;
+        player = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set() };
+        ai = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set() };
+        gameActive = true;
+        turn = "player";
+        pendingSpellCallback = null;
+        pendingAttacker = null;
+        logMessages = [];
+        document.getElementById("endTurnBtn").disabled = false;
+        refreshUI();
+        addLog("Game restarted!");
+        startPlayerTurn();
     }
 
     function endTurn(owner) {
@@ -514,12 +604,6 @@
         owner.shards = 0;
         owner.attackedThisTurn.clear();
         refreshUI();
-    }
-
-    function endGame(winner) {
-        gameActive = false;
-        addLog(`🏆 ${winner} VICTORY! 🏆`);
-        document.getElementById("endTurnBtn").disabled = true;
     }
 
     async function aiTurnLogic() {
@@ -530,7 +614,7 @@
         await delay(300);
         // Play economy
         let played = true;
-        while(played) {
+        while(played && gameActive) {
             played = false;
             let econ = ai.hand.find(c=>c.type==="economy");
             if(econ) { playCardFromHand(ai, econ); played=true; continue; }
@@ -552,6 +636,7 @@
                         ai.discard.push(anyCard);
                         let idx2 = ai.hand.findIndex(c=>c.uid===anyCard.uid);
                         if(idx2!==-1) ai.hand.splice(idx2,1);
+                        checkWinConditions();
                     } else {
                         playCardFromHand(ai, anyCard, target);
                     }
@@ -559,8 +644,9 @@
                 }
             } else break;
         }
+        if(!gameActive) return;
         // Buy shop
-        for(let i=0;i<shopCards.length;i++) {
+        for(let i=0;i<shopCards.length && gameActive;i++) {
             let card = shopCards[i];
             if(card && ai.shards >= card.shopCost) {
                 ai.shards -= card.shopCost;
@@ -572,7 +658,7 @@
                 await delay(200);
             }
         }
-        if(arcaneClustersRemaining > 0 && ai.shards >= 3) {
+        if(arcaneClustersRemaining > 0 && ai.shards >= 3 && gameActive) {
             ai.shards -= 3;
             arcaneClustersRemaining--;
             ai.discard.push({...ARCINE_CLUSTER_CARD, uid: Math.random()});
@@ -595,7 +681,7 @@
             if(target === player) {
                 player.hp -= dmg;
                 addLog(`AI: ${creature.name} hits you for ${dmg}!`);
-                if(player.hp<=0) endGame("AI");
+                checkWinConditions();
             } else {
                 target.hp -= dmg;
                 addLog(`AI: ${creature.name} deals ${dmg} to ${target.name}.`);
@@ -611,6 +697,7 @@
             ai.attackedThisTurn.add(creature.uid);
             await delay(200);
             refreshUI();
+            if(!gameActive) return;
         }
         endTurn(ai);
         if(gameActive) {
@@ -642,6 +729,7 @@
             div.innerHTML = `<b>${card.name}</b><br>${desc}`;
             div.onclick = (e)=>{
                 e.stopPropagation();
+                if(!gameActive) return;
                 if(pendingAttacker) { addLog("Finish attack first."); return; }
                 if(pendingSpellCallback) { addLog("Finish spell first."); return; }
                 if(card.type==="creature" || card.type==="economy") {
@@ -690,6 +778,7 @@
                                 let idx = player.hand.findIndex(c=>c.uid===card.uid);
                                 if(idx!==-1) player.hand.splice(idx,1);
                                 player.discard.push(card);
+                                checkWinConditions();
                                 refreshUI();
                             };
                             refreshUI();
@@ -840,6 +929,7 @@
 
     function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }
     document.getElementById("endTurnBtn").onclick = onEndTurn;
+    document.getElementById("restartBtn").onclick = () => restartGame();
     document.getElementById("copyDebugBtn").onclick = () => {
         let db = document.getElementById("debugLog");
         db.select();
