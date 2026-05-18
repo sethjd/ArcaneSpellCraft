@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>ARCANE SHARDS — Full Card Descriptions</title>
+    <title>ARCANE SHARDS — Cloak + Unicorn Fixed</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body {
@@ -258,6 +258,11 @@
             70% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
             100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); display: none; }
         }
+        .cloak-active {
+            background: #4433aa88;
+            border: 1px solid #aa88ff;
+            box-shadow: 0 0 8px #8866ff;
+        }
     </style>
 </head>
 <body>
@@ -302,13 +307,13 @@
 </div>
 
 <script>
-    // ---------- CARD DATABASE WITH FULL DESCRIPTIONS ----------
+    // ---------- CARD DATABASE ----------
     const CARD_DB = [
         { id: "inferno", name: "Inferno Blast", type: "spell", shopCost: 3, effect: "damage", damage: 4, desc: "🔥 4 damage" },
         { id: "surge", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "⚡ 2 damage" },
         { id: "healwave", name: "Healing Wave", type: "spell", shopCost: 3, effect: "heal", heal: 5, desc: "💚 Heal 5 HP" },
         { id: "frostshield_spell", name: "Frost Shield", type: "spell", shopCost: 2, effect: "summonDefender", hp:4, desc: "🛡️ Summon 0/4 Defender" },
-        { id: "cloak", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "giveImmunity", desc: "✨ Give Immune for turn" },
+        { id: "cloak", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "cloak", desc: "✨ You and your creatures are Immune for opponent's next turn" },
         { id: "mindcontrol", name: "Mind Control", type: "spell", shopCost: 5, effect: "mindControl", desc: "🧠 Steal enemy creature" },
         { id: "thunderstrike", name: "Thunderstrike", type: "spell", shopCost: 4, effect: "thunderstrike", damage:4, desc: "🌩️ 4 dmg to 2 targets" },
         { id: "fire_ele", name: "Fire Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🔥 4/6 Elemental" },
@@ -318,7 +323,7 @@
         { id: "frostwolf", name: "Frostwolf Pack", type: "creature", shopCost: 3, atk:2, hp:4, desc: "🐺 2/4" },
         { id: "panther", name: "Shadow Panther", type: "creature", shopCost: 3, atk:2, hp:4, desc: "🐈‍⬛ 2/4" },
         { id: "hydra", name: "Venomous Hydra", type: "creature", shopCost: 2, atk:2, hp:2, desc: "🐍 2/2" },
-        { id: "unicorn", name: "Celestial Unicorn", type: "creature", shopCost: 3, atk:0, hp:4, startHeal:2, desc: "🦄 0/4, heals 2 each turn" },
+        { id: "unicorn", name: "Celestial Unicorn", type: "creature", shopCost: 3, atk:0, hp:4, startHeal:2, desc: "🦄 0/4, heals you 2 at end of turn" },
         { id: "golem", name: "Earth Golem", type: "creature", shopCost: 6, atk:0, hp:6, defender:true, onSummonDiscard:true, desc: "🛡️ 0/6 Defender, discard enemy card" },
         { id: "treant", name: "Ancient Treant", type: "creature", shopCost: 2, atk:0, hp:10, defender:true, desc: "🌳 0/10 Defender" },
         { id: "frostshield_creature", name: "Frost Shield", type: "creature", shopCost: 2, atk:0, hp:4, defender:true, desc: "❄️ 0/4 Defender" },
@@ -351,8 +356,8 @@
     const SHARD_CARD_TEMPLATE = { id: "shard", name: "Shard Card", type: "economy", shardGain: 1, desc: "💎 +1 Shard" };
 
     let centralDeck = [], shopCards = [];
-    let player = { hp:80, field:[], hand:[], deck:[], discard:[], graveyard:[], shards:0, attackedThisTurn: new Set() };
-    let ai = { hp:80, field:[], hand:[], deck:[], discard:[], graveyard:[], shards:0, attackedThisTurn: new Set() };
+    let player = { hp:80, field:[], hand:[], deck:[], discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
+    let ai = { hp:80, field:[], hand:[], deck:[], discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
     let gameActive = true, turn = "player";
     let pendingSpellCallback = null;
     let pendingAttacker = null;
@@ -382,14 +387,14 @@
         shopCards = [];
         for(let i=0;i<4 && centralDeck.length;i++) shopCards.push(centralDeck.shift());
         arcaneClustersRemaining = 6;
-        player = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set() };
-        ai = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set() };
+        player = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
+        ai = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
         gameActive = true;
         turn = "player";
         pendingAttacker = null;
         pendingSpellCallback = null;
         refreshUI();
-        addLog("Game ready! Full card descriptions now visible.");
+        addLog("Game ready! Ethereal Cloak gives immunity for opponent's next turn. Unicorn heals 2 at end of turn.");
         startPlayerTurn();
     }
 
@@ -407,15 +412,21 @@
 
     function startPlayerTurn() {
         if(!gameActive) return;
+        // Reset cloak at START of your turn (it only lasted through opponent's turn)
+        player.cloakActive = false;
         player.shards = 0;
         player.attackedThisTurn.clear();
         for(let i=0;i<5;i++) drawCard(player);
+        // Unicorn heal at start of turn (according to your rule: "at the end of each turn" - we'll do end of turn instead)
+        // We'll move unicorn heal to endTurn function
         refreshUI();
         addLog("Your turn.");
     }
 
     function startAITurn() {
         if(!gameActive) return;
+        // Reset AI cloak at START of its turn
+        ai.cloakActive = false;
         ai.shards = 0;
         ai.attackedThisTurn.clear();
         for(let i=0;i<5;i++) drawCard(ai);
@@ -434,6 +445,17 @@
         }
     }
 
+    // Check if damage is blocked by Cloak
+    function isDamageBlockedByCloak(target, attackerOwner) {
+        // If target is player, check player's cloak
+        if(target === player && player.cloakActive) return true;
+        if(target === ai && ai.cloakActive) return true;
+        // If target is a creature, check its owner's cloak
+        if(target.owner === player && player.cloakActive) return true;
+        if(target.owner === ai && ai.cloakActive) return true;
+        return false;
+    }
+
     function playCardFromHand(owner, card, target=null) {
         let idx = owner.hand.findIndex(c=>c.uid===card.uid);
         if(idx===-1) return false;
@@ -450,7 +472,7 @@
             owner.discard.push(card);
         }
         else if(card.type === "creature") {
-            let newCreature = {...card, currentHp: card.hp, owner:owner, defender:card.defender||false, elemental:card.elemental||false, thunderSynergy:card.thunderSynergy||false};
+            let newCreature = {...card, currentHp: card.hp, owner:owner, defender:card.defender||false, elemental:card.elemental||false, thunderSynergy:card.thunderSynergy||false, startHeal:card.startHeal||false};
             if(card.onSummonDiscard && owner===player && ai.hand.length) {
                 let discarded = ai.hand.pop();
                 addLog(`Earth Golem makes AI discard ${discarded.name}.`);
@@ -470,6 +492,11 @@
         if(card.effect === "damage") {
             if(!target) return;
             if((owner===player && target===player) || (owner===ai && target===ai)) { addLog("Cannot target self."); return; }
+            // Check Cloak immunity
+            if(isDamageBlockedByCloak(target, owner)) {
+                addLog(`Cloak protects ${target.name || target===player?"you":"AI"} from ${card.name}!`);
+                return;
+            }
             let defender = owner===player ? ai : player;
             let hasDefender = defender.field.some(c=>c.defender===true);
             if(hasDefender && target === defender) {
@@ -499,11 +526,10 @@
             owner.field.push(def);
             addLog(`Summoned Defender (0/${card.hp}).`);
         }
-        else if(card.effect === "giveImmunity") {
-            if(target && target.hp) {
-                owner.immuneEffects.push(target);
-                addLog(`${target.name} gains IMMUNE.`);
-            }
+        else if(card.effect === "cloak") {
+            // Cloak: gives owner immunity for opponent's NEXT turn
+            owner.cloakActive = true;
+            addLog(`${owner===player?"You":"AI"} cast Ethereal Cloak! ${owner===player?"You":"AI"} will be immune to damage next turn.`);
         }
         else if(card.effect === "mindControl") {
             let enemyField = owner===player ? ai.field : player.field;
@@ -526,6 +552,10 @@
                 pendingSpellCallback = (second) => {
                     let dmg = card.damage;
                     [first, second].forEach(t=>{
+                        if(isDamageBlockedByCloak(t, owner)) {
+                            addLog(`Cloak protects ${t.name || t===player?"you":"AI"} from Thunderstrike!`);
+                            return;
+                        }
                         t.hp = Math.max(0, t.hp - dmg);
                         addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
                         if(t.hp<=0 && t !== owner && t !== (owner===player?ai:player)) {
@@ -570,6 +600,13 @@
         }
         let defender = target === ai ? ai : (ai.field.includes(target) ? ai : null);
         if(!defender) { addLog("Must attack enemy."); return false; }
+        
+        // Check if defender has Cloak active
+        if(defender === ai && ai.cloakActive) {
+            addLog("AI's Ethereal Cloak blocks all damage this turn!");
+            return false;
+        }
+        
         let hasDefender = defender.field.some(c=>c.defender===true);
         if(hasDefender) {
             if(target === defender) {
@@ -603,6 +640,16 @@
         refreshUI();
         checkWinConditions();
         return true;
+    }
+
+    // Unicorn heal: at end of turn, heal player for 2 per Unicorn
+    function applyUnicornHeal(owner) {
+        let unicorns = owner.field.filter(c => c.startHeal === 2);
+        if(unicorns.length > 0) {
+            let healAmount = unicorns.length * 2;
+            owner.hp = Math.min(99, owner.hp + healAmount);
+            addLog(`🦄 ${unicorns.length} Celestial Unicorn(s) heal you for ${healAmount} HP.`);
+        }
     }
 
     function checkWinConditions() {
@@ -640,8 +687,8 @@
         shopCards = [];
         for(let i=0;i<4 && centralDeck.length;i++) shopCards.push(centralDeck.shift());
         arcaneClustersRemaining = 6;
-        player = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set() };
-        ai = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set() };
+        player = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
+        ai = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
         gameActive = true;
         turn = "player";
         pendingSpellCallback = null;
@@ -654,9 +701,13 @@
     }
 
     function endTurn(owner) {
+        // Apply Unicorn heal at end of turn
+        applyUnicornHeal(owner);
+        
         owner.hand = [];
         owner.shards = 0;
         owner.attackedThisTurn.clear();
+        // Cloak is NOT reset here - it lasts through opponent's turn and resets at start of next turn
         refreshUI();
     }
 
@@ -680,11 +731,14 @@
                     let targets = getLegalDamageTargets(ai, true);
                     let target = targets.length ? targets[0] : ai;
                     if(anyCard.effect === "heal") target = ai;
-                    if(anyCard.effect === "thunderstrike") {
+                    if(anyCard.effect === "cloak") {
+                        playCardFromHand(ai, anyCard);
+                        played=true;
+                    } else if(anyCard.effect === "thunderstrike") {
                         let t1 = targets[0], t2 = targets[1] || targets[0];
                         let dmg = anyCard.damage;
-                        if(t1) t1.hp = Math.max(0, t1.hp - dmg);
-                        if(t2) t2.hp = Math.max(0, t2.hp - dmg);
+                        if(t1 && !isDamageBlockedByCloak(t1, ai)) t1.hp = Math.max(0, t1.hp - dmg);
+                        if(t2 && !isDamageBlockedByCloak(t2, ai)) t2.hp = Math.max(0, t2.hp - dmg);
                         addLog(`AI Thunderstrike deals ${dmg} to two targets.`);
                         ai.discard.push(anyCard);
                         let idx2 = ai.hand.findIndex(c=>c.uid===anyCard.uid);
@@ -720,35 +774,40 @@
         }
         refreshUI();
         await delay(300);
-        for(let creature of ai.field) {
-            if(!gameActive) break;
-            if(ai.attackedThisTurn.has(creature.uid)) continue;
-            let targets = getLegalDamageTargets(ai, false);
-            if(targets.length===0) continue;
-            let target = targets[0];
-            let dmg = creature.atk;
-            let elementalCount = ai.field.filter(c=>c.elemental).length;
-            if(creature.elemental && elementalCount>=2) dmg *= 2;
-            if(target === player) {
-                player.hp -= dmg;
-                addLog(`AI: ${creature.name} hits you for ${dmg}!`);
-                checkWinConditions();
-            } else {
-                target.hp -= dmg;
-                addLog(`AI: ${creature.name} deals ${dmg} to ${target.name}.`);
-                if(target.hp<=0) {
-                    let idx = player.field.indexOf(target);
-                    if(idx!==-1) {
-                        player.field.splice(idx,1);
-                        player.graveyard.push(target);
-                        addLog(`${target.name} dies.`);
+        // AI attacks (skip if player has Cloak active)
+        if(!player.cloakActive) {
+            for(let creature of ai.field) {
+                if(!gameActive) break;
+                if(ai.attackedThisTurn.has(creature.uid)) continue;
+                let targets = getLegalDamageTargets(ai, false);
+                if(targets.length===0) continue;
+                let target = targets[0];
+                let dmg = creature.atk;
+                let elementalCount = ai.field.filter(c=>c.elemental).length;
+                if(creature.elemental && elementalCount>=2) dmg *= 2;
+                if(target === player) {
+                    player.hp -= dmg;
+                    addLog(`AI: ${creature.name} hits you for ${dmg}!`);
+                    checkWinConditions();
+                } else {
+                    target.hp -= dmg;
+                    addLog(`AI: ${creature.name} deals ${dmg} to ${target.name}.`);
+                    if(target.hp<=0) {
+                        let idx = player.field.indexOf(target);
+                        if(idx!==-1) {
+                            player.field.splice(idx,1);
+                            player.graveyard.push(target);
+                            addLog(`${target.name} dies.`);
+                        }
                     }
                 }
+                ai.attackedThisTurn.add(creature.uid);
+                await delay(200);
+                refreshUI();
+                if(!gameActive) return;
             }
-            ai.attackedThisTurn.add(creature.uid);
-            await delay(200);
-            refreshUI();
-            if(!gameActive) return;
+        } else {
+            addLog("Your Ethereal Cloak blocks all AI attacks this turn!");
         }
         endTurn(ai);
         if(gameActive) {
@@ -771,6 +830,15 @@
         let hasDefender = ai.field.some(c=>c.defender===true);
         if(hasDefender) aiHpElem.classList.add("disabled-target");
         else aiHpElem.classList.remove("disabled-target");
+        
+        // Visual cloak indicator on player area
+        let playerArea = document.querySelector(".player-area");
+        if(player.cloakActive) playerArea.classList.add("cloak-active");
+        else playerArea.classList.remove("cloak-active");
+        
+        let aiArea = document.querySelector(".opponent-area");
+        if(ai.cloakActive) aiArea.classList.add("cloak-active");
+        else aiArea.classList.remove("cloak-active");
     }
 
     function renderHand() {
@@ -811,6 +879,9 @@
                         pendingSpellCallback = (t)=>{ playCardFromHand(player, card, t); pendingSpellCallback=null; refreshUI(); };
                         refreshUI();
                     }
+                    else if(card.effect === "cloak") {
+                        playCardFromHand(player, card);
+                    }
                     else if(card.effect === "giveImmunity") {
                         if(player.field.length===0) return;
                         addLog(`Tap friendly creature`);
@@ -826,6 +897,10 @@
                             pendingSpellCallback = (second)=>{
                                 let dmg = card.damage;
                                 [first, second].forEach(t=>{
+                                    if(isDamageBlockedByCloak(t, player)) {
+                                        addLog(`Cloak protects ${t.name || t===player?"you":"AI"} from Thunderstrike!`);
+                                        return;
+                                    }
                                     t.hp = Math.max(0, t.hp - dmg);
                                     addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
                                     if(t.hp<=0 && t !== player && t !== ai) {
@@ -903,12 +978,12 @@
         let aiHpElem = document.getElementById("aiHp");
         let hasDefender = ai.field.some(c=>c.defender===true);
         if(turn==="player" && gameActive) {
-            if(pendingSpellCallback && !hasDefender) {
+            if(pendingSpellCallback && !hasDefender && !ai.cloakActive) {
                 aiHpElem.style.cursor = "pointer";
                 aiHpElem.classList.add("targetable");
                 aiHpElem.onclick = ()=>{ pendingSpellCallback(ai); pendingSpellCallback=null; refreshUI(); };
             }
-            else if(pendingAttacker && !hasDefender) {
+            else if(pendingAttacker && !hasDefender && !ai.cloakActive) {
                 aiHpElem.style.cursor = "pointer";
                 aiHpElem.classList.add("targetable");
                 aiHpElem.onclick = ()=>{ attemptManualAttack(pendingAttacker, ai); pendingAttacker=null; refreshUI(); };
