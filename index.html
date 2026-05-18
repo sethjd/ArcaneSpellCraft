@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>ARCANE SHARDS — Cloak + Unicorn Fixed</title>
+    <title>ARCANE SHARDS — Thunderstrike Fixed</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body {
@@ -313,9 +313,9 @@
         { id: "surge", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "⚡ 2 damage" },
         { id: "healwave", name: "Healing Wave", type: "spell", shopCost: 3, effect: "heal", heal: 5, desc: "💚 Heal 5 HP" },
         { id: "frostshield_spell", name: "Frost Shield", type: "spell", shopCost: 2, effect: "summonDefender", hp:4, desc: "🛡️ Summon 0/4 Defender" },
-        { id: "cloak", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "cloak", desc: "✨ You and your creatures are Immune for opponent's next turn" },
+        { id: "cloak", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "cloak", desc: "✨ You + creatures Immune for opponent's next turn" },
         { id: "mindcontrol", name: "Mind Control", type: "spell", shopCost: 5, effect: "mindControl", desc: "🧠 Steal enemy creature" },
-        { id: "thunderstrike", name: "Thunderstrike", type: "spell", shopCost: 4, effect: "thunderstrike", damage:4, desc: "🌩️ 4 dmg to 2 targets" },
+        { id: "thunderstrike", name: "Thunderstrike", type: "spell", shopCost: 4, effect: "thunderstrike", damage:4, desc: "🌩️ 4 dmg to 1-2 targets" },
         { id: "fire_ele", name: "Fire Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🔥 4/6 Elemental" },
         { id: "earth_ele", name: "Earth Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🌍 4/6 Elemental" },
         { id: "water_ele", name: "Water Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "💧 4/6 Elemental" },
@@ -394,7 +394,7 @@
         pendingAttacker = null;
         pendingSpellCallback = null;
         refreshUI();
-        addLog("Game ready! Ethereal Cloak gives immunity for opponent's next turn. Unicorn heals 2 at end of turn.");
+        addLog("Game ready! Thunderstrike works with 1 or 2 targets.");
         startPlayerTurn();
     }
 
@@ -412,20 +412,16 @@
 
     function startPlayerTurn() {
         if(!gameActive) return;
-        // Reset cloak at START of your turn (it only lasted through opponent's turn)
         player.cloakActive = false;
         player.shards = 0;
         player.attackedThisTurn.clear();
         for(let i=0;i<5;i++) drawCard(player);
-        // Unicorn heal at start of turn (according to your rule: "at the end of each turn" - we'll do end of turn instead)
-        // We'll move unicorn heal to endTurn function
         refreshUI();
         addLog("Your turn.");
     }
 
     function startAITurn() {
         if(!gameActive) return;
-        // Reset AI cloak at START of its turn
         ai.cloakActive = false;
         ai.shards = 0;
         ai.attackedThisTurn.clear();
@@ -445,12 +441,9 @@
         }
     }
 
-    // Check if damage is blocked by Cloak
     function isDamageBlockedByCloak(target, attackerOwner) {
-        // If target is player, check player's cloak
         if(target === player && player.cloakActive) return true;
         if(target === ai && ai.cloakActive) return true;
-        // If target is a creature, check its owner's cloak
         if(target.owner === player && player.cloakActive) return true;
         if(target.owner === ai && ai.cloakActive) return true;
         return false;
@@ -492,7 +485,6 @@
         if(card.effect === "damage") {
             if(!target) return;
             if((owner===player && target===player) || (owner===ai && target===ai)) { addLog("Cannot target self."); return; }
-            // Check Cloak immunity
             if(isDamageBlockedByCloak(target, owner)) {
                 addLog(`Cloak protects ${target.name || target===player?"you":"AI"} from ${card.name}!`);
                 return;
@@ -527,9 +519,8 @@
             addLog(`Summoned Defender (0/${card.hp}).`);
         }
         else if(card.effect === "cloak") {
-            // Cloak: gives owner immunity for opponent's NEXT turn
             owner.cloakActive = true;
-            addLog(`${owner===player?"You":"AI"} cast Ethereal Cloak! ${owner===player?"You":"AI"} will be immune to damage next turn.`);
+            addLog(`${owner===player?"You":"AI"} cast Ethereal Cloak! ${owner===player?"You":"AI"} will be immune next turn.`);
         }
         else if(card.effect === "mindControl") {
             let enemyField = owner===player ? ai.field : player.field;
@@ -545,9 +536,66 @@
         }
         else if(card.effect === "thunderstrike") {
             let legalTargets = getLegalDamageTargets(owner, true);
-            if(legalTargets.length === 0) return;
+            if(legalTargets.length === 0) {
+                addLog("No valid targets for Thunderstrike.");
+                return;
+            }
+            // If only 1 target, just hit it once
+            if(legalTargets.length === 1) {
+                let target = legalTargets[0];
+                if(isDamageBlockedByCloak(target, owner)) {
+                    addLog(`Cloak protects ${target.name || target===player?"you":"AI"} from Thunderstrike!`);
+                } else {
+                    let dmg = card.damage;
+                    target.hp = Math.max(0, target.hp - dmg);
+                    addLog(`Thunderstrike deals ${dmg} to ${target.name || "enemy player"}.`);
+                    if(target.hp<=0 && target !== owner && target !== (owner===player?ai:player)) {
+                        let fieldArr = (target.owner===player?player.field:ai.field);
+                        let idx = fieldArr.indexOf(target);
+                        if(idx!==-1) {
+                            fieldArr.splice(idx,1);
+                            (target.owner===player?player.graveyard:ai.graveyard).push(target);
+                            addLog(`${target.name} dies.`);
+                        }
+                    }
+                }
+                owner.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
+                checkWinConditions();
+                return;
+            }
+            // 2 or more targets: ask for two picks
             addLog(`Thunderstrike: tap first target`);
             pendingSpellCallback = (first) => {
+                // Filter out the first target from remaining legal targets for second pick
+                let remainingTargets = legalTargets.filter(t => t !== first);
+                if(remainingTargets.length === 0) {
+                    // Just hit first target again? Or just do one hit? We'll do one hit.
+                    let dmg = card.damage;
+                    if(!isDamageBlockedByCloak(first, owner)) {
+                        first.hp = Math.max(0, first.hp - dmg);
+                        addLog(`Thunderstrike deals ${dmg} to ${first.name || "enemy player"}.`);
+                        if(first.hp<=0 && first !== owner && first !== (owner===player?ai:player)) {
+                            let fieldArr = (first.owner===player?player.field:ai.field);
+                            let idx = fieldArr.indexOf(first);
+                            if(idx!==-1) {
+                                fieldArr.splice(idx,1);
+                                (first.owner===player?player.graveyard:ai.graveyard).push(first);
+                                addLog(`${first.name} dies.`);
+                            }
+                        }
+                    } else {
+                        addLog(`Cloak protects ${first.name || first===player?"you":"AI"} from Thunderstrike!`);
+                    }
+                    owner.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
+                    pendingSpellCallback = null;
+                    refreshUI();
+                    let idx = owner.hand.findIndex(c=>c.uid===card.uid);
+                    if(idx!==-1) owner.hand.splice(idx,1);
+                    owner.discard.push(card);
+                    checkWinConditions();
+                    refreshUI();
+                    return;
+                }
                 addLog(`Tap second target`);
                 pendingSpellCallback = (second) => {
                     let dmg = card.damage;
@@ -601,7 +649,6 @@
         let defender = target === ai ? ai : (ai.field.includes(target) ? ai : null);
         if(!defender) { addLog("Must attack enemy."); return false; }
         
-        // Check if defender has Cloak active
         if(defender === ai && ai.cloakActive) {
             addLog("AI's Ethereal Cloak blocks all damage this turn!");
             return false;
@@ -642,13 +689,12 @@
         return true;
     }
 
-    // Unicorn heal: at end of turn, heal player for 2 per Unicorn
     function applyUnicornHeal(owner) {
         let unicorns = owner.field.filter(c => c.startHeal === 2);
         if(unicorns.length > 0) {
             let healAmount = unicorns.length * 2;
             owner.hp = Math.min(99, owner.hp + healAmount);
-            addLog(`🦄 ${unicorns.length} Celestial Unicorn(s) heal you for ${healAmount} HP.`);
+            addLog(`🦄 ${unicorns.length} Celestial Unicorn(s) heal ${owner===player?"you":"AI"} for ${healAmount} HP.`);
         }
     }
 
@@ -701,13 +747,10 @@
     }
 
     function endTurn(owner) {
-        // Apply Unicorn heal at end of turn
         applyUnicornHeal(owner);
-        
         owner.hand = [];
         owner.shards = 0;
         owner.attackedThisTurn.clear();
-        // Cloak is NOT reset here - it lasts through opponent's turn and resets at start of next turn
         refreshUI();
     }
 
@@ -735,19 +778,36 @@
                         playCardFromHand(ai, anyCard);
                         played=true;
                     } else if(anyCard.effect === "thunderstrike") {
-                        let t1 = targets[0], t2 = targets[1] || targets[0];
                         let dmg = anyCard.damage;
-                        if(t1 && !isDamageBlockedByCloak(t1, ai)) t1.hp = Math.max(0, t1.hp - dmg);
-                        if(t2 && !isDamageBlockedByCloak(t2, ai)) t2.hp = Math.max(0, t2.hp - dmg);
-                        addLog(`AI Thunderstrike deals ${dmg} to two targets.`);
+                        // AI picks up to 2 targets
+                        let targetsToHit = targets.slice(0,2);
+                        for(let t of targetsToHit) {
+                            if(!isDamageBlockedByCloak(t, ai)) {
+                                t.hp = Math.max(0, t.hp - dmg);
+                                addLog(`AI Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
+                                if(t.hp<=0 && t !== ai && t !== player) {
+                                    let fieldArr = (t.owner===player?player.field:ai.field);
+                                    let idx = fieldArr.indexOf(t);
+                                    if(idx!==-1) {
+                                        fieldArr.splice(idx,1);
+                                        (t.owner===player?player.graveyard:ai.graveyard).push(t);
+                                        addLog(`${t.name} dies.`);
+                                    }
+                                }
+                            } else {
+                                addLog(`Cloak protects ${t.name || t===player?"you":"AI"} from Thunderstrike!`);
+                            }
+                        }
+                        ai.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
                         ai.discard.push(anyCard);
                         let idx2 = ai.hand.findIndex(c=>c.uid===anyCard.uid);
                         if(idx2!==-1) ai.hand.splice(idx2,1);
                         checkWinConditions();
+                        played=true;
                     } else {
                         playCardFromHand(ai, anyCard, target);
+                        played=true;
                     }
-                    played=true;
                 }
             } else break;
         }
@@ -774,7 +834,6 @@
         }
         refreshUI();
         await delay(300);
-        // AI attacks (skip if player has Cloak active)
         if(!player.cloakActive) {
             for(let creature of ai.field) {
                 if(!gameActive) break;
@@ -831,7 +890,6 @@
         if(hasDefender) aiHpElem.classList.add("disabled-target");
         else aiHpElem.classList.remove("disabled-target");
         
-        // Visual cloak indicator on player area
         let playerArea = document.querySelector(".player-area");
         if(player.cloakActive) playerArea.classList.add("cloak-active");
         else playerArea.classList.remove("cloak-active");
@@ -882,19 +940,68 @@
                     else if(card.effect === "cloak") {
                         playCardFromHand(player, card);
                     }
-                    else if(card.effect === "giveImmunity") {
-                        if(player.field.length===0) return;
-                        addLog(`Tap friendly creature`);
-                        pendingSpellCallback = (t)=>{ playCardFromHand(player, card, t); pendingSpellCallback=null; refreshUI(); };
-                        refreshUI();
-                    }
                     else if(card.effect === "thunderstrike") {
                         let targets = getLegalDamageTargets(player, true);
                         if(targets.length===0) return;
+                        // If only one target, just hit it
+                        if(targets.length === 1) {
+                            let dmg = card.damage;
+                            let t = targets[0];
+                            if(isDamageBlockedByCloak(t, player)) {
+                                addLog(`Cloak protects ${t.name || t===player?"you":"AI"} from Thunderstrike!`);
+                            } else {
+                                t.hp = Math.max(0, t.hp - dmg);
+                                addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
+                                if(t.hp<=0 && t !== player && t !== ai) {
+                                    let fieldArr = (t.owner===player?player.field:ai.field);
+                                    let idx = fieldArr.indexOf(t);
+                                    if(idx!==-1) {
+                                        fieldArr.splice(idx,1);
+                                        (t.owner===player?player.graveyard:ai.graveyard).push(t);
+                                        addLog(`${t.name} dies.`);
+                                    }
+                                }
+                            }
+                            player.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
+                            let idx = player.hand.findIndex(c=>c.uid===card.uid);
+                            if(idx!==-1) player.hand.splice(idx,1);
+                            player.discard.push(card);
+                            checkWinConditions();
+                            refreshUI();
+                            return;
+                        }
                         addLog(`Thunderstrike: tap first target`);
-                        pendingSpellCallback = (first)=>{
+                        pendingSpellCallback = (first) => {
+                            let remainingTargets = targets.filter(t => t !== first);
+                            if(remainingTargets.length === 0) {
+                                // Only one target total, just hit first
+                                let dmg = card.damage;
+                                if(isDamageBlockedByCloak(first, player)) {
+                                    addLog(`Cloak protects ${first.name || first===player?"you":"AI"} from Thunderstrike!`);
+                                } else {
+                                    first.hp = Math.max(0, first.hp - dmg);
+                                    addLog(`Thunderstrike deals ${dmg} to ${first.name || "enemy player"}.`);
+                                    if(first.hp<=0 && first !== player && first !== ai) {
+                                        let fieldArr = (first.owner===player?player.field:ai.field);
+                                        let idx = fieldArr.indexOf(first);
+                                        if(idx!==-1) {
+                                            fieldArr.splice(idx,1);
+                                            (first.owner===player?player.graveyard:ai.graveyard).push(first);
+                                            addLog(`${first.name} dies.`);
+                                        }
+                                    }
+                                }
+                                player.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
+                                pendingSpellCallback = null;
+                                let idx = player.hand.findIndex(c=>c.uid===card.uid);
+                                if(idx!==-1) player.hand.splice(idx,1);
+                                player.discard.push(card);
+                                checkWinConditions();
+                                refreshUI();
+                                return;
+                            }
                             addLog(`Tap second target`);
-                            pendingSpellCallback = (second)=>{
+                            pendingSpellCallback = (second) => {
                                 let dmg = card.damage;
                                 [first, second].forEach(t=>{
                                     if(isDamageBlockedByCloak(t, player)) {
