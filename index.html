@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>ARCANE SHARDS — Mobile Compact</title>
+    <title>ARCANE SHARDS — Full Mobile</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body {
@@ -282,6 +282,22 @@
             font-size: 0.7rem;
             margin-top: 2px;
         }
+        .ai-hand-container {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 6px;
+            padding: 6px 2px;
+            min-height: 110px;
+        }
+        .temp-revealed-container {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 6px;
+            margin-bottom: 4px;
+            overflow-x: auto;
+            min-height: 100px;
+        }
     </style>
 </head>
 <body>
@@ -290,7 +306,8 @@
         <div class="battlefield-header">⚔️ AI BATTLEFIELD</div>
         <div id="aiBattlefield" class="battlefield"></div>
         <div class="hand-header">🃏 AI HAND</div>
-        <div id="aiHand" class="hand"></div>
+        <div id="aiHandContainer" class="ai-hand-container"></div>
+        <div id="aiTempRevealed" class="temp-revealed-container"></div>
         <div class="stats">
             <div class="hp"><span class="hp-label">🤖 AI</span> <span id="aiHp">80</span></div>
             <span class="shard-pool">🔮 <span id="aiShardDisplay">0</span></span>
@@ -457,7 +474,7 @@
     }
 
     function addTempRevealedCard(card) {
-        let handContainer = document.getElementById("aiHand");
+        let container = document.getElementById("aiTempRevealed");
         let cardDiv = document.createElement("div");
         cardDiv.className = `card ${card.type} revealed-temp`;
         let displayText = `<b>${card.name}</b><br>`;
@@ -468,7 +485,7 @@
         } else if(card.type === "creature") displayText += `⚔️${card.atk} ❤️${card.hp}<br>${card.desc || ""}`;
         else displayText += `${card.desc || ""}`;
         cardDiv.innerHTML = displayText;
-        handContainer.appendChild(cardDiv);
+        container.appendChild(cardDiv);
         setTimeout(() => { if(cardDiv && cardDiv.remove) cardDiv.remove(); }, 10000);
     }
 
@@ -555,8 +572,7 @@
             if(legalTargets.length === 0) { addLog("No targets for Thunderstrike."); return; }
             if(legalTargets.length === 1) {
                 let t = legalTargets[0];
-                if(isDamageBlockedByCloak(t, owner)) addLog(`Cloak blocks Thunderstrike!`);
-                else {
+                if(!isDamageBlockedByCloak(t, owner)) {
                     t.hp = Math.max(0, t.hp - card.damage);
                     addLog(`Thunderstrike deals ${card.damage} to ${t.name || "enemy player"}.`);
                     if(t.hp<=0 && t !== owner && t !== (owner===player?ai:player)) {
@@ -564,7 +580,7 @@
                         let idx = fieldArr.indexOf(t);
                         if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
                     }
-                }
+                } else addLog(`Cloak blocks Thunderstrike!`);
                 owner.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
                 checkWinConditions();
                 return;
@@ -596,8 +612,7 @@
                 pendingSpellCallback = (second) => {
                     let dmg = card.damage;
                     [first, second].forEach(t=>{
-                        if(isDamageBlockedByCloak(t, owner)) addLog(`Cloak blocks Thunderstrike on ${t.name || "player"}!`);
-                        else {
+                        if(!isDamageBlockedByCloak(t, owner)) {
                             t.hp = Math.max(0, t.hp - dmg);
                             addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
                             if(t.hp<=0 && t !== owner && t !== (owner===player?ai:player)) {
@@ -605,7 +620,7 @@
                                 let idx = fieldArr.indexOf(t);
                                 if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
                             }
-                        }
+                        } else addLog(`Cloak blocks Thunderstrike!`);
                     });
                     owner.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
                     pendingSpellCallback = null;
@@ -820,21 +835,21 @@
         renderField("playerBattlefield", player.field, false);
         renderField("aiBattlefield", ai.field, true);
         renderShop();
-        let aiHandContainer = document.getElementById("aiHand");
-        let existingFaceDown = aiHandContainer.querySelectorAll(".card.face-down");
-        while(existingFaceDown.length < ai.hand.length) {
+        
+        // Rebuild AI hand face-down cards (no temp revealed)
+        let aiHandContainer = document.getElementById("aiHandContainer");
+        aiHandContainer.innerHTML = "";
+        for(let i=0; i<ai.hand.length; i++) {
             let backDiv = document.createElement("div");
             backDiv.className = "card face-down";
             aiHandContainer.appendChild(backDiv);
         }
-        while(aiHandContainer.querySelectorAll(".card.face-down").length > ai.hand.length) {
-            let last = aiHandContainer.querySelector(".card.face-down:last-child");
-            if(last) last.remove();
-        }
+        
         let hasDefender = ai.field.some(c=>c.defender===true);
         let aiHpElem = document.getElementById("aiHp");
         if(hasDefender) aiHpElem.classList.add("disabled-target");
         else aiHpElem.classList.remove("disabled-target");
+        
         let playerArea = document.querySelector(".player-area");
         if(player.cloakActive) playerArea.classList.add("cloak-active");
         else playerArea.classList.remove("cloak-active");
