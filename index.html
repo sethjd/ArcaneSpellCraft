@@ -1,1106 +1,1905 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>ARCANE SHARDS — Full Mobile</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#090d18" />
+    <title>Arcane Shards — Mobile Optimized</title>
     <style>
-        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body {
-            background: linear-gradient(145deg, #0a0f1e 0%, #0c1222 100%);
-            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+        :root {
+            color-scheme: dark;
+            --bg: #070a13;
+            --panel: rgba(15, 18, 31, 0.86);
+            --panel-strong: rgba(7, 10, 19, 0.94);
+            --line: rgba(156, 124, 255, 0.28);
+            --line-hot: rgba(255, 185, 91, 0.8);
+            --text: #f6f2ff;
+            --muted: #a99dc9;
+            --purple: #7c5cff;
+            --purple-2: #372167;
+            --orange: #ffb45f;
+            --red: #ff4f7a;
+            --green: #61e58d;
+            --blue: #5ab7ff;
+            --gold: #ffd76a;
+            --card-w: clamp(94px, 25vw, 126px);
+            --card-h: clamp(126px, 34vw, 158px);
+            --radius: 18px;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-top: env(safe-area-inset-top, 0px);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
             margin: 0;
-            min-height: 100vh;
-            padding: 6px;
+            min-height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            overscroll-behavior: none;
+            user-select: none;
+            -webkit-user-select: none;
         }
-        .game-container {
-            max-width: 1200px;
+
+        body {
+            min-height: 100dvh;
+            padding: max(8px, var(--safe-top)) 8px calc(88px + var(--safe-bottom));
+            background:
+                radial-gradient(circle at 12% 0%, rgba(124, 92, 255, 0.26), transparent 34%),
+                radial-gradient(circle at 85% 18%, rgba(255, 135, 79, 0.14), transparent 30%),
+                linear-gradient(145deg, #060912 0%, #101426 100%);
+        }
+
+        button, .card, .hp-target, .shop-pill {
+            touch-action: manipulation;
+        }
+
+        button {
+            border: 0;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #7048d7, #52309e);
+            box-shadow: 0 10px 26px rgba(0,0,0,0.24), inset 0 1px rgba(255,255,255,0.15);
+            color: white;
+            cursor: pointer;
+            font-weight: 850;
+            min-height: 44px;
+            padding: 10px 16px;
+            transition: transform 80ms ease, filter 80ms ease, opacity 80ms ease;
+        }
+
+        button:active, .card:active, .shop-pill:active, .hp-target:active {
+            transform: scale(0.97);
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+            opacity: 0.5;
+        }
+
+        .app {
+            width: min(100%, 920px);
             margin: 0 auto;
-            width: 100%;
-            background: rgba(10, 14, 23, 0.7);
-            backdrop-filter: blur(3px);
-            border-radius: 1.2rem;
+            display: grid;
+            gap: 8px;
+        }
+
+        .top-bar {
+            position: sticky;
+            top: max(4px, var(--safe-top));
+            z-index: 50;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            align-items: center;
             padding: 8px;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: rgba(7, 10, 19, 0.82);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 14px 40px rgba(0,0,0,0.35);
         }
-        .opponent-area, .player-area {
-            background: rgba(0, 0, 0, 0.35);
-            border-radius: 1rem;
-            margin: 4px 0;
-            padding: 8px;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(110, 80, 160, 0.4);
-            display: flex;
-            flex-direction: column;
+
+        .title-block {
+            min-width: 0;
         }
-        .opponent-area .stats {
-            order: 2;
-            margin-top: 6px;
-            margin-bottom: 0;
+
+        .title {
+            margin: 0;
+            font-size: clamp(1rem, 4.5vw, 1.45rem);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 0.78rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .turn-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 36px;
+            border-radius: 999px;
+            padding: 0 12px;
+            background: rgba(124, 92, 255, 0.18);
+            border: 1px solid rgba(124, 92, 255, 0.35);
+            color: #eadfff;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .zone {
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--panel);
+            box-shadow: 0 10px 32px rgba(0,0,0,0.24);
+            overflow: hidden;
+            contain: layout style paint;
+        }
+
+        .zone.cloak-active {
+            border-color: rgba(177, 142, 255, 0.8);
+            box-shadow: 0 0 0 1px rgba(177, 142, 255, 0.25), 0 0 28px rgba(124, 92, 255, 0.26);
+        }
+
+        .zone-head {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 10px;
+            background: rgba(0,0,0,0.22);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .zone-name {
+            font-size: 0.82rem;
+            font-weight: 950;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #e8ddff;
+        }
+
         .stats {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
+            justify-content: flex-end;
             gap: 6px;
-            background: #03060ecc;
-            padding: 4px 10px;
-            border-radius: 1.5rem;
+            flex-wrap: wrap;
         }
-        .hp {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #ffb347;
-            text-shadow: 0 0 3px #ff7b00;
-            cursor: pointer;
-            display: flex;
+
+        .stat, .hp-target {
+            display: inline-flex;
             align-items: center;
             gap: 5px;
+            min-height: 36px;
+            border-radius: 999px;
+            padding: 0 10px;
+            background: rgba(0,0,0,0.34);
+            border: 1px solid rgba(255,255,255,0.08);
+            font-weight: 900;
         }
-        .hp-label {
-            font-size: 0.8rem;
-            background: #00000066;
-            padding: 2px 8px;
-            border-radius: 1rem;
-            color: #ddd;
+
+        .hp-target {
+            color: var(--orange);
+            text-shadow: 0 0 12px rgba(255,180,95,0.28);
+            cursor: default;
         }
-        .shard-pool { background: #241f3a; padding: 2px 8px; border-radius: 1.5rem; font-weight: bold; color: #d9c8ff; font-size: 0.8rem; }
-        .hand, .battlefield {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            gap: 6px;
-            padding: 6px 2px;
-            margin-top: 4px;
-            min-height: 110px;
-            scrollbar-width: thin;
-            -webkit-overflow-scrolling: touch;
-        }
-        .card {
-            background: #1e1a2f;
-            border-radius: 0.8rem;
-            width: 75px;
-            flex-shrink: 0;
-            padding: 4px 2px;
-            text-align: center;
+
+        .hp-target.targetable {
             cursor: pointer;
-            transition: 0.05s linear;
-            border: 1px solid #7a5ac5;
-            box-shadow: 0 2px 6px black;
-            font-size: 0.6rem;
-            font-weight: bold;
-            color: #f0eef7;
+        }
+
+        .stat.small {
+            color: #dcd0ff;
+            font-size: 0.84rem;
+        }
+
+        .lane-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 10px 0;
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 850;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .lane-count {
+            opacity: 0.9;
+            font-weight: 750;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .scroll-lane {
+            display: flex;
+            gap: 8px;
+            min-height: calc(var(--card-h) + 18px);
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 8px 10px 10px;
+            scroll-snap-type: x proximity;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+        }
+
+        .scroll-lane::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scroll-lane.compact {
+            min-height: 82px;
+        }
+
+        .scroll-lane.shop {
+            min-height: 132px;
+            padding-bottom: 12px;
+        }
+
+        .card {
             position: relative;
+            flex: 0 0 var(--card-w);
+            min-height: var(--card-h);
+            border-radius: 16px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.08), transparent 32%),
+                linear-gradient(145deg, #211a36, #121421);
+            border: 1px solid rgba(150, 115, 255, 0.52);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.35), inset 0 1px rgba(255,255,255,0.08);
+            color: var(--text);
+            cursor: pointer;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 6px;
+            padding: 8px;
+            scroll-snap-align: start;
+            transition: transform 90ms ease, border-color 120ms ease, filter 120ms ease, opacity 120ms ease;
+            will-change: transform;
         }
-        @media (min-width: 600px) {
-            .card { width: 90px; font-size: 0.65rem; padding: 6px 3px; }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: inherit;
+            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.16), transparent 42%);
+            opacity: 0.9;
         }
-        .card.creature { border-top: 3px solid #e34d4d; }
-        .card.spell { border-top: 3px solid #4b9bff; }
-        .card.economy { border-top: 3px solid #f5c542; }
-        .card.oneshot { border-top: 3px solid #ff884d; }
-        .card:active { transform: scale(0.97); background: #2f2a48; }
-        .card.attacked {
-            opacity: 0.6;
+
+        .card.creature { border-top: 4px solid #ff5c63; }
+        .card.spell { border-top: 4px solid var(--blue); }
+        .card.economy { border-top: 4px solid var(--gold); }
+        .card.oneshot { border-top: 4px solid #ff955f; }
+        .card.shop-card { border-color: rgba(255, 215, 106, 0.68); }
+
+        .card.targetable, .hp-target.targetable {
+            border-color: var(--line-hot);
+            box-shadow: 0 0 0 2px rgba(255, 180, 95, 0.18), 0 0 22px rgba(255, 180, 95, 0.28), 0 12px 24px rgba(0,0,0,0.38);
+        }
+
+        .card.selected {
+            border-color: #ffffff;
+            transform: translateY(-4px);
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.2), 0 0 24px rgba(124,92,255,0.45), 0 14px 28px rgba(0,0,0,0.42);
+        }
+
+        .card.disabled, .card.attacked {
+            cursor: not-allowed;
+            opacity: 0.52;
+            filter: grayscale(0.35);
+        }
+
+        .card.attacked::after {
+            content: "✓";
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            display: grid;
+            place-items: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.62);
+            color: #ffb4b4;
+            font-weight: 950;
+            z-index: 2;
+        }
+
+        .card.face-down {
+            flex-basis: 54px;
+            min-height: 74px;
+            width: 54px;
+            background:
+                linear-gradient(135deg, rgba(124,92,255,0.28), rgba(255,180,95,0.12)),
+                repeating-linear-gradient(45deg, #202447 0 7px, #151932 7px 14px);
+            border-color: rgba(190, 172, 255, 0.38);
+            cursor: default;
+            padding: 6px;
+        }
+
+        .card.face-down .card-name {
+            font-size: 0.65rem;
+            color: #bfb5ff;
+            align-self: center;
+            justify-self: center;
+        }
+
+        .card.revealed {
+            animation: revealOut 4.2s ease forwards;
+            pointer-events: none;
+        }
+
+        @keyframes revealOut {
+            0% { opacity: 0; transform: translateY(8px) scale(0.94); }
+            12% { opacity: 1; transform: translateY(0) scale(1); }
+            82% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-8px) scale(0.94); }
+        }
+
+        .card-name {
+            position: relative;
+            z-index: 1;
+            min-height: 2.25em;
+            font-size: clamp(0.72rem, 2.8vw, 0.86rem);
+            font-weight: 950;
+            line-height: 1.12;
+            overflow-wrap: break-word;
+        }
+
+        .card-body {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #efe9ff;
+            font-size: clamp(0.78rem, 3vw, 0.98rem);
+            font-weight: 900;
+            line-height: 1.16;
+        }
+
+        .card-desc {
+            position: relative;
+            z-index: 1;
+            color: var(--muted);
+            font-size: clamp(0.62rem, 2.4vw, 0.75rem);
+            font-weight: 780;
+            line-height: 1.15;
+        }
+
+        .cost-badge, .type-badge {
+            position: absolute;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.68);
+            border: 1px solid rgba(255,255,255,0.12);
+            font-size: 0.74rem;
+            font-weight: 950;
+        }
+
+        .cost-badge {
+            right: 7px;
+            bottom: 7px;
+            color: var(--gold);
+        }
+
+        .type-badge {
+            left: 7px;
+            bottom: 7px;
+            color: #d9ceff;
+        }
+
+        .shop-pill {
+            flex: 0 0 118px;
+            min-height: 118px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,215,106,0.58);
+            background:
+                radial-gradient(circle at 50% 0%, rgba(255, 215, 106, 0.12), transparent 48%),
+                rgba(19, 15, 29, 0.94);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.28);
+            color: var(--text);
+            cursor: pointer;
+            padding: 10px;
+            display: grid;
+            align-content: space-between;
+            gap: 8px;
+            scroll-snap-align: start;
+        }
+
+        .shop-pill.disabled {
+            opacity: 0.48;
             filter: grayscale(0.3);
             cursor: not-allowed;
         }
-        .card.attacked::after {
-            content: "✘";
-            position: absolute;
-            top: 0px;
-            right: 2px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #ff5555;
-            background: rgba(0,0,0,0.5);
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
+
+        .shop-title {
+            font-size: 0.82rem;
+            font-weight: 950;
+            line-height: 1.12;
         }
-        .card.face-down {
-            background: #2a2a4a;
-            border: 1px solid #aaa;
-            color: #ccc;
-            cursor: default;
+
+        .shop-meta {
+            color: var(--gold);
+            font-weight: 950;
         }
-        .card.face-down::before {
-            content: "???";
-            font-size: 1rem;
-            display: block;
-            margin-top: 18px;
+
+        .empty-lane {
+            align-self: center;
+            color: var(--muted);
+            font-size: 0.84rem;
+            padding: 12px;
         }
-        .card.revealed-temp {
-            animation: fadeOutCard 10s forwards;
-            pointer-events: none;
-        }
-        @keyframes fadeOutCard {
-            0% { opacity: 1; transform: scale(1); }
-            80% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(0.9); display: none; }
-        }
-        .shop-row {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto;
+
+        .action-dock {
+            position: fixed;
+            left: 8px;
+            right: 8px;
+            bottom: max(8px, var(--safe-bottom));
+            z-index: 60;
+            width: min(100% - 16px, 920px);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr auto;
             gap: 8px;
-            background: #00000066;
+            align-items: center;
             padding: 8px;
-            border-radius: 1rem;
-            margin: 6px 0;
-            scrollbar-width: thin;
-            -webkit-overflow-scrolling: touch;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 22px;
+            background: rgba(6, 9, 17, 0.88);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 -12px 40px rgba(0,0,0,0.4);
         }
-        .shop-card {
-            background: #2a1f3c;
-            width: 80px;
-            flex-shrink: 0;
-            border: 2px solid #ffd966;
-            font-size: 0.6rem;
+
+        .hint {
+            min-width: 0;
+            color: #e9ddff;
+            font-size: 0.84rem;
+            font-weight: 820;
+            line-height: 1.22;
         }
-        @media (min-width: 600px) {
-            .shop-card { width: 95px; font-size: 0.7rem; }
+
+        .hint small {
+            display: block;
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 700;
+            margin-top: 2px;
         }
-        button {
-            background: #5e3a9c;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 2rem;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            transition: 0.05s;
-            font-size: 0.9rem;
-            touch-action: manipulation;
-        }
-        button:active { transform: scale(0.96); background: #3c2a6b; }
+
         .end-turn {
-            background: #aa2e4e;
-            font-size: 1rem;
-            padding: 8px;
-            width: 100%;
-            margin-top: 6px;
+            min-width: 112px;
+            background: linear-gradient(135deg, #ff4d7a, #9f2449);
         }
-        .restart-btn {
-            background: #2a6b3c;
-            font-size: 0.9rem;
-            padding: 6px;
-            margin-top: 6px;
-            width: 100%;
+
+        .utility-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
         }
-        .log {
-            background: #03050be0;
-            border-radius: 0.8rem;
-            padding: 5px 8px;
-            margin-top: 8px;
-            max-height: 80px;
-            overflow-y: auto;
-            font-size: 0.7rem;
-            color: #bdadff;
+
+        .utility-row button {
+            background: rgba(42, 45, 77, 0.92);
+            box-shadow: none;
+            border: 1px solid rgba(255,255,255,0.08);
         }
-        .targetable { cursor: pointer; border: 2px solid #ffaa33; }
-        .disabled-target { opacity: 0.5; cursor: not-allowed; }
-        .debug-area {
-            margin-top: 6px;
-            background: #0a0c14;
-            border-radius: 0.8rem;
-            padding: 5px;
+
+        .log-panel {
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: rgba(3, 5, 11, 0.82);
+            overflow: hidden;
         }
-        .debug-header {
+
+        .log-head {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 4px;
+            gap: 8px;
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: #d8ccff;
+            font-size: 0.78rem;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-        .debug-header button {
-            background: #2a2a4a;
-            padding: 2px 8px;
-            font-size: 0.6rem;
+
+        .log {
+            max-height: 112px;
+            overflow-y: auto;
+            padding: 8px 10px;
+            color: #c8b9ff;
+            font-size: 0.78rem;
+            line-height: 1.32;
+            -webkit-overflow-scrolling: touch;
         }
-        .debug-area textarea {
-            width: 100%;
-            background: #1a1a2e;
-            color: #0f0;
-            font-family: monospace;
-            font-size: 9px;
-            border-radius: 0.5rem;
-            border: 1px solid #3a3a5a;
-            padding: 4px;
-            resize: vertical;
+
+        .debug {
             display: none;
+            width: 100%;
+            min-height: 96px;
+            border: 0;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            background: #080c15;
+            color: #76ff9e;
+            font: 11px/1.35 ui-monospace, SFMono-Regular, Consolas, monospace;
+            padding: 8px;
+            resize: vertical;
+            user-select: text;
+            -webkit-user-select: text;
         }
-        .debug-area textarea.visible {
+
+        .debug.visible {
             display: block;
         }
-        .action-buttons { margin-top: 6px; }
-        .attack-instruction { color: #ffaa66; font-size: 0.65rem; margin: 3px 0; text-align: center; }
-        .game-over-overlay {
+
+        .modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
+            inset: 0;
+            z-index: 100;
+            display: grid;
+            place-items: center;
+            padding: 18px;
+            background: rgba(0,0,0,0.78);
+            backdrop-filter: blur(12px);
         }
-        .game-over-box {
-            background: #1e1a2f;
-            border-radius: 1.5rem;
-            padding: 16px;
+
+        .modal-card {
+            width: min(92vw, 340px);
+            border: 1px solid rgba(255, 215, 106, 0.66);
+            border-radius: 24px;
+            background: linear-gradient(145deg, #231a38, #0e1220);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+            padding: 20px;
             text-align: center;
-            border: 2px solid #ffd966;
-            max-width: 240px;
-            width: 80%;
         }
-        .game-over-box h2 {
-            margin: 0 0 10px 0;
-            font-size: 1.5rem;
+
+        .modal-card h2 {
+            margin: 0 0 10px;
+            font-size: 1.7rem;
         }
-        .game-over-box button {
-            background: #5e3a9c;
-            padding: 8px 16px;
-            font-size: 1rem;
-            margin-top: 8px;
+
+        .modal-card p {
+            margin: 0 0 16px;
+            color: var(--muted);
         }
-        .victory { color: #4cff4c; }
-        .defeat { color: #ff5555; }
-        .cloak-active {
-            background: #4433aa88;
-            border: 1px solid #aa88ff;
-            box-shadow: 0 0 5px #8866ff;
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
         }
-        .battlefield-header, .hand-header {
-            font-weight: bold;
-            font-size: 0.7rem;
-            margin-top: 2px;
+
+        .victory { color: var(--green); }
+        .defeat { color: var(--red); }
+
+        @media (min-width: 720px) {
+            body {
+                padding-bottom: 98px;
+            }
+
+            .app {
+                gap: 10px;
+            }
+
+            .two-col {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .player-zone {
+                grid-column: 1 / -1;
+            }
+
+            .utility-row {
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+            }
         }
-        .ai-hand-container {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            gap: 6px;
-            padding: 6px 2px;
-            min-height: 110px;
+
+        @media (max-width: 420px) {
+            :root {
+                --card-w: 98px;
+                --card-h: 132px;
+            }
+
+            .zone-head {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                justify-content: space-between;
+            }
+
+            .action-dock {
+                grid-template-columns: 1fr;
+            }
+
+            .end-turn {
+                width: 100%;
+            }
         }
-        .temp-revealed-container {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 6px;
-            margin-bottom: 4px;
-            overflow-x: auto;
-            min-height: 100px;
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
         }
     </style>
 </head>
 <body>
-<div class="game-container">
-    <div class="opponent-area">
-        <div class="battlefield-header">⚔️ AI BATTLEFIELD</div>
-        <div id="aiBattlefield" class="battlefield"></div>
-        <div class="hand-header">🃏 AI HAND</div>
-        <div id="aiHandContainer" class="ai-hand-container"></div>
-        <div id="aiTempRevealed" class="temp-revealed-container"></div>
-        <div class="stats">
-            <div class="hp"><span class="hp-label">🤖 AI</span> <span id="aiHp">80</span></div>
-            <span class="shard-pool">🔮 <span id="aiShardDisplay">0</span></span>
+    <main class="app" id="app">
+        <header class="top-bar">
+            <div class="title-block">
+                <h1 class="title">Arcane Shards</h1>
+                <div class="subtitle" id="subtitle">Mobile optimized build</div>
+            </div>
+            <div class="turn-chip" id="turnChip">Your Turn</div>
+        </header>
+
+        <section class="zone opponent-zone" id="aiZone">
+            <div class="zone-head">
+                <div class="zone-name">🤖 AI Opponent</div>
+                <div class="stats">
+                    <div class="hp-target" data-action="target-hero" data-owner="ai">❤️ <span id="aiHp">80</span></div>
+                    <div class="stat small">🔮 <span id="aiShards">0</span></div>
+                    <div class="stat small">🃏 <span id="aiHandCount">0</span></div>
+                </div>
+            </div>
+            <div class="lane-label"><span>AI Battlefield</span><span class="lane-count" id="aiFieldCount"></span></div>
+            <div class="scroll-lane" id="aiBattlefield"></div>
+            <div class="lane-label"><span>AI Hand</span><span class="lane-count" id="aiDeckCount"></span></div>
+            <div class="scroll-lane compact" id="aiHand"></div>
+            <div class="scroll-lane compact" id="aiReveals" aria-live="polite"></div>
+        </section>
+
+        <section class="zone shop-zone">
+            <div class="zone-head">
+                <div class="zone-name">🛒 Market</div>
+                <div class="stats">
+                    <div class="stat small">Cluster stock: <span id="clusterStock">6</span></div>
+                    <div class="stat small">Deck: <span id="centralDeckCount">0</span></div>
+                </div>
+            </div>
+            <div class="scroll-lane shop" id="shop"></div>
+        </section>
+
+        <section class="zone player-zone" id="playerZone">
+            <div class="zone-head">
+                <div class="zone-name">✨ You</div>
+                <div class="stats">
+                    <div class="hp-target" data-action="target-hero" data-owner="player">❤️ <span id="playerHp">80</span></div>
+                    <div class="stat small">💎 <span id="playerShards">0</span></div>
+                    <div class="stat small">Deck <span id="playerDeckCount">0</span></div>
+                    <div class="stat small">Discard <span id="playerDiscardCount">0</span></div>
+                </div>
+            </div>
+            <div class="lane-label"><span>Your Hand</span><span class="lane-count" id="playerHandCount"></span></div>
+            <div class="scroll-lane" id="playerHand"></div>
+            <div class="lane-label"><span>Your Creatures</span><span class="lane-count" id="playerFieldCount"></span></div>
+            <div class="scroll-lane" id="playerBattlefield"></div>
+        </section>
+
+        <div class="utility-row">
+            <button type="button" data-action="restart">🔄 Restart</button>
+            <button type="button" data-action="toggle-debug">🔍 Debug</button>
+            <button type="button" data-action="copy-debug">📋 Copy Debug</button>
+            <button type="button" data-action="cancel-action">✖ Cancel Action</button>
         </div>
+
+        <section class="log-panel">
+            <div class="log-head">
+                <span>Battle Log</span>
+                <span id="statusMini">Ready</span>
+            </div>
+            <div class="log" id="gameLog"></div>
+            <textarea class="debug" id="debugLog" readonly></textarea>
+        </section>
+    </main>
+
+    <div class="action-dock">
+        <div class="hint" id="actionHint">Tap cards to play. Tap one of your creatures, then tap an enemy to attack.<small>Swipe lanes sideways to view more cards.</small></div>
+        <button class="end-turn" type="button" data-action="end-turn" id="endTurnBtn">End Turn</button>
     </div>
 
-    <div class="shop-row" id="shopContainer"></div>
-
-    <div class="player-area">
-        <div class="stats">
-            <div class="hp"><span class="hp-label">✨ YOU</span> <span id="playerHp">80</span></div>
-            <span class="shard-pool">💎 <span id="playerShardDisplay">0</span></span>
-            <button id="endTurnBtn" class="end-turn">END TURN</button>
-        </div>
-        <div><strong>🃏 YOUR HAND</strong></div>
-        <div id="playerHand" class="hand"></div>
-        <div><strong>🛡️ YOUR CREATURES</strong></div>
-        <div id="playerBattlefield" class="battlefield"></div>
-        <div class="action-buttons">
-            <div class="attack-instruction">💡 Tap creature → tap enemy to attack</div>
-            <button id="restartBtn" class="restart-btn">🔄 RESTART</button>
-        </div>
-    </div>
-    <div class="log" id="gameLog"></div>
-    <div class="debug-area">
-        <div class="debug-header">
-            <span>🔍 AI DEBUG</span>
-            <button id="toggleDebugBtn">Show Log</button>
-            <button id="copyDebugBtn">Copy</button>
-        </div>
-        <textarea id="debugLog" rows="3" readonly></textarea>
-    </div>
-</div>
+    <div id="modalRoot"></div>
 
 <script>
-    const CARD_DB = [
-        { id: "inferno", name: "Inferno Blast", type: "spell", shopCost: 3, effect: "damage", damage: 4, desc: "🔥 4" },
-        { id: "surge", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "⚡ 2" },
-        { id: "healwave", name: "Healing Wave", type: "spell", shopCost: 3, effect: "heal", heal: 5, desc: "💚 +5" },
-        { id: "frostshield_spell", name: "Frost Shield", type: "spell", shopCost: 2, effect: "summonDefender", hp:4, desc: "🛡️ 0/4" },
-        { id: "cloak", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "cloak", desc: "✨ Immune" },
-        { id: "mindcontrol", name: "Mind Control", type: "spell", shopCost: 5, effect: "mindControl", desc: "🧠 Steal" },
-        { id: "thunderstrike", name: "Thunderstrike", type: "spell", shopCost: 4, effect: "thunderstrike", damage:4, desc: "🌩️ 4×2" },
-        { id: "fire_ele", name: "Fire Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🔥 4/6" },
-        { id: "earth_ele", name: "Earth Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🌍 4/6" },
-        { id: "water_ele", name: "Water Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "💧 4/6" },
-        { id: "storm_ele", name: "Storm Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🌪️ 4/6" },
-        { id: "frostwolf", name: "Frostwolf Pack", type: "creature", shopCost: 3, atk:2, hp:4, desc: "🐺 2/4" },
-        { id: "panther", name: "Shadow Panther", type: "creature", shopCost: 3, atk:2, hp:4, desc: "🐈‍⬛ 2/4" },
-        { id: "hydra", name: "Venomous Hydra", type: "creature", shopCost: 2, atk:2, hp:2, desc: "🐍 2/2" },
-        { id: "unicorn", name: "Celestial Unicorn", type: "creature", shopCost: 3, atk:0, hp:4, startHeal:2, desc: "🦄 heal 2" },
-        { id: "golem", name: "Earth Golem", type: "creature", shopCost: 6, atk:0, hp:6, defender:true, onSummonDiscard:true, desc: "🛡️ 0/6" },
-        { id: "treant", name: "Ancient Treant", type: "creature", shopCost: 2, atk:0, hp:10, defender:true, desc: "🌳 0/10" },
-        { id: "frostshield_creature", name: "Frost Shield", type: "creature", shopCost: 2, atk:0, hp:4, defender:true, desc: "❄️ 0/4" },
-        { id: "thunderbird", name: "Thunderbird", type: "creature", shopCost: 4, atk:4, hp:5, thunderSynergy:true, desc: "🦅 4/5" },
-        { id: "behemoth", name: "Ironclad Behemoth", type: "creature", shopCost: 7, atk:5, hp:10, desc: "🦣 5/10" },
-        { id: "wraith", name: "Spectral Wraith", type: "oneshot", shopCost: 4, effect: "damage", damage: 4, desc: "👻 4" },
-        { id: "lavadrake", name: "Lava Drake", type: "oneshot", shopCost: 5, effect: "damage", damage: 10, desc: "🐉 10" },
-        { id: "souleater", name: "Soul Eater", type: "oneshot", shopCost: 6, effect: "damage", damage: 4, desc: "💀 4" },
-        { id: "phoenix", name: "Phoenix Reborn", type: "oneshot", shopCost: 7, effect: "revive", desc: "🔥 Revive full" }
-    ];
+(() => {
+    "use strict";
 
-    function buildCentralDeck() {
-        let deck = [];
-        const mult = {
-            inferno:4, surge:3, healwave:3, frostshield_spell:3, cloak:3, mindcontrol:1, thunderstrike:3,
-            fire_ele:3, earth_ele:3, water_ele:3, storm_ele:3, frostwolf:3, panther:3, hydra:3, unicorn:3,
-            golem:2, treant:2, frostshield_creature:2, thunderbird:2, behemoth:2,
-            wraith:3, lavadrake:2, souleater:2, phoenix:1
-        };
-        for(let card of CARD_DB) {
-            let count = mult[card.id] || 0;
-            for(let i=0;i<count;i++) deck.push({...card, uid: Math.random()});
-        }
-        return shuffleArray(deck);
+    const CARD_DB = Object.freeze([
+        { id: "inferno", name: "Inferno Blast", type: "spell", shopCost: 3, effect: "damage", damage: 4, desc: "Burn 4" },
+        { id: "surge", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "Zap 2" },
+        { id: "healwave", name: "Healing Wave", type: "spell", shopCost: 3, effect: "heal", heal: 5, desc: "Heal 5" },
+        { id: "frostshield_spell", name: "Frost Shield", type: "spell", shopCost: 2, effect: "summonDefender", hp: 4, desc: "Summon 0/4" },
+        { id: "cloak", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "cloak", desc: "Block damage" },
+        { id: "mindcontrol", name: "Mind Control", type: "spell", shopCost: 5, effect: "mindControl", desc: "Steal enemy" },
+        { id: "thunderstrike", name: "Thunderstrike", type: "spell", shopCost: 4, effect: "thunderstrike", damage: 4, desc: "Hit 2 targets" },
+        { id: "fire_ele", name: "Fire Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, desc: "Elemental" },
+        { id: "earth_ele", name: "Earth Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, desc: "Elemental" },
+        { id: "water_ele", name: "Water Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, desc: "Elemental" },
+        { id: "storm_ele", name: "Storm Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, desc: "Elemental" },
+        { id: "frostwolf", name: "Frostwolf Pack", type: "creature", shopCost: 3, atk: 2, hp: 4, desc: "Fast pack" },
+        { id: "panther", name: "Shadow Panther", type: "creature", shopCost: 3, atk: 2, hp: 4, desc: "Quick threat" },
+        { id: "hydra", name: "Venomous Hydra", type: "creature", shopCost: 2, atk: 2, hp: 2, desc: "Cheap attacker" },
+        { id: "unicorn", name: "Celestial Unicorn", type: "creature", shopCost: 3, atk: 0, hp: 4, startHeal: 2, desc: "End heal 2" },
+        { id: "golem", name: "Earth Golem", type: "creature", shopCost: 6, atk: 0, hp: 6, defender: true, onSummonDiscard: true, desc: "Defender" },
+        { id: "treant", name: "Ancient Treant", type: "creature", shopCost: 2, atk: 0, hp: 10, defender: true, desc: "Wall" },
+        { id: "frostshield_creature", name: "Frost Shield", type: "creature", shopCost: 2, atk: 0, hp: 4, defender: true, desc: "Defender" },
+        { id: "thunderbird", name: "Thunderbird", type: "creature", shopCost: 4, atk: 4, hp: 5, thunderSynergy: true, desc: "+1 on thunder" },
+        { id: "behemoth", name: "Ironclad Behemoth", type: "creature", shopCost: 7, atk: 5, hp: 10, desc: "Huge body" },
+        { id: "wraith", name: "Spectral Wraith", type: "oneshot", shopCost: 4, effect: "damage", damage: 4, desc: "Strike 4" },
+        { id: "lavadrake", name: "Lava Drake", type: "oneshot", shopCost: 5, effect: "damage", damage: 10, desc: "Blast 10" },
+        { id: "souleater", name: "Soul Eater", type: "oneshot", shopCost: 6, effect: "damage", damage: 4, desc: "Drain strike" },
+        { id: "phoenix", name: "Phoenix Reborn", type: "oneshot", shopCost: 7, effect: "revive", desc: "Revive full" }
+    ]);
+
+    const CENTRAL_MULTIPLIER = Object.freeze({
+        inferno: 4, surge: 3, healwave: 3, frostshield_spell: 3, cloak: 3, mindcontrol: 1, thunderstrike: 3,
+        fire_ele: 3, earth_ele: 3, water_ele: 3, storm_ele: 3, frostwolf: 3, panther: 3, hydra: 3, unicorn: 3,
+        golem: 2, treant: 2, frostshield_creature: 2, thunderbird: 2, behemoth: 2,
+        wraith: 3, lavadrake: 2, souleater: 2, phoenix: 1
+    });
+
+    const ARCANE_CLUSTER_CARD = Object.freeze({ id: "cluster", name: "Arcane Cluster", type: "economy", shopCost: 3, shardGain: 3, desc: "+3 shards" });
+    const SHARD_CARD_TEMPLATE = Object.freeze({ id: "shard", name: "Shard Card", type: "economy", shardGain: 1, desc: "+1 shard" });
+    const STARTING_HP = 80;
+    const MAX_HP = 99;
+    const HAND_DRAW = 5;
+    const MAX_LOGS = 14;
+
+    const els = {
+        app: document.getElementById("app"),
+        subtitle: document.getElementById("subtitle"),
+        turnChip: document.getElementById("turnChip"),
+        statusMini: document.getElementById("statusMini"),
+        actionHint: document.getElementById("actionHint"),
+        endTurnBtn: document.getElementById("endTurnBtn"),
+        aiZone: document.getElementById("aiZone"),
+        playerZone: document.getElementById("playerZone"),
+        aiHp: document.getElementById("aiHp"),
+        playerHp: document.getElementById("playerHp"),
+        aiShards: document.getElementById("aiShards"),
+        playerShards: document.getElementById("playerShards"),
+        aiHandCount: document.getElementById("aiHandCount"),
+        playerHandCount: document.getElementById("playerHandCount"),
+        aiDeckCount: document.getElementById("aiDeckCount"),
+        playerDeckCount: document.getElementById("playerDeckCount"),
+        playerDiscardCount: document.getElementById("playerDiscardCount"),
+        aiFieldCount: document.getElementById("aiFieldCount"),
+        playerFieldCount: document.getElementById("playerFieldCount"),
+        centralDeckCount: document.getElementById("centralDeckCount"),
+        clusterStock: document.getElementById("clusterStock"),
+        aiBattlefield: document.getElementById("aiBattlefield"),
+        playerBattlefield: document.getElementById("playerBattlefield"),
+        playerHand: document.getElementById("playerHand"),
+        aiHand: document.getElementById("aiHand"),
+        aiReveals: document.getElementById("aiReveals"),
+        shop: document.getElementById("shop"),
+        gameLog: document.getElementById("gameLog"),
+        debugLog: document.getElementById("debugLog"),
+        modalRoot: document.getElementById("modalRoot")
+    };
+
+    let uidCounter = 1;
+    let renderQueued = false;
+    let tapLocked = false;
+
+    const state = {
+        active: true,
+        turn: "player",
+        centralDeck: [],
+        shopCards: [],
+        arcaneClustersRemaining: 6,
+        selectedAttackerUid: null,
+        pendingSpell: null,
+        logs: [],
+        debugLines: [],
+        player: null,
+        ai: null
+    };
+
+    function nextUid() {
+        uidCounter += 1;
+        return `c${uidCounter}`;
     }
-    function shuffleArray(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 
-    let arcaneClustersRemaining = 6;
-    const ARCINE_CLUSTER_CARD = { id: "cluster", name: "Arcane Cluster", type: "economy", shopCost: 3, shardGain: 3, desc: "🔮 +3" };
-    const SHARD_CARD_TEMPLATE = { id: "shard", name: "Shard Card", type: "economy", shardGain: 1, desc: "💎 +1" };
+    function cloneCard(card) {
+        return { ...card, uid: nextUid() };
+    }
 
-    let centralDeck = [], shopCards = [];
-    let player = { hp:80, field:[], hand:[], deck:[], discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
-    let ai = { hp:80, field:[], hand:[], deck:[], discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
-    let gameActive = true, turn = "player";
-    let pendingSpellCallback = null;
-    let pendingAttacker = null;
-    let logMessages = [];
+    function makePlayer() {
+        return {
+            hp: STARTING_HP,
+            field: [],
+            hand: [],
+            deck: makeStarterDeck(),
+            discard: [],
+            graveyard: [],
+            shards: 0,
+            attackedThisTurn: new Set(),
+            cloakActive: false
+        };
+    }
 
-    function addLog(msg) { logMessages.unshift(msg); if(logMessages.length>12) logMessages.pop(); document.getElementById("gameLog").innerHTML = logMessages.map(m=>`✨ ${m}`).join('<br>'); }
-    function debug(msg) { let db = document.getElementById("debugLog"); if(db) db.value += msg + "\n"; console.log(msg); }
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function cardById(id) {
+        return CARD_DB.find(card => card.id === id);
+    }
 
     function makeStarterDeck() {
-        let starter = [];
-        for(let i=0;i<5;i++) starter.push({...SHARD_CARD_TEMPLATE, uid: Math.random()});
-        starter.push({...CARD_DB.find(c=>c.id==="inferno"), uid: Math.random()});
-        starter.push({...CARD_DB.find(c=>c.id==="surge"), uid: Math.random()});
+        const starter = [];
+        for (let i = 0; i < 5; i++) starter.push(cloneCard(SHARD_CARD_TEMPLATE));
+        starter.push(cloneCard(cardById("inferno")));
+        starter.push(cloneCard(cardById("surge")));
         return shuffleArray(starter);
     }
 
-    function initGame() {
-        centralDeck = buildCentralDeck();
-        shopCards = [];
-        for(let i=0;i<4 && centralDeck.length;i++) shopCards.push(centralDeck.shift());
-        arcaneClustersRemaining = 6;
-        player = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
-        ai = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
-        gameActive = true;
-        turn = "player";
-        pendingAttacker = null;
-        pendingSpellCallback = null;
-        refreshUI();
-        addLog("Ready! Tap creature → enemy.");
-        startPlayerTurn();
+    function buildCentralDeck() {
+        const deck = [];
+        for (const card of CARD_DB) {
+            const count = CENTRAL_MULTIPLIER[card.id] || 0;
+            for (let i = 0; i < count; i++) deck.push(cloneCard(card));
+        }
+        return shuffleArray(deck);
     }
 
-    function drawCard(p) {
-        if(p.deck.length===0) {
-            if(p.discard.length===0) return null;
-            p.deck = shuffleArray([...p.discard]);
-            p.discard = [];
-            addLog(`${p===player?"You":"AI"} reshuffles.`);
+    function other(ownerId) {
+        return ownerId === "player" ? "ai" : "player";
+    }
+
+    function actor(ownerId) {
+        return state[ownerId];
+    }
+
+    function labelFor(ownerId) {
+        return ownerId === "player" ? "You" : "AI";
+    }
+
+    function isHeroRef(ref) {
+        return ref && ref.kind === "hero";
+    }
+
+    function isCreatureRef(ref) {
+        return ref && ref.kind === "creature";
+    }
+
+    function findCreature(ownerId, uid) {
+        return actor(ownerId).field.find(card => card.uid === uid) || null;
+    }
+
+    function findHandCard(ownerId, uid) {
+        return actor(ownerId).hand.find(card => card.uid === uid) || null;
+    }
+
+    function getTargetRefFromElement(target) {
+        const ownerId = target.dataset.owner;
+        if (!ownerId) return null;
+        if (target.dataset.action === "target-hero") return { kind: "hero", ownerId };
+        if (target.dataset.action === "field-card") return { kind: "creature", ownerId, uid: target.dataset.uid };
+        return null;
+    }
+
+    function resolveRef(ref) {
+        if (isHeroRef(ref)) return actor(ref.ownerId);
+        if (isCreatureRef(ref)) return findCreature(ref.ownerId, ref.uid);
+        return null;
+    }
+
+    function refKey(ref) {
+        return isHeroRef(ref) ? `hero:${ref.ownerId}` : `creature:${ref.ownerId}:${ref.uid}`;
+    }
+
+    function targetName(ref) {
+        if (isHeroRef(ref)) return ref.ownerId === "player" ? "you" : "enemy hero";
+        const target = resolveRef(ref);
+        return target ? target.name : "target";
+    }
+
+    function getDamageTargets(ownerId) {
+        const defenderId = other(ownerId);
+        const defender = actor(defenderId);
+        const defenders = defender.field.filter(card => card.defender);
+        if (defenders.length > 0) {
+            return defenders.map(card => ({ kind: "creature", ownerId: defenderId, uid: card.uid }));
         }
-        let card = p.deck.pop();
+        return [
+            ...defender.field.map(card => ({ kind: "creature", ownerId: defenderId, uid: card.uid })),
+            { kind: "hero", ownerId: defenderId }
+        ];
+    }
+
+    function isLegalDamageTarget(ownerId, ref) {
+        return getDamageTargets(ownerId).some(legal => refKey(legal) === refKey(ref));
+    }
+
+    function isDamageBlockedByCloak(ref) {
+        const ownerId = isHeroRef(ref) ? ref.ownerId : ref.ownerId;
+        return actor(ownerId).cloakActive;
+    }
+
+    function removeCreature(ownerId, uid) {
+        const p = actor(ownerId);
+        const index = p.field.findIndex(card => card.uid === uid);
+        if (index === -1) return null;
+        const [dead] = p.field.splice(index, 1);
+        p.graveyard.push({ ...dead });
+        return dead;
+    }
+
+    function clampHp(value) {
+        return Math.max(0, Math.min(MAX_HP, value));
+    }
+
+    function addLog(message) {
+        state.logs.unshift(message);
+        if (state.logs.length > MAX_LOGS) state.logs.length = MAX_LOGS;
+        queueRender();
+    }
+
+    function debug(message) {
+        const line = `[${new Date().toLocaleTimeString()}] ${message}`;
+        state.debugLines.push(line);
+        if (state.debugLines.length > 180) state.debugLines.shift();
+        console.log(line);
+        queueRender();
+    }
+
+    function tapFeedback(ms = 12) {
+        if (navigator.vibrate) navigator.vibrate(ms);
+    }
+
+    function queueRender() {
+        if (renderQueued) return;
+        renderQueued = true;
+        requestAnimationFrame(() => {
+            renderQueued = false;
+            render();
+        });
+    }
+
+    function initGame() {
+        uidCounter = 1;
+        state.centralDeck = buildCentralDeck();
+        state.shopCards = [];
+        for (let i = 0; i < 4 && state.centralDeck.length; i++) state.shopCards.push(state.centralDeck.shift());
+        state.arcaneClustersRemaining = 6;
+        state.player = makePlayer();
+        state.ai = makePlayer();
+        state.active = true;
+        state.turn = "player";
+        state.selectedAttackerUid = null;
+        state.pendingSpell = null;
+        state.logs = [];
+        state.debugLines = [];
+        els.modalRoot.innerHTML = "";
+        addLog("Ready. Tap cards to play, then attack with your creatures.");
+        startTurn("player");
+    }
+
+    function drawCard(ownerId) {
+        const p = actor(ownerId);
+        if (p.deck.length === 0) {
+            if (p.discard.length === 0) return null;
+            p.deck = shuffleArray(p.discard.splice(0));
+            addLog(`${labelFor(ownerId)} reshuffle discard into deck.`);
+        }
+        const card = p.deck.pop();
         p.hand.push(card);
         return card;
     }
 
-    function startPlayerTurn() {
-        if(!gameActive) return;
-        player.cloakActive = false;
-        player.shards = 0;
-        player.attackedThisTurn.clear();
-        for(let i=0;i<5;i++) drawCard(player);
-        refreshUI();
-        addLog("Your turn.");
+    function startTurn(ownerId) {
+        if (!state.active) return;
+        state.turn = ownerId;
+        const p = actor(ownerId);
+        p.cloakActive = false;
+        p.shards = 0;
+        p.attackedThisTurn.clear();
+        state.selectedAttackerUid = null;
+        state.pendingSpell = null;
+        for (let i = 0; i < HAND_DRAW; i++) drawCard(ownerId);
+        addLog(ownerId === "player" ? "Your turn." : "AI turn.");
+        queueRender();
+        if (ownerId === "ai") void aiTurnLogic();
     }
 
-    function startAITurn() {
-        if(!gameActive) return;
-        ai.cloakActive = false;
-        ai.shards = 0;
-        ai.attackedThisTurn.clear();
-        for(let i=0;i<5;i++) drawCard(ai);
-        refreshUI();
-        addLog("AI's turn.");
-        aiTurnLogic();
+    function endTurn(ownerId) {
+        const p = actor(ownerId);
+        applyUnicornHeal(ownerId);
+        if (p.hand.length > 0) {
+            p.discard.push(...p.hand.splice(0));
+        }
+        p.shards = 0;
+        p.attackedThisTurn.clear();
+        state.selectedAttackerUid = null;
+        state.pendingSpell = null;
+        queueRender();
     }
 
-    function getLegalDamageTargets(attackerOwner, isSpell = false) {
-        let defender = attackerOwner === player ? ai : player;
-        let hasDefender = defender.field.some(c=>c.defender===true);
-        if(hasDefender) return defender.field.filter(c=>c.defender===true);
-        else return [...defender.field, defender];
+    function applyUnicornHeal(ownerId) {
+        const p = actor(ownerId);
+        const count = p.field.filter(card => card.startHeal === 2).length;
+        if (count === 0) return;
+        const heal = count * 2;
+        p.hp = clampHp(p.hp + heal);
+        addLog(`🦄 ${labelFor(ownerId)} heal ${heal} from Unicorn.`);
     }
 
-    function isDamageBlockedByCloak(target, attackerOwner) {
-        if(target === player && player.cloakActive) return true;
-        if(target === ai && ai.cloakActive) return true;
-        if(target.owner === player && player.cloakActive) return true;
-        if(target.owner === ai && ai.cloakActive) return true;
-        return false;
+    function removeFromHand(ownerId, uid) {
+        const p = actor(ownerId);
+        const index = p.hand.findIndex(card => card.uid === uid);
+        if (index === -1) return null;
+        const [card] = p.hand.splice(index, 1);
+        return card;
     }
 
-    function addTempRevealedCard(card) {
-        let container = document.getElementById("aiTempRevealed");
-        let cardDiv = document.createElement("div");
-        cardDiv.className = `card ${card.type} revealed-temp`;
-        let displayText = `<b>${card.name}</b><br>`;
-        if(card.type === "economy") displayText += `💰 +${card.shardGain}<br>${card.desc || ""}`;
-        else if(card.type === "spell" || card.type === "oneshot") {
-            if(card.damage) displayText += `⚔️ ${card.damage}<br>${card.desc || ""}`;
-            else displayText += `${card.desc || ""}`;
-        } else if(card.type === "creature") displayText += `⚔️${card.atk} ❤️${card.hp}<br>${card.desc || ""}`;
-        else displayText += `${card.desc || ""}`;
-        cardDiv.innerHTML = displayText;
-        container.appendChild(cardDiv);
-        setTimeout(() => { if(cardDiv && cardDiv.remove) cardDiv.remove(); }, 10000);
-    }
+    function playCard(ownerId, cardUid, targetRefs = []) {
+        if (!state.active) return false;
+        const owner = actor(ownerId);
+        const card = removeFromHand(ownerId, cardUid);
+        if (!card) return false;
 
-    function playCardFromHand(owner, card, target=null) {
-        let idx = owner.hand.findIndex(c=>c.uid===card.uid);
-        if(idx===-1) return false;
-        owner.hand.splice(idx,1);
-        if(owner === ai) addTempRevealedCard(card);
-        if(card.type === "economy") {
-            owner.shards += card.shardGain;
-            addLog(`${owner===player?"You":"AI"} play ${card.name} +${card.shardGain}.`);
+        if (ownerId === "ai") revealAiCard(card);
+
+        if (card.type === "economy") {
+            owner.shards += card.shardGain || 0;
+            owner.discard.push(card);
+            addLog(`${labelFor(ownerId)} play ${card.name}: +${card.shardGain} shards.`);
+        } else if (card.type === "creature") {
+            summonCreature(ownerId, card);
+        } else {
+            resolveSpell(ownerId, card, targetRefs);
             owner.discard.push(card);
         }
-        else if(card.type === "spell") {
-            resolveSpellOrOneshot(owner, card, target);
-            owner.discard.push(card);
-        }
-        else if(card.type === "creature") {
-            let newCreature = {...card, currentHp: card.hp, owner:owner, defender:card.defender||false, elemental:card.elemental||false, thunderSynergy:card.thunderSynergy||false, startHeal:card.startHeal||false, originalHp: card.hp};
-            if(card.onSummonDiscard && owner===player && ai.hand.length) {
-                let discarded = ai.hand.pop();
-                addLog(`Earth Golem discards AI ${discarded.name}.`);
-            }
-            owner.field.push(newCreature);
-            addLog(`Summoned ${card.name} (${card.atk}/${card.hp}).`);
-        }
-        else if(card.type === "oneshot") {
-            resolveSpellOrOneshot(owner, card, target);
-            owner.discard.push(card);
-        }
-        refreshUI();
+
+        state.pendingSpell = null;
+        checkWinConditions();
+        queueRender();
         return true;
     }
 
-    function resolveSpellOrOneshot(owner, card, target) {
-        if(card.effect === "damage") {
-            if(!target) return;
-            if((owner===player && target===player) || (owner===ai && target===ai)) { addLog("Cannot target self."); return; }
-            if(isDamageBlockedByCloak(target, owner)) { addLog(`Cloak blocks ${card.name}!`); return; }
-            let defender = owner===player ? ai : player;
-            let hasDefender = defender.field.some(c=>c.defender===true);
-            if(hasDefender && target === defender) { addLog("Defender blocks!"); return; }
-            let dmg = card.damage;
-            target.hp = Math.max(0, target.hp - dmg);
-            addLog(`${card.name} deals ${dmg} to ${target.name || "enemy player"}.`);
-            if(target.hp<=0 && target !== owner && target !== (owner===player?ai:player)) {
-                let fieldArr = (target.owner===player?player.field:ai.field);
-                let idx = fieldArr.indexOf(target);
-                if(idx!==-1) {
-                    fieldArr.splice(idx,1);
-                    (target.owner===player?player.graveyard:ai.graveyard).push(target);
-                    addLog(`${target.name} dies.`);
-                }
-            }
-            checkWinConditions();
+    function summonCreature(ownerId, card) {
+        const owner = actor(ownerId);
+        const opponentId = other(ownerId);
+        const opponent = actor(opponentId);
+        const creature = {
+            ...card,
+            uid: card.uid,
+            ownerId,
+            hp: card.hp || 1,
+            maxHp: card.hp || 1,
+            atk: card.atk || 0,
+            defender: Boolean(card.defender),
+            elemental: Boolean(card.elemental),
+            thunderSynergy: Boolean(card.thunderSynergy),
+            startHeal: card.startHeal || 0,
+            originalHp: card.hp || 1
+        };
+
+        if (card.onSummonDiscard && opponent.hand.length > 0) {
+            const discarded = opponent.hand.pop();
+            opponent.discard.push(discarded);
+            addLog(`${card.name} forces ${labelFor(opponentId).toLowerCase()} to discard ${discarded.name}.`);
         }
-        else if(card.effect === "heal") {
-            owner.hp = Math.min(99, owner.hp + card.heal);
-            addLog(`${card.name} heals ${card.heal} HP.`);
-        }
-        else if(card.effect === "summonDefender") {
-            let def = { name:"Frost Shield", atk:0, hp:card.hp, defender:true, type:"creature", owner:owner, uid:Math.random(), originalHp: card.hp };
-            owner.field.push(def);
-            addLog(`Summoned Defender (0/${card.hp}).`);
-        }
-        else if(card.effect === "cloak") {
-            owner.cloakActive = true;
-            addLog(`${owner===player?"You":"AI"} cast Cloak! Immune next turn.`);
-        }
-        else if(card.effect === "mindControl") {
-            let enemyField = owner===player ? ai.field : player.field;
-            if(enemyField.length) {
-                let stolen = enemyField.shift();
-                stolen.owner = owner;
-                owner.field.push(stolen);
-                let opp = owner===player ? ai : player;
-                opp.hand = [];
-                for(let i=0;i<5;i++) drawCard(opp);
-                addLog(`Mind Control stole ${stolen.name}.`);
-            }
-        }
-        else if(card.effect === "thunderstrike") {
-            let legalTargets = getLegalDamageTargets(owner, true);
-            if(legalTargets.length === 0) { addLog("No targets for Thunderstrike."); return; }
-            if(legalTargets.length === 1) {
-                let t = legalTargets[0];
-                if(!isDamageBlockedByCloak(t, owner)) {
-                    t.hp = Math.max(0, t.hp - card.damage);
-                    addLog(`Thunderstrike deals ${card.damage} to ${t.name || "enemy player"}.`);
-                    if(t.hp<=0 && t !== owner && t !== (owner===player?ai:player)) {
-                        let fieldArr = (t.owner===player?player.field:ai.field);
-                        let idx = fieldArr.indexOf(t);
-                        if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
-                    }
-                } else addLog(`Cloak blocks Thunderstrike!`);
-                owner.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
-                checkWinConditions();
-                return;
-            }
-            addLog(`Thunderstrike: tap first target`);
-            pendingSpellCallback = (first) => {
-                let remaining = legalTargets.filter(t => t !== first);
-                if(remaining.length === 0) {
-                    let dmg = card.damage;
-                    if(!isDamageBlockedByCloak(first, owner)) {
-                        first.hp = Math.max(0, first.hp - dmg);
-                        addLog(`Thunderstrike deals ${dmg} to ${first.name || "enemy player"}.`);
-                        if(first.hp<=0 && first !== owner && first !== (owner===player?ai:player)) {
-                            let fieldArr = (first.owner===player?player.field:ai.field);
-                            let idx = fieldArr.indexOf(first);
-                            if(idx!==-1) { fieldArr.splice(idx,1); (first.owner===player?player.graveyard:ai.graveyard).push(first); addLog(`${first.name} dies.`); }
-                        }
-                    } else addLog(`Cloak blocks Thunderstrike!`);
-                    owner.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
-                    pendingSpellCallback = null;
-                    let idx = owner.hand.findIndex(c=>c.uid===card.uid);
-                    if(idx!==-1) owner.hand.splice(idx,1);
-                    owner.discard.push(card);
-                    checkWinConditions();
-                    refreshUI();
+
+        owner.field.push(creature);
+        addLog(`${labelFor(ownerId)} summon ${card.name} (${creature.atk}/${creature.hp}).`);
+    }
+
+    function resolveSpell(ownerId, card, targetRefs) {
+        const owner = actor(ownerId);
+        const opponentId = other(ownerId);
+        const opponent = actor(opponentId);
+
+        switch (card.effect) {
+            case "damage": {
+                const ref = targetRefs[0];
+                if (!ref || !isLegalDamageTarget(ownerId, ref)) {
+                    addLog(`${card.name} fizzles: no legal target.`);
                     return;
                 }
-                addLog(`Tap second target`);
-                pendingSpellCallback = (second) => {
-                    let dmg = card.damage;
-                    [first, second].forEach(t=>{
-                        if(!isDamageBlockedByCloak(t, owner)) {
-                            t.hp = Math.max(0, t.hp - dmg);
-                            addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
-                            if(t.hp<=0 && t !== owner && t !== (owner===player?ai:player)) {
-                                let fieldArr = (t.owner===player?player.field:ai.field);
-                                let idx = fieldArr.indexOf(t);
-                                if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
-                            }
-                        } else addLog(`Cloak blocks Thunderstrike!`);
-                    });
-                    owner.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
-                    pendingSpellCallback = null;
-                    let idx = owner.hand.findIndex(c=>c.uid===card.uid);
-                    if(idx!==-1) owner.hand.splice(idx,1);
-                    owner.discard.push(card);
-                    checkWinConditions();
-                    refreshUI();
-                };
-                refreshUI();
-            };
-            refreshUI();
-            return;
+                dealDamage(ownerId, ref, card.damage || 0, card.name);
+                break;
+            }
+            case "heal": {
+                owner.hp = clampHp(owner.hp + (card.heal || 0));
+                addLog(`${labelFor(ownerId)} cast ${card.name}: heal ${card.heal}.`);
+                break;
+            }
+            case "summonDefender": {
+                const shield = cloneCard({ id: "frostshield_token", name: "Frost Shield", type: "creature", atk: 0, hp: card.hp || 4, defender: true, desc: "Defender" });
+                summonCreature(ownerId, shield);
+                break;
+            }
+            case "cloak": {
+                owner.cloakActive = true;
+                addLog(`${labelFor(ownerId)} cast ${card.name}. Damage blocked until next turn.`);
+                break;
+            }
+            case "mindControl": {
+                if (opponent.field.length === 0) {
+                    addLog(`${card.name} has no creature to steal.`);
+                    return;
+                }
+                const stolen = opponent.field.shift();
+                stolen.ownerId = ownerId;
+                owner.field.push(stolen);
+                opponent.discard.push(...opponent.hand.splice(0));
+                for (let i = 0; i < HAND_DRAW; i++) drawCard(opponentId);
+                addLog(`${labelFor(ownerId)} steal ${stolen.name} with Mind Control.`);
+                break;
+            }
+            case "thunderstrike": {
+                const legalTargets = targetRefs.filter(ref => isLegalDamageTarget(ownerId, ref));
+                if (legalTargets.length === 0) {
+                    addLog("Thunderstrike fizzles: no target.");
+                    return;
+                }
+                legalTargets.slice(0, 2).forEach(ref => dealDamage(ownerId, ref, card.damage || 0, "Thunderstrike"));
+                owner.field.forEach(creature => {
+                    if (creature.thunderSynergy) creature.atk += 1;
+                });
+                addLog(`${labelFor(ownerId)}'s Thunderbirds gain +1 attack.`);
+                break;
+            }
+            case "revive": {
+                if (owner.graveyard.length === 0) {
+                    addLog("Phoenix Reborn found no creature in graveyard.");
+                    return;
+                }
+                const revived = owner.graveyard.pop();
+                const fullHp = revived.originalHp || revived.maxHp || revived.hp || 1;
+                owner.field.push({ ...revived, uid: nextUid(), ownerId, hp: fullHp, maxHp: fullHp });
+                addLog(`Phoenix revives ${revived.name} at full HP.`);
+                break;
+            }
+            default:
+                addLog(`${card.name} has no effect yet.`);
         }
-        else if(card.effect === "revive") {
-            if(owner.graveyard.length) {
-                let revived = owner.graveyard.pop();
-                let fullHp = revived.originalHp || revived.hp;
-                let newCreature = {...revived, hp: fullHp, currentHp: fullHp, owner: owner};
-                owner.field.push(newCreature);
-                addLog(`Phoenix revives ${revived.name} (full HP ${fullHp}).`);
-            } else addLog("No creature in graveyard.");
-        }
-        checkWinConditions();
     }
 
-    function attemptManualAttack(attacker, target) {
-        if(!gameActive) return false;
-        if(player.attackedThisTurn.has(attacker.uid)) { addLog(`${attacker.name} already attacked.`); return false; }
-        let defender = target === ai ? ai : (ai.field.includes(target) ? ai : null);
-        if(!defender) { addLog("Must attack enemy."); return false; }
-        if(defender === ai && ai.cloakActive) { addLog("AI's Cloak blocks all damage!"); return false; }
-        let hasDefender = defender.field.some(c=>c.defender===true);
-        if(hasDefender) {
-            if(target === defender) { addLog("Defender blocks! Cannot attack player."); return false; }
-            if(!defender.field.includes(target) || !target.defender) { addLog("Attack Defender first!"); return false; }
+    function dealDamage(sourceOwnerId, ref, amount, sourceName) {
+        if (!ref || amount <= 0) return false;
+        if (isDamageBlockedByCloak(ref)) {
+            addLog(`Cloak blocks ${sourceName}.`);
+            return false;
         }
-        let dmg = attacker.atk;
-        let elementalCount = player.field.filter(c=>c.elemental).length;
-        if(attacker.elemental && elementalCount>=2) dmg *= 2;
-        if(target === defender) {
-            defender.hp -= dmg;
-            addLog(`⚔️ ${attacker.name} hits enemy hero for ${dmg}!`);
+
+        if (isHeroRef(ref)) {
+            const target = actor(ref.ownerId);
+            target.hp = Math.max(0, target.hp - amount);
+            addLog(`${sourceName} deals ${amount} to ${ref.ownerId === "player" ? "you" : "AI"}.`);
         } else {
-            target.hp -= dmg;
-            addLog(`⚔️ ${attacker.name} deals ${dmg} to ${target.name}.`);
-            if(target.hp<=0) {
-                let idx = defender.field.indexOf(target);
-                if(idx!==-1) { defender.field.splice(idx,1); defender.graveyard.push(target); addLog(`${target.name} dies.`); }
+            const target = resolveRef(ref);
+            if (!target) return false;
+            target.hp -= amount;
+            addLog(`${sourceName} deals ${amount} to ${target.name}.`);
+            if (target.hp <= 0) {
+                const dead = removeCreature(ref.ownerId, ref.uid);
+                if (dead) addLog(`${dead.name} dies.`);
             }
         }
-        player.attackedThisTurn.add(attacker.uid);
-        refreshUI();
+
         checkWinConditions();
+        queueRender();
         return true;
     }
 
-    function applyUnicornHeal(owner) {
-        let unicorns = owner.field.filter(c => c.startHeal === 2);
-        if(unicorns.length) {
-            let heal = unicorns.length * 2;
-            owner.hp = Math.min(99, owner.hp + heal);
-            addLog(`🦄 ${unicorns.length} Unicorn(s) heal ${heal} HP.`);
+    function creatureAttack(ownerId, attackerUid, targetRef) {
+        if (!state.active || state.turn !== ownerId) return false;
+        const attacker = findCreature(ownerId, attackerUid);
+        const owner = actor(ownerId);
+        const defenderId = other(ownerId);
+        const defender = actor(defenderId);
+
+        if (!attacker) return false;
+        if (owner.attackedThisTurn.has(attacker.uid)) {
+            addLog(`${attacker.name} already attacked.`);
+            return false;
         }
+        if (!targetRef || targetRef.ownerId !== defenderId) {
+            addLog("Choose an enemy target.");
+            return false;
+        }
+
+        const defenders = defender.field.filter(card => card.defender);
+        if (defenders.length > 0) {
+            if (isHeroRef(targetRef)) {
+                addLog("Defender blocks. Attack the defender first.");
+                return false;
+            }
+            const target = resolveRef(targetRef);
+            if (!target || !target.defender) {
+                addLog("Attack defender first.");
+                return false;
+            }
+        }
+
+        let damage = attacker.atk || 0;
+        const elementalCount = owner.field.filter(card => card.elemental).length;
+        if (attacker.elemental && elementalCount >= 2) damage *= 2;
+
+        dealDamage(ownerId, targetRef, damage, `⚔️ ${attacker.name}`);
+        owner.attackedThisTurn.add(attacker.uid);
+        state.selectedAttackerUid = null;
+        queueRender();
+        return true;
     }
 
-    function checkWinConditions() {
-        if(!gameActive) return;
-        if(player.hp <= 0) { gameActive = false; showGameOver("You lost...", false); return; }
-        if(ai.hp <= 0) { gameActive = false; showGameOver("You win!", true); return; }
+    function canPlayerAffordAnything() {
+        if (state.arcaneClustersRemaining > 0 && state.player.shards >= ARCANE_CLUSTER_CARD.shopCost) return true;
+        return state.shopCards.some(card => card && state.player.shards >= card.shopCost);
     }
 
-    function showGameOver(message, isVictory) {
-        const overlay = document.createElement('div');
-        overlay.className = 'game-over-overlay';
-        overlay.innerHTML = `<div class="game-over-box"><h2 class="${isVictory ? 'victory' : 'defeat'}">${message}</h2><button id="gameOverRestartBtn">Play Again</button></div>`;
-        document.body.appendChild(overlay);
-        document.getElementById('gameOverRestartBtn').onclick = () => { overlay.remove(); restartGame(); };
+    function buyShopCard(ownerId, index) {
+        if (!state.active) return false;
+        const p = actor(ownerId);
+        const card = state.shopCards[index];
+        if (!card) return false;
+        if (p.shards < card.shopCost) {
+            if (ownerId === "player") addLog(`Need ${card.shopCost} shards for ${card.name}.`);
+            return false;
+        }
+        p.shards -= card.shopCost;
+        p.discard.push(cloneCard(card));
+        addLog(`${labelFor(ownerId)} bought ${card.name}.`);
+        state.shopCards[index] = state.centralDeck.length ? state.centralDeck.shift() : null;
+        queueRender();
+        return true;
     }
 
-    function restartGame() {
-        centralDeck = buildCentralDeck();
-        shopCards = [];
-        for(let i=0;i<4 && centralDeck.length;i++) shopCards.push(centralDeck.shift());
-        arcaneClustersRemaining = 6;
-        player = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
-        ai = { hp:80, field:[], hand:[], deck:makeStarterDeck(), discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
-        gameActive = true;
-        turn = "player";
-        pendingSpellCallback = null;
-        pendingAttacker = null;
-        logMessages = [];
-        document.getElementById("endTurnBtn").disabled = false;
-        refreshUI();
-        addLog("Game restarted!");
-        startPlayerTurn();
+    function buyCluster(ownerId) {
+        if (!state.active || state.arcaneClustersRemaining <= 0) return false;
+        const p = actor(ownerId);
+        if (p.shards < ARCANE_CLUSTER_CARD.shopCost) {
+            if (ownerId === "player") addLog("Need 3 shards for Arcane Cluster.");
+            return false;
+        }
+        p.shards -= ARCANE_CLUSTER_CARD.shopCost;
+        state.arcaneClustersRemaining -= 1;
+        p.discard.push(cloneCard(ARCANE_CLUSTER_CARD));
+        addLog(`${labelFor(ownerId)} bought Arcane Cluster.`);
+        queueRender();
+        return true;
     }
 
-    function endTurn(owner) {
-        applyUnicornHeal(owner);
-        owner.hand = [];
-        owner.shards = 0;
-        owner.attackedThisTurn.clear();
-        refreshUI();
+    function startSpellTargeting(card) {
+        const legal = getDamageTargets("player");
+        if (legal.length === 0) {
+            addLog("No legal targets.");
+            return;
+        }
+
+        const maxTargets = card.effect === "thunderstrike" ? Math.min(2, legal.length) : 1;
+        state.selectedAttackerUid = null;
+        state.pendingSpell = { cardUid: card.uid, cardName: card.name, effect: card.effect, maxTargets, targets: [] };
+        addLog(maxTargets === 1 ? `Tap target for ${card.name}.` : `${card.name}: tap ${maxTargets} targets.`);
+        queueRender();
+    }
+
+    function handlePendingSpellTarget(ref) {
+        const pending = state.pendingSpell;
+        if (!pending) return;
+        if (!isLegalDamageTarget("player", ref)) {
+            addLog("That target is blocked or invalid.");
+            return;
+        }
+        if (pending.targets.some(existing => refKey(existing) === refKey(ref))) {
+            addLog("Choose a different target.");
+            return;
+        }
+        pending.targets.push(ref);
+        tapFeedback(18);
+
+        if (pending.targets.length >= pending.maxTargets) {
+            playCard("player", pending.cardUid, pending.targets);
+            state.pendingSpell = null;
+        } else {
+            addLog(`Tap ${pending.maxTargets - pending.targets.length} more target.`);
+        }
+        queueRender();
+    }
+
+    function handlePlayerHand(cardUid) {
+        if (state.turn !== "player" || !state.active || tapLocked) return;
+        if (state.pendingSpell) {
+            addLog("Finish or cancel your current spell first.");
+            return;
+        }
+        if (state.selectedAttackerUid) {
+            addLog("Finish or cancel your attack first.");
+            return;
+        }
+        const card = findHandCard("player", cardUid);
+        if (!card) return;
+        tapFeedback();
+
+        if (card.type === "economy" || card.type === "creature") {
+            playCard("player", card.uid);
+            return;
+        }
+
+        if (card.effect === "damage" || card.effect === "thunderstrike") {
+            startSpellTargeting(card);
+            return;
+        }
+
+        playCard("player", card.uid, card.effect === "heal" ? [{ kind: "hero", ownerId: "player" }] : []);
+    }
+
+    function handlePlayerCreature(cardUid) {
+        if (state.turn !== "player" || !state.active || state.pendingSpell) return;
+        const creature = findCreature("player", cardUid);
+        if (!creature) return;
+        if (state.player.attackedThisTurn.has(cardUid)) {
+            addLog(`${creature.name} already attacked.`);
+            return;
+        }
+        state.selectedAttackerUid = state.selectedAttackerUid === cardUid ? null : cardUid;
+        tapFeedback();
+        addLog(state.selectedAttackerUid ? `${creature.name} selected. Tap an enemy target.` : "Attack cancelled.");
+        queueRender();
+    }
+
+    async function handleEndTurn() {
+        if (state.turn !== "player" || !state.active) return;
+        if (state.pendingSpell || state.selectedAttackerUid) {
+            addLog("Finish or cancel your action first.");
+            return;
+        }
+
+        if (state.player.shards > 0 && canPlayerAffordAnything()) {
+            showConfirm(`You have ${state.player.shards} unspent shard${state.player.shards === 1 ? "" : "s"}. End turn and lose them?`, () => endPlayerTurnNow());
+            return;
+        }
+
+        endPlayerTurnNow();
+    }
+
+    function endPlayerTurnNow() {
+        endTurn("player");
+        if (state.active) startTurn("ai");
     }
 
     async function aiTurnLogic() {
-        if(!gameActive) return;
+        if (!state.active) return;
+        tapLocked = true;
         debug("=== AI TURN ===");
-        debug(`Hand: ${ai.hand.map(c=>c.name).join(", ")}`);
-        refreshUI();
-        await delay(300);
-        let played = true;
-        while(played && gameActive) {
-            played = false;
-            let econ = ai.hand.find(c=>c.type==="economy");
-            if(econ) { playCardFromHand(ai, econ); played=true; continue; }
-            let anyCard = ai.hand.find(c=>c.type!=="economy");
-            if(anyCard) {
-                if(anyCard.type === "creature") { playCardFromHand(ai, anyCard); played=true; }
-                else if(anyCard.type === "spell" || anyCard.type === "oneshot") {
-                    let targets = getLegalDamageTargets(ai, true);
-                    let target = targets.length ? targets[0] : ai;
-                    if(anyCard.effect === "heal") target = ai;
-                    if(anyCard.effect === "cloak") { playCardFromHand(ai, anyCard); played=true; }
-                    else if(anyCard.effect === "thunderstrike") {
-                        let dmg = anyCard.damage;
-                        let toHit = targets.slice(0,2);
-                        for(let t of toHit) {
-                            if(!isDamageBlockedByCloak(t, ai)) {
-                                t.hp = Math.max(0, t.hp - dmg);
-                                addLog(`AI Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
-                                if(t.hp<=0 && t !== ai && t !== player) {
-                                    let fieldArr = (t.owner===player?player.field:ai.field);
-                                    let idx = fieldArr.indexOf(t);
-                                    if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
-                                }
-                            } else addLog(`Cloak blocks AI Thunderstrike.`);
-                        }
-                        ai.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
-                        ai.discard.push(anyCard);
-                        let idx2 = ai.hand.findIndex(c=>c.uid===anyCard.uid);
-                        if(idx2!==-1) ai.hand.splice(idx2,1);
-                        checkWinConditions();
-                        played=true;
-                    } else { playCardFromHand(ai, anyCard, target); played=true; }
-                }
-            } else break;
+        await delay(260);
+
+        let safety = 0;
+        while (state.active && state.turn === "ai" && aiPlayBestCard() && safety < 24) {
+            safety += 1;
+            queueRender();
+            await delay(220);
         }
-        if(!gameActive) return;
-        for(let i=0;i<shopCards.length && gameActive;i++) {
-            let card = shopCards[i];
-            if(card && ai.shards >= card.shopCost) {
-                ai.shards -= card.shopCost;
-                ai.discard.push({...card, uid: Math.random()});
-                addLog(`AI bought ${card.name}.`);
-                if(centralDeck.length) shopCards[i]=centralDeck.shift();
-                else shopCards[i]=null;
-                refreshUI();
-                await delay(200);
-            }
+
+        while (state.active && state.turn === "ai" && aiBuyBestCard()) {
+            await delay(180);
         }
-        if(arcaneClustersRemaining > 0 && ai.shards >= 3 && gameActive) {
-            ai.shards -= 3;
-            arcaneClustersRemaining--;
-            ai.discard.push({...ARCINE_CLUSTER_CARD, uid: Math.random()});
-            addLog(`AI bought Arcane Cluster.`);
-            refreshUI();
-            await delay(200);
+
+        if (state.arcaneClustersRemaining > 0 && state.ai.shards >= ARCANE_CLUSTER_CARD.shopCost) {
+            buyCluster("ai");
+            await delay(180);
         }
-        refreshUI();
-        await delay(300);
-        if(!player.cloakActive) {
-            for(let creature of ai.field) {
-                if(!gameActive) break;
-                if(ai.attackedThisTurn.has(creature.uid)) continue;
-                let targets = getLegalDamageTargets(ai, false);
-                if(targets.length===0) continue;
-                let target = targets[0];
-                let dmg = creature.atk;
-                let elementalCount = ai.field.filter(c=>c.elemental).length;
-                if(creature.elemental && elementalCount>=2) dmg *= 2;
-                if(target === player) {
-                    player.hp -= dmg;
-                    addLog(`AI: ${creature.name} hits you for ${dmg}!`);
-                    checkWinConditions();
-                } else {
-                    target.hp -= dmg;
-                    addLog(`AI: ${creature.name} deals ${dmg} to ${target.name}.`);
-                    if(target.hp<=0) {
-                        let idx = player.field.indexOf(target);
-                        if(idx!==-1) { player.field.splice(idx,1); player.graveyard.push(target); addLog(`${target.name} dies.`); }
-                    }
-                }
-                ai.attackedThisTurn.add(creature.uid);
-                await delay(200);
-                refreshUI();
-                if(!gameActive) return;
-            }
-        } else { addLog("Your Cloak blocks all AI attacks!"); }
-        endTurn(ai);
-        if(gameActive) { turn = "player"; startPlayerTurn(); }
-        refreshUI();
+
+        await delay(260);
+        await aiAttackPhase();
+        if (!state.active) return;
+        endTurn("ai");
+        tapLocked = false;
+        if (state.active) startTurn("player");
     }
 
-    function refreshUI() {
-        document.getElementById("playerHp").innerText = player.hp;
-        document.getElementById("aiHp").innerText = ai.hp;
-        document.getElementById("playerShardDisplay").innerText = player.shards;
-        document.getElementById("aiShardDisplay").innerText = ai.shards;
-        renderHand();
-        renderField("playerBattlefield", player.field, false);
-        renderField("aiBattlefield", ai.field, true);
-        renderShop();
-        
-        // Rebuild AI hand face-down cards (no temp revealed)
-        let aiHandContainer = document.getElementById("aiHandContainer");
-        aiHandContainer.innerHTML = "";
-        for(let i=0; i<ai.hand.length; i++) {
-            let backDiv = document.createElement("div");
-            backDiv.className = "card face-down";
-            aiHandContainer.appendChild(backDiv);
+    function aiPlayBestCard() {
+        const p = state.ai;
+        const economy = p.hand.find(card => card.type === "economy");
+        if (economy) return playCard("ai", economy.uid);
+
+        const playable = p.hand.filter(card => card.type !== "economy");
+        if (playable.length === 0) return false;
+        playable.sort((a, b) => aiCardScore(b) - aiCardScore(a));
+        const card = playable[0];
+
+        if (card.type === "creature" || card.effect === "heal" || card.effect === "cloak" || card.effect === "mindControl" || card.effect === "revive" || card.effect === "summonDefender") {
+            return playCard("ai", card.uid);
         }
-        
-        let hasDefender = ai.field.some(c=>c.defender===true);
-        let aiHpElem = document.getElementById("aiHp");
-        if(hasDefender) aiHpElem.classList.add("disabled-target");
-        else aiHpElem.classList.remove("disabled-target");
-        
-        let playerArea = document.querySelector(".player-area");
-        if(player.cloakActive) playerArea.classList.add("cloak-active");
-        else playerArea.classList.remove("cloak-active");
-        let aiArea = document.querySelector(".opponent-area");
-        if(ai.cloakActive) aiArea.classList.add("cloak-active");
-        else aiArea.classList.remove("cloak-active");
+
+        if (card.effect === "damage") {
+            const target = chooseAiDamageTarget(card.damage || 0);
+            return playCard("ai", card.uid, target ? [target] : []);
+        }
+
+        if (card.effect === "thunderstrike") {
+            const targets = chooseAiThunderTargets(card.damage || 0);
+            return playCard("ai", card.uid, targets);
+        }
+
+        return playCard("ai", card.uid);
+    }
+
+    function aiCardScore(card) {
+        let score = 0;
+        if (card.type === "creature") score += (card.atk || 0) * 2 + (card.hp || 0);
+        if (card.effect === "damage") score += (card.damage || 0) * 3;
+        if (card.effect === "thunderstrike") score += 14;
+        if (card.effect === "heal") score += state.ai.hp <= 55 ? 18 : 2;
+        if (card.effect === "cloak") score += state.player.field.length >= 2 ? 16 : 4;
+        if (card.effect === "mindControl") score += state.player.field.length ? 22 : 0;
+        if (card.effect === "revive") score += state.ai.graveyard.length ? 18 : 0;
+        if (card.defender) score += 4;
+        return score;
+    }
+
+    function chooseAiDamageTarget(damage) {
+        const legal = getDamageTargets("ai");
+        if (legal.length === 0) return null;
+
+        const killable = legal
+            .filter(ref => isCreatureRef(ref))
+            .map(ref => ({ ref, card: resolveRef(ref) }))
+            .filter(item => item.card && item.card.hp <= damage)
+            .sort((a, b) => (b.card.atk + b.card.hp) - (a.card.atk + a.card.hp));
+        if (killable.length > 0) return killable[0].ref;
+
+        const biggestThreat = legal
+            .filter(ref => isCreatureRef(ref))
+            .map(ref => ({ ref, card: resolveRef(ref) }))
+            .filter(item => item.card)
+            .sort((a, b) => (b.card.atk || 0) - (a.card.atk || 0))[0];
+
+        return biggestThreat ? biggestThreat.ref : legal.find(isHeroRef) || legal[0];
+    }
+
+    function chooseAiThunderTargets(damage) {
+        const first = chooseAiDamageTarget(damage);
+        const legal = getDamageTargets("ai").filter(ref => !first || refKey(ref) !== refKey(first));
+        const second = legal.find(ref => isCreatureRef(ref) && resolveRef(ref)?.hp <= damage) || legal.find(isHeroRef) || legal[0];
+        return [first, second].filter(Boolean).slice(0, 2);
+    }
+
+    function aiBuyBestCard() {
+        const affordable = state.shopCards
+            .map((card, index) => ({ card, index, score: card ? shopScore(card) : -1 }))
+            .filter(item => item.card && state.ai.shards >= item.card.shopCost)
+            .sort((a, b) => b.score - a.score);
+        if (affordable.length === 0) return false;
+        return buyShopCard("ai", affordable[0].index);
+    }
+
+    function shopScore(card) {
+        let score = card.shopCost || 0;
+        if (card.type === "creature") score += (card.atk || 0) * 2 + (card.hp || 0);
+        if (card.effect === "damage") score += (card.damage || 0) * 2;
+        if (card.effect === "heal") score += 4;
+        if (card.effect === "mindControl" || card.effect === "revive") score += 8;
+        if (card.effect === "thunderstrike") score += 7;
+        if (card.defender) score += 3;
+        return score;
+    }
+
+    async function aiAttackPhase() {
+        if (!state.active || state.turn !== "ai") return;
+        for (const creature of [...state.ai.field]) {
+            if (!state.active) break;
+            if (!findCreature("ai", creature.uid)) continue;
+            if (state.ai.attackedThisTurn.has(creature.uid)) continue;
+            const target = chooseAiAttackTarget(creature);
+            if (target) creatureAttack("ai", creature.uid, target);
+            await delay(220);
+        }
+    }
+
+    function chooseAiAttackTarget(creature) {
+        const legal = getDamageTargets("ai");
+        if (legal.length === 0) return null;
+        const damage = creature.atk || 0;
+        const killable = legal
+            .filter(ref => isCreatureRef(ref))
+            .map(ref => ({ ref, card: resolveRef(ref) }))
+            .filter(item => item.card && item.card.hp <= damage)
+            .sort((a, b) => (b.card.atk || 0) - (a.card.atk || 0));
+        if (killable.length > 0) return killable[0].ref;
+        return legal.find(isHeroRef) || legal[0];
+    }
+
+    function checkWinConditions() {
+        if (!state.active) return;
+        if (state.player.hp <= 0) {
+            state.active = false;
+            tapLocked = false;
+            showGameOver("You lost...", false);
+        } else if (state.ai.hp <= 0) {
+            state.active = false;
+            tapLocked = false;
+            showGameOver("You win!", true);
+        }
+    }
+
+    function cardStats(card) {
+        if (card.type === "economy") return `💎 +${card.shardGain || 0}`;
+        if (card.type === "creature") return `${card.defender ? "🛡️ " : ""}⚔️${card.atk || 0} ❤️${card.hp || 0}`;
+        if (card.effect === "heal") return `💚 +${card.heal || 0}`;
+        if (card.effect === "damage") return `⚔️ ${card.damage || 0}`;
+        if (card.effect === "thunderstrike") return `🌩️ ${card.damage || 0}×2`;
+        if (card.effect === "cloak") return "✨ Cloak";
+        if (card.effect === "mindControl") return "🧠 Steal";
+        if (card.effect === "revive") return "🔥 Revive";
+        return card.desc || "Spell";
+    }
+
+    function typeIcon(card) {
+        if (card.type === "creature") return "⚔️";
+        if (card.type === "spell") return "✦";
+        if (card.type === "oneshot") return "☄";
+        if (card.type === "economy") return "💎";
+        return "◆";
+    }
+
+    function cardHtml(card, opts = {}) {
+        const classes = ["card", card.type || "spell"];
+        if (opts.shop) classes.push("shop-card");
+        if (opts.targetable) classes.push("targetable");
+        if (opts.selected) classes.push("selected");
+        if (opts.attacked) classes.push("attacked");
+        if (opts.disabled) classes.push("disabled");
+        const data = opts.data || "";
+        const cost = opts.shopCost ? `<span class="cost-badge">💎${card.shopCost}</span>` : "";
+        return `
+            <div class="${classes.join(" ")}" ${data}>
+                <div class="card-name">${escapeHtml(card.name)}</div>
+                <div class="card-body">${escapeHtml(cardStats(card))}</div>
+                <div class="card-desc">${escapeHtml(card.desc || "")}</div>
+                ${cost}<span class="type-badge">${typeIcon(card)}</span>
+            </div>`;
+    }
+
+    function faceDownHtml() {
+        return `<div class="card face-down"><div class="card-name">???</div></div>`;
+    }
+
+    function render() {
+        const player = state.player;
+        const ai = state.ai;
+        if (!player || !ai) return;
+
+        els.turnChip.textContent = state.active ? (state.turn === "player" ? "Your Turn" : "AI Turn") : "Game Over";
+        els.subtitle.textContent = state.pendingSpell
+            ? `${state.pendingSpell.cardName}: choose ${state.pendingSpell.maxTargets - state.pendingSpell.targets.length} target${state.pendingSpell.maxTargets - state.pendingSpell.targets.length === 1 ? "" : "s"}`
+            : state.selectedAttackerUid
+                ? "Attack mode: tap an enemy target"
+                : "Mobile optimized build";
+        els.statusMini.textContent = state.turn === "player" ? "Player" : "AI";
+        els.endTurnBtn.disabled = !state.active || state.turn !== "player" || tapLocked;
+
+        els.playerHp.textContent = Math.max(0, player.hp);
+        els.aiHp.textContent = Math.max(0, ai.hp);
+        els.playerShards.textContent = player.shards;
+        els.aiShards.textContent = ai.shards;
+        els.aiHandCount.textContent = ai.hand.length;
+        els.playerHandCount.textContent = `${player.hand.length} card${player.hand.length === 1 ? "" : "s"}`;
+        els.aiDeckCount.textContent = `Deck ${ai.deck.length} / Discard ${ai.discard.length}`;
+        els.playerDeckCount.textContent = player.deck.length;
+        els.playerDiscardCount.textContent = player.discard.length;
+        els.aiFieldCount.textContent = `${ai.field.length} creature${ai.field.length === 1 ? "" : "s"}`;
+        els.playerFieldCount.textContent = `${player.field.length} creature${player.field.length === 1 ? "" : "s"}`;
+        els.centralDeckCount.textContent = state.centralDeck.length;
+        els.clusterStock.textContent = state.arcaneClustersRemaining;
+
+        els.aiZone.classList.toggle("cloak-active", ai.cloakActive);
+        els.playerZone.classList.toggle("cloak-active", player.cloakActive);
+
+        renderHeroTargetState();
+        renderHand();
+        renderField("player", els.playerBattlefield);
+        renderField("ai", els.aiBattlefield);
+        renderAiHand();
+        renderShop();
+        renderLogs();
+        renderHint();
+    }
+
+    function renderHeroTargetState() {
+        document.querySelectorAll(".hp-target").forEach(el => el.classList.remove("targetable"));
+        if (state.turn !== "player" || !state.active) return;
+
+        if (state.pendingSpell) {
+            const legal = getDamageTargets("player").filter(isHeroRef).map(refKey);
+            document.querySelectorAll(".hp-target[data-owner]").forEach(el => {
+                const ref = { kind: "hero", ownerId: el.dataset.owner };
+                if (legal.includes(refKey(ref))) el.classList.add("targetable");
+            });
+        } else if (state.selectedAttackerUid) {
+            const legal = getDamageTargets("player").filter(isHeroRef).map(refKey);
+            const aiHp = document.querySelector('.hp-target[data-owner="ai"]');
+            if (legal.includes("hero:ai")) aiHp.classList.add("targetable");
+        }
     }
 
     function renderHand() {
-        let container = document.getElementById("playerHand");
-        container.innerHTML = "";
-        if(turn !== "player") { container.innerHTML = "<div style='color:gray'>Opponent turn</div>"; return; }
-        for(let card of player.hand) {
-            let div = document.createElement("div");
-            div.className = `card ${card.type}`;
-            let displayText = `<b>${card.name}</b><br>`;
-            if(card.type === "economy") displayText += `💰 +${card.shardGain}<br>${card.desc || ""}`;
-            else if(card.type === "spell" || card.type === "oneshot") {
-                if(card.damage) displayText += `⚔️ ${card.damage}<br>${card.desc || ""}`;
-                else displayText += `${card.desc || ""}`;
-            } else if(card.type === "creature") displayText += `⚔️${card.atk} ❤️${card.hp}<br>${card.desc || ""}`;
-            else displayText += `${card.desc || ""}`;
-            div.innerHTML = displayText;
-            div.onclick = (e)=>{
-                e.stopPropagation();
-                if(!gameActive) return;
-                if(pendingAttacker) { addLog("Finish attack first."); return; }
-                if(pendingSpellCallback) { addLog("Finish spell first."); return; }
-                if(card.type==="creature" || card.type==="economy") { playCardFromHand(player, card); }
-                else if(card.type==="spell" || card.type==="oneshot") {
-                    if(card.effect === "heal") playCardFromHand(player, card, player);
-                    else if(card.effect === "damage") {
-                        let targets = getLegalDamageTargets(player, true);
-                        if(targets.length===0) return;
-                        addLog(`Tap target for ${card.name}`);
-                        pendingSpellCallback = (t)=>{ playCardFromHand(player, card, t); pendingSpellCallback=null; refreshUI(); };
-                        refreshUI();
-                    }
-                    else if(card.effect === "cloak") playCardFromHand(player, card);
-                    else if(card.effect === "thunderstrike") {
-                        let targets = getLegalDamageTargets(player, true);
-                        if(targets.length===0) return;
-                        if(targets.length === 1) {
-                            let dmg = card.damage;
-                            let t = targets[0];
-                            if(!isDamageBlockedByCloak(t, player)) {
-                                t.hp = Math.max(0, t.hp - dmg);
-                                addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
-                                if(t.hp<=0 && t !== player && t !== ai) {
-                                    let fieldArr = (t.owner===player?player.field:ai.field);
-                                    let idx = fieldArr.indexOf(t);
-                                    if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
-                                }
-                            } else addLog(`Cloak blocks Thunderstrike!`);
-                            player.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
-                            let idx = player.hand.findIndex(c=>c.uid===card.uid);
-                            if(idx!==-1) player.hand.splice(idx,1);
-                            player.discard.push(card);
-                            checkWinConditions();
-                            refreshUI();
-                            return;
-                        }
-                        addLog(`Thunderstrike: tap first target`);
-                        pendingSpellCallback = (first) => {
-                            let remaining = targets.filter(t => t !== first);
-                            if(remaining.length === 0) {
-                                let dmg = card.damage;
-                                if(!isDamageBlockedByCloak(first, player)) {
-                                    first.hp = Math.max(0, first.hp - dmg);
-                                    addLog(`Thunderstrike deals ${dmg} to ${first.name || "enemy player"}.`);
-                                    if(first.hp<=0 && first !== player && first !== ai) {
-                                        let fieldArr = (first.owner===player?player.field:ai.field);
-                                        let idx = fieldArr.indexOf(first);
-                                        if(idx!==-1) { fieldArr.splice(idx,1); (first.owner===player?player.graveyard:ai.graveyard).push(first); addLog(`${first.name} dies.`); }
-                                    }
-                                } else addLog(`Cloak blocks Thunderstrike!`);
-                                player.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
-                                pendingSpellCallback = null;
-                                let idx = player.hand.findIndex(c=>c.uid===card.uid);
-                                if(idx!==-1) player.hand.splice(idx,1);
-                                player.discard.push(card);
-                                checkWinConditions();
-                                refreshUI();
-                                return;
-                            }
-                            addLog(`Tap second target`);
-                            pendingSpellCallback = (second) => {
-                                let dmg = card.damage;
-                                [first, second].forEach(t=>{
-                                    if(!isDamageBlockedByCloak(t, player)) {
-                                        t.hp = Math.max(0, t.hp - dmg);
-                                        addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
-                                        if(t.hp<=0 && t !== player && t !== ai) {
-                                            let fieldArr = (t.owner===player?player.field:ai.field);
-                                            let idx = fieldArr.indexOf(t);
-                                            if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
-                                        }
-                                    } else addLog(`Cloak blocks Thunderstrike!`);
-                                });
-                                player.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
-                                pendingSpellCallback = null;
-                                let idx = player.hand.findIndex(c=>c.uid===card.uid);
-                                if(idx!==-1) player.hand.splice(idx,1);
-                                player.discard.push(card);
-                                checkWinConditions();
-                                refreshUI();
-                            };
-                            refreshUI();
-                        };
-                        refreshUI();
-                    }
-                    else { playCardFromHand(player, card); }
-                }
-            };
-            container.appendChild(div);
+        if (state.turn !== "player" || !state.active) {
+            els.playerHand.innerHTML = `<div class="empty-lane">Opponent turn...</div>`;
+            return;
         }
+
+        if (state.player.hand.length === 0) {
+            els.playerHand.innerHTML = `<div class="empty-lane">No cards in hand.</div>`;
+            return;
+        }
+
+        els.playerHand.innerHTML = state.player.hand.map(card => cardHtml(card, {
+            data: `data-action="hand-card" data-owner="player" data-uid="${card.uid}"`,
+            disabled: Boolean(state.pendingSpell || state.selectedAttackerUid)
+        })).join("");
     }
 
-    function renderField(containerId, field, isEnemy) {
-        let container = document.getElementById(containerId);
-        container.innerHTML = "";
-        for(let c of field) {
-            let div = document.createElement("div");
-            div.className = "card creature";
-            if(!isEnemy && player.attackedThisTurn.has(c.uid)) div.classList.add("attacked");
-            let def = c.defender?"🛡️DEF ":"";
-            div.innerHTML = `<b>${c.name}</b><br>${def}⚔️${c.atk} ❤️${c.hp}<br>${c.desc || ""}`;
-            if(turn==="player" && !isEnemy && !pendingSpellCallback && !pendingAttacker && gameActive && !player.attackedThisTurn.has(c.uid)) {
-                div.style.cursor = "pointer";
-                div.classList.add("targetable");
-                div.onclick = (e)=>{ e.stopPropagation(); pendingAttacker = c; addLog(`🔨 Attacker: ${c.name}. Now tap enemy target.`); refreshUI(); };
-            }
-            else if(turn==="player" && isEnemy && pendingAttacker && gameActive) {
-                div.style.cursor = "pointer";
-                div.classList.add("targetable");
-                div.onclick = (e)=>{ e.stopPropagation(); attemptManualAttack(pendingAttacker, c); pendingAttacker = null; refreshUI(); };
-            }
-            else if(turn==="player" && isEnemy && pendingSpellCallback && gameActive) {
-                div.style.cursor = "pointer";
-                div.classList.add("targetable");
-                div.onclick = (e)=>{ e.stopPropagation(); pendingSpellCallback(c); pendingSpellCallback = null; refreshUI(); };
-            }
-            container.appendChild(div);
+    function renderField(ownerId, container) {
+        const p = actor(ownerId);
+        if (p.field.length === 0) {
+            container.innerHTML = `<div class="empty-lane">No creatures.</div>`;
+            return;
         }
-        let aiHpElem = document.getElementById("aiHp");
-        let hasDefender = ai.field.some(c=>c.defender===true);
-        if(turn==="player" && gameActive) {
-            if(pendingSpellCallback && !hasDefender && !ai.cloakActive) {
-                aiHpElem.style.cursor = "pointer";
-                aiHpElem.classList.add("targetable");
-                aiHpElem.onclick = ()=>{ pendingSpellCallback(ai); pendingSpellCallback=null; refreshUI(); };
-            }
-            else if(pendingAttacker && !hasDefender && !ai.cloakActive) {
-                aiHpElem.style.cursor = "pointer";
-                aiHpElem.classList.add("targetable");
-                aiHpElem.onclick = ()=>{ attemptManualAttack(pendingAttacker, ai); pendingAttacker=null; refreshUI(); };
-            }
-            else { aiHpElem.style.cursor = "default"; aiHpElem.onclick = null; aiHpElem.classList.remove("targetable"); }
-        } else { aiHpElem.style.cursor = "default"; aiHpElem.onclick = null; aiHpElem.classList.remove("targetable"); }
-        let playerHpElem = document.getElementById("playerHp");
-        if(turn==="player" && pendingSpellCallback && gameActive) {
-            playerHpElem.style.cursor = "pointer";
-            playerHpElem.classList.add("targetable");
-            playerHpElem.onclick = ()=>{ pendingSpellCallback(player); pendingSpellCallback=null; refreshUI(); };
-        } else { playerHpElem.style.cursor = "default"; playerHpElem.onclick = null; playerHpElem.classList.remove("targetable"); }
+        const isPlayerField = ownerId === "player";
+        const legalTargets = state.turn === "player" && state.active
+            ? getDamageTargets("player").map(refKey)
+            : [];
+
+        container.innerHTML = p.field.map(card => {
+            const targetRef = { kind: "creature", ownerId, uid: card.uid };
+            const canBeSpellTarget = Boolean(state.pendingSpell && legalTargets.includes(refKey(targetRef)));
+            const canBeAttackTarget = Boolean(state.selectedAttackerUid && ownerId === "ai" && legalTargets.includes(refKey(targetRef)));
+            const canSelectAttacker = Boolean(isPlayerField && !state.pendingSpell && state.turn === "player" && state.active && !state.player.attackedThisTurn.has(card.uid));
+            return cardHtml(card, {
+                data: `data-action="field-card" data-owner="${ownerId}" data-uid="${card.uid}"`,
+                targetable: canBeSpellTarget || canBeAttackTarget || canSelectAttacker,
+                selected: isPlayerField && state.selectedAttackerUid === card.uid,
+                attacked: isPlayerField && state.player.attackedThisTurn.has(card.uid),
+                disabled: isPlayerField && state.player.attackedThisTurn.has(card.uid)
+            });
+        }).join("");
+    }
+
+    function renderAiHand() {
+        els.aiHand.innerHTML = aiHandMarkup();
+    }
+
+    function aiHandMarkup() {
+        if (state.ai.hand.length === 0) return `<div class="empty-lane">AI hand empty.</div>`;
+        return Array.from({ length: state.ai.hand.length }, faceDownHtml).join("");
     }
 
     function renderShop() {
-        let shopDiv = document.getElementById("shopContainer");
-        shopDiv.innerHTML = "";
-        for(let i=0;i<shopCards.length;i++) {
-            let card = shopCards[i];
-            if(!card) { let empty = document.createElement("div"); empty.className="card shop-card disabled"; empty.innerText="EMPTY"; shopDiv.appendChild(empty); continue; }
-            let div = document.createElement("div");
-            div.className = "card shop-card";
-            let display = `<b>${card.name}</b><br>💰 ${card.shopCost}<br>${card.desc || ""}`;
-            div.innerHTML = display;
-            if(turn==="player" && gameActive && !pendingSpellCallback && !pendingAttacker) div.onclick = ()=>attemptBuyStandard(i);
-            shopDiv.appendChild(div);
+        const cards = state.shopCards.map((card, index) => {
+            if (!card) {
+                return `<div class="shop-pill disabled"><div class="shop-title">Empty</div><div class="shop-meta">Sold out</div></div>`;
+            }
+            const canBuy = state.turn === "player" && state.active && !state.pendingSpell && !state.selectedAttackerUid && state.player.shards >= card.shopCost;
+            return `
+                <div class="shop-pill ${canBuy ? "targetable" : ""}" data-action="buy-shop" data-index="${index}">
+                    <div class="shop-title">${escapeHtml(card.name)}</div>
+                    <div class="shop-meta">💎 ${card.shopCost}</div>
+                    <div class="card-body">${escapeHtml(cardStats(card))}</div>
+                    <div class="card-desc">${escapeHtml(card.desc || "")}</div>
+                </div>`;
+        });
+
+        const clusterBuyable = state.turn === "player" && state.active && !state.pendingSpell && !state.selectedAttackerUid && state.arcaneClustersRemaining > 0 && state.player.shards >= ARCANE_CLUSTER_CARD.shopCost;
+        cards.push(`
+            <div class="shop-pill ${state.arcaneClustersRemaining > 0 ? "" : "disabled"} ${clusterBuyable ? "targetable" : ""}" data-action="buy-cluster">
+                <div class="shop-title">Arcane Cluster</div>
+                <div class="shop-meta">💎 3</div>
+                <div class="card-body">💎 +3</div>
+                <div class="card-desc">${state.arcaneClustersRemaining > 0 ? `${state.arcaneClustersRemaining} left` : "Sold out"}</div>
+            </div>`);
+
+        els.shop.innerHTML = cards.join("");
+    }
+
+    function renderLogs() {
+        els.gameLog.innerHTML = state.logs.length
+            ? state.logs.map(message => `✨ ${escapeHtml(message)}`).join("<br>")
+            : "No events yet.";
+        els.debugLog.value = state.debugLines.join("\n");
+    }
+
+    function renderHint() {
+        let main = "Tap cards to play. Tap one of your creatures, then tap an enemy to attack.";
+        let small = "Swipe lanes sideways to view more cards.";
+        if (!state.active) {
+            main = "Game over.";
+            small = "Restart to play again.";
+        } else if (state.turn === "ai") {
+            main = "AI is taking its turn.";
+            small = "Watch the battlefield and plan your next move.";
+        } else if (state.pendingSpell) {
+            main = `${state.pendingSpell.cardName}: choose ${state.pendingSpell.maxTargets - state.pendingSpell.targets.length} target${state.pendingSpell.maxTargets - state.pendingSpell.targets.length === 1 ? "" : "s"}.`;
+            small = "Use Cancel Action if you change your mind.";
+        } else if (state.selectedAttackerUid) {
+            const attacker = findCreature("player", state.selectedAttackerUid);
+            main = `${attacker ? attacker.name : "Creature"} selected. Tap an enemy creature or AI HP.`;
+            small = "Defenders must be attacked first.";
+        } else if (state.player.shards > 0) {
+            main = `You have ${state.player.shards} shard${state.player.shards === 1 ? "" : "s"}. Buy from the market before ending turn.`;
+            small = "Unspent shards reset at end of turn.";
         }
-        let clusterDiv = document.createElement("div");
-        clusterDiv.className = "card shop-card";
-        if(arcaneClustersRemaining > 0) {
-            clusterDiv.innerHTML = `<b>Arcane Cluster</b><br>💰 3<br>+3 Shards<br>${arcaneClustersRemaining} left`;
-            if(turn==="player" && gameActive && !pendingSpellCallback && !pendingAttacker) clusterDiv.onclick = ()=>attemptBuyCluster();
-        } else { clusterDiv.innerHTML = `<b>Arcane Cluster</b><br>SOLD OUT`; clusterDiv.style.opacity="0.5"; }
-        shopDiv.appendChild(clusterDiv);
+        els.actionHint.innerHTML = `${escapeHtml(main)}<small>${escapeHtml(small)}</small>`;
     }
 
-    function attemptBuyStandard(index) {
-        if(turn!=="player" || !gameActive || pendingSpellCallback || pendingAttacker) return;
-        let card = shopCards[index];
-        if(!card) return;
-        if(player.shards >= card.shopCost) {
-            player.shards -= card.shopCost;
-            player.discard.push({...card, uid: Math.random()});
-            addLog(`Bought ${card.name}.`);
-            if(centralDeck.length) shopCards[index] = centralDeck.shift();
-            else shopCards[index] = null;
-            refreshUI();
-        } else addLog(`Need ${card.shopCost} shards.`);
+    function revealAiCard(card) {
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = cardHtml(card, { data: "", disabled: false });
+        const node = wrapper.firstElementChild;
+        node.classList.add("revealed");
+        els.aiReveals.appendChild(node);
+        node.addEventListener("animationend", () => node.remove(), { once: true });
     }
 
-    function attemptBuyCluster() {
-        if(turn!=="player" || !gameActive || pendingSpellCallback || pendingAttacker) return;
-        if(arcaneClustersRemaining<=0) return;
-        if(player.shards >= 3) {
-            player.shards -= 3;
-            arcaneClustersRemaining--;
-            player.discard.push({...ARCINE_CLUSTER_CARD, uid: Math.random()});
-            addLog(`Bought Arcane Cluster. (${arcaneClustersRemaining} left)`);
-            refreshUI();
-        } else addLog(`Need 3 shards.`);
-    }
+    function handleTap(event) {
+        const target = event.target.closest("[data-action]");
+        if (!target) return;
+        const action = target.dataset.action;
 
-    function canAffordAnything() {
-        if(arcaneClustersRemaining > 0 && player.shards >= 3) return true;
-        for(let card of shopCards) if(card && player.shards >= card.shopCost) return true;
-        return false;
-    }
-
-    async function onEndTurn() {
-        if(turn !== "player") return;
-        if(!gameActive) return;
-        if(pendingSpellCallback) { addLog("Finish spell first."); return; }
-        if(pendingAttacker) { addLog("Finish attack first."); return; }
-        if(player.shards > 0 && canAffordAnything()) {
-            if(!confirm(`You have ${player.shards} shards and can buy. Lose them?`)) return;
+        if (!["toggle-debug", "copy-debug"].includes(action)) {
+            event.preventDefault();
         }
-        endTurn(player);
-        turn = "ai";
-        refreshUI();
-        addLog("🤖 AI turn...");
-        startAITurn();
+
+        switch (action) {
+            case "hand-card":
+                handlePlayerHand(target.dataset.uid);
+                break;
+            case "field-card": {
+                const ref = getTargetRefFromElement(target);
+                if (state.pendingSpell) {
+                    handlePendingSpellTarget(ref);
+                } else if (state.selectedAttackerUid && target.dataset.owner === "ai") {
+                    creatureAttack("player", state.selectedAttackerUid, ref);
+                    tapFeedback(18);
+                } else if (target.dataset.owner === "player") {
+                    handlePlayerCreature(target.dataset.uid);
+                }
+                break;
+            }
+            case "target-hero": {
+                const ref = getTargetRefFromElement(target);
+                if (state.pendingSpell) handlePendingSpellTarget(ref);
+                else if (state.selectedAttackerUid && target.dataset.owner === "ai") creatureAttack("player", state.selectedAttackerUid, ref);
+                break;
+            }
+            case "buy-shop":
+                if (state.turn === "player" && !state.pendingSpell && !state.selectedAttackerUid) {
+                    tapFeedback();
+                    buyShopCard("player", Number(target.dataset.index));
+                }
+                break;
+            case "buy-cluster":
+                if (state.turn === "player" && !state.pendingSpell && !state.selectedAttackerUid) {
+                    tapFeedback();
+                    buyCluster("player");
+                }
+                break;
+            case "end-turn":
+                tapFeedback();
+                void handleEndTurn();
+                break;
+            case "restart":
+                tapFeedback();
+                showConfirm("Restart the match?", initGame);
+                break;
+            case "cancel-action":
+                state.pendingSpell = null;
+                state.selectedAttackerUid = null;
+                addLog("Action cancelled.");
+                tapFeedback();
+                queueRender();
+                break;
+            case "toggle-debug":
+                els.debugLog.classList.toggle("visible");
+                break;
+            case "copy-debug":
+                copyDebug();
+                break;
+        }
     }
 
-    function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }
-    document.getElementById("endTurnBtn").onclick = onEndTurn;
-    document.getElementById("restartBtn").onclick = () => restartGame();
-    document.getElementById("copyDebugBtn").onclick = () => {
-        let db = document.getElementById("debugLog");
-        db.select();
-        document.execCommand("copy");
-        addLog("Debug copied.");
-    };
-    document.getElementById("toggleDebugBtn").onclick = () => {
-        let ta = document.getElementById("debugLog");
-        ta.classList.toggle("visible");
-        document.getElementById("toggleDebugBtn").innerText = ta.classList.contains("visible") ? "Hide Log" : "Show Log";
-    };
+    function showConfirm(message, onConfirm) {
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <h2>Confirm</h2>
+                    <p>${escapeHtml(message)}</p>
+                    <div class="modal-actions">
+                        <button type="button" data-modal="cancel">Cancel</button>
+                        <button type="button" data-modal="confirm">Confirm</button>
+                    </div>
+                </div>
+            </div>`;
+        const cancel = els.modalRoot.querySelector('[data-modal="cancel"]');
+        const confirm = els.modalRoot.querySelector('[data-modal="confirm"]');
+        cancel.addEventListener("pointerup", () => { els.modalRoot.innerHTML = ""; }, { once: true });
+        confirm.addEventListener("pointerup", () => {
+            els.modalRoot.innerHTML = "";
+            onConfirm();
+        }, { once: true });
+    }
+
+    function showGameOver(message, isVictory) {
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <h2 class="${isVictory ? "victory" : "defeat"}">${escapeHtml(message)}</h2>
+                    <p>${isVictory ? "Nice run. The shards are yours." : "The AI claimed the shards this time."}</p>
+                    <button type="button" data-modal="restart">Play Again</button>
+                </div>
+            </div>`;
+        const restart = els.modalRoot.querySelector('[data-modal="restart"]');
+        restart.addEventListener("pointerup", initGame, { once: true });
+        queueRender();
+    }
+
+    async function copyDebug() {
+        const text = state.debugLines.join("\n") || "No debug lines yet.";
+        try {
+            await navigator.clipboard.writeText(text);
+            addLog("Debug copied.");
+        } catch {
+            els.debugLog.classList.add("visible");
+            els.debugLog.focus();
+            els.debugLog.select();
+            document.execCommand("copy");
+            addLog("Debug copied.");
+        }
+    }
+
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>'"]/g, char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "'": "&#039;",
+            '"': "&quot;"
+        }[char]));
+    }
+
+    document.addEventListener("pointerup", handleTap, { passive: false });
+    window.addEventListener("resize", queueRender, { passive: true });
     initGame();
+})();
 </script>
 </body>
 </html>
