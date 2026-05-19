@@ -281,41 +281,6 @@
             opacity: 0.9;
         }
 
-
-
-        .card.has-art {
-            overflow: hidden;
-            background: #0b0e18;
-        }
-
-        .card-art {
-            position: absolute;
-            inset: 0;
-            z-index: 0;
-            background-position: center;
-            background-size: cover;
-            filter: saturate(1.08) contrast(1.04) brightness(0.72);
-            transform: scale(1.02);
-        }
-
-        .card.has-art::before {
-            z-index: 1;
-            background:
-                linear-gradient(180deg, rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.10) 38%, rgba(0,0,0,0.58) 100%),
-                radial-gradient(circle at 50% 18%, rgba(255,255,255,0.18), transparent 40%);
-        }
-
-        .card.has-art .card-name,
-        .card.has-art .card-body,
-        .card.has-art .card-desc {
-            border-radius: 10px;
-            background: rgba(4, 6, 13, 0.54);
-            box-shadow: inset 0 1px rgba(255,255,255,0.08);
-            backdrop-filter: blur(2px);
-            padding: 4px 5px;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.85);
-        }
-
         .card.creature { border-top: 4px solid #ff5c63; }
         .card.spell { border-top: 4px solid var(--blue); }
         .card.economy { border-top: 4px solid var(--gold); }
@@ -442,19 +407,6 @@
             left: 7px;
             bottom: 7px;
             color: #d9ceff;
-        }
-
-
-
-        .shop-thumb {
-            width: 100%;
-            height: 54px;
-            margin-bottom: 6px;
-            border-radius: 12px;
-            background-position: center;
-            background-size: cover;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 6px 14px rgba(0,0,0,0.22);
-            filter: saturate(1.08) contrast(1.04);
         }
 
         .shop-pill {
@@ -766,16 +718,16 @@
 
         <section class="zone opponent-zone" id="aiZone">
             <div class="zone-head">
-                <div class="zone-name">🤖 AI Opponent</div>
+                <div class="zone-name" id="opponentZoneName">🤖 AI Opponent</div>
                 <div class="stats">
                     <div class="hp-target" data-action="target-hero" data-owner="ai">❤️ <span id="aiHp">80</span></div>
                     <div class="stat small">🔮 <span id="aiShards">0</span></div>
                     <div class="stat small">🃏 <span id="aiHandCount">0</span></div>
                 </div>
             </div>
-            <div class="lane-label"><span>AI Battlefield</span><span class="lane-count" id="aiFieldCount"></span></div>
+            <div class="lane-label"><span id="opponentFieldLabel">AI Battlefield</span><span class="lane-count" id="aiFieldCount"></span></div>
             <div class="scroll-lane" id="aiBattlefield"></div>
-            <div class="lane-label"><span>AI Hand</span><span class="lane-count" id="aiDeckCount"></span></div>
+            <div class="lane-label"><span id="opponentHandLabel">AI Hand</span><span class="lane-count" id="aiDeckCount"></span></div>
             <div class="scroll-lane compact" id="aiHand"></div>
             <div class="scroll-lane compact" id="aiReveals" aria-live="polite"></div>
         </section>
@@ -793,7 +745,7 @@
 
         <section class="zone player-zone" id="playerZone">
             <div class="zone-head">
-                <div class="zone-name">✨ You</div>
+                <div class="zone-name" id="playerZoneName">✨ You</div>
                 <div class="stats">
                     <div class="hp-target" data-action="target-hero" data-owner="player">❤️ <span id="playerHp">80</span></div>
                     <div class="stat small">💎 <span id="playerShards">0</span></div>
@@ -801,9 +753,9 @@
                     <div class="stat small">Discard <span id="playerDiscardCount">0</span></div>
                 </div>
             </div>
-            <div class="lane-label"><span>Your Hand</span><span class="lane-count" id="playerHandCount"></span></div>
+            <div class="lane-label"><span id="playerHandLabel">Your Hand</span><span class="lane-count" id="playerHandCount"></span></div>
             <div class="scroll-lane" id="playerHand"></div>
-            <div class="lane-label"><span>Your Creatures</span><span class="lane-count" id="playerFieldCount"></span></div>
+            <div class="lane-label"><span id="playerFieldLabel">Your Creatures</span><span class="lane-count" id="playerFieldCount"></span></div>
             <div class="scroll-lane" id="playerBattlefield"></div>
         </section>
 
@@ -826,7 +778,7 @@
 
     <div class="floating-targets" id="floatingTargets" aria-live="polite">
         <div class="floating-target-label" id="floatingTargetLabel">Target available<small>No scrolling needed.</small></div>
-        <button class="floating-hero-button" type="button" data-action="target-hero" data-owner="ai" id="floatingAiTarget">Hit AI ❤️ <span id="floatingAiHp">80</span></button>
+        <button class="floating-hero-button" type="button" data-action="target-hero" data-owner="ai" id="floatingAiTarget">Hit Opponent ❤️ <span id="floatingAiHp">80</span></button>
     </div>
 
     <div class="action-dock">
@@ -848,10 +800,10 @@
         { id: "cloak", image: "assets/cards/ethereal_cloak.webp", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "cloak", desc: "Block damage" },
         { id: "mindcontrol", image: "assets/cards/mind_control.webp", name: "Mind Control", type: "spell", shopCost: 5, effect: "mindControl", desc: "Steal enemy" },
         { id: "thunderstrike", image: "assets/cards/thunderstrike.webp", name: "Thunderstrike", type: "spell", shopCost: 4, effect: "thunderstrike", damage: 4, desc: "Hit 2 targets" },
-        { id: "fire_ele", image: "assets/cards/fire_elemental.webp", name: "Fire Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, desc: "Elemental" },
-        { id: "earth_ele", image: "assets/cards/earth_elemental.webp", name: "Earth Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, desc: "Elemental" },
-        { id: "water_ele", image: "assets/cards/water_elemental.webp", name: "Water Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, desc: "Elemental" },
-        { id: "storm_ele", image: "assets/cards/storm_elemental.webp", name: "Storm Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, desc: "Elemental" },
+        { id: "fire_ele", image: "assets/cards/fire_elemental.webp", name: "Fire Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, element: "fire", desc: "Fire link" },
+        { id: "earth_ele", image: "assets/cards/earth_elemental.webp", name: "Earth Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, element: "earth", desc: "Earth link" },
+        { id: "water_ele", image: "assets/cards/water_elemental.webp", name: "Water Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, element: "water", desc: "Water link" },
+        { id: "storm_ele", image: "assets/cards/storm_elemental.webp", name: "Storm Elemental", type: "creature", shopCost: 4, atk: 4, hp: 6, elemental: true, element: "storm", desc: "Storm link" },
         { id: "frostwolf", image: "assets/cards/frostwolf_pack.webp", name: "Frostwolf Pack", type: "creature", shopCost: 3, atk: 2, hp: 4, desc: "Fast pack" },
         { id: "panther", image: "assets/cards/shadow_panther.webp", name: "Shadow Panther", type: "creature", shopCost: 3, atk: 2, hp: 4, desc: "Quick threat" },
         { id: "hydra", image: "assets/cards/venomous_hydra.webp", name: "Venomous Hydra", type: "creature", shopCost: 2, atk: 2, hp: 2, desc: "Cheap attacker" },
@@ -890,6 +842,12 @@
         endTurnBtn: document.getElementById("endTurnBtn"),
         aiZone: document.getElementById("aiZone"),
         playerZone: document.getElementById("playerZone"),
+        opponentZoneName: document.getElementById("opponentZoneName"),
+        playerZoneName: document.getElementById("playerZoneName"),
+        opponentFieldLabel: document.getElementById("opponentFieldLabel"),
+        opponentHandLabel: document.getElementById("opponentHandLabel"),
+        playerHandLabel: document.getElementById("playerHandLabel"),
+        playerFieldLabel: document.getElementById("playerFieldLabel"),
         aiHp: document.getElementById("aiHp"),
         playerHp: document.getElementById("playerHp"),
         floatingTargets: document.getElementById("floatingTargets"),
@@ -923,7 +881,10 @@
     let tapLocked = false;
 
     const state = {
-        active: true,
+        active: false,
+        mode: "ai",
+        names: { player: "Player 1", ai: "AI" },
+        awaitingPass: false,
         turn: "player",
         centralDeck: [],
         shopCards: [],
@@ -997,7 +958,23 @@
     }
 
     function labelFor(ownerId) {
-        return ownerId === "player" ? "You" : "AI";
+        return state.names?.[ownerId] || (ownerId === "player" ? "Player 1" : "AI");
+    }
+
+    function isHumanOwner(ownerId) {
+        return ownerId === "player" || state.mode === "pass";
+    }
+
+    function currentHumanOwner() {
+        return state.mode === "pass" ? state.turn : "player";
+    }
+
+    function visibleBottomOwner() {
+        return state.mode === "pass" && state.turn === "ai" ? "ai" : "player";
+    }
+
+    function visibleTopOwner() {
+        return other(visibleBottomOwner());
     }
 
     function isHeroRef(ref) {
@@ -1102,8 +1079,13 @@
         });
     }
 
-    function initGame() {
+    function initGame(options = {}) {
         uidCounter = 1;
+        state.mode = options.mode || state.mode || "ai";
+        const p1 = (options.playerName ?? state.names?.player ?? "Player 1").trim() || "Player 1";
+        const p2 = (options.playerTwoName ?? state.names?.ai ?? (state.mode === "ai" ? "AI" : "Player 2")).trim() || (state.mode === "ai" ? "AI" : "Player 2");
+        state.names = { player: p1, ai: state.mode === "ai" ? "AI" : p2 };
+        state.awaitingPass = false;
         state.centralDeck = buildCentralDeck();
         state.shopCards = [];
         for (let i = 0; i < 4 && state.centralDeck.length; i++) state.shopCards.push(state.centralDeck.shift());
@@ -1117,7 +1099,7 @@
         state.logs = [];
         state.debugLines = [];
         els.modalRoot.innerHTML = "";
-        addLog("Ready. Tap cards to play, then attack with your creatures.");
+        addLog(`${labelFor("player")} starts. Tap cards to play, then attack with your creatures.`);
         startTurn("player");
     }
 
@@ -1143,7 +1125,13 @@
         state.selectedAttackerUid = null;
         state.pendingSpell = null;
         for (let i = 0; i < HAND_DRAW; i++) drawCard(ownerId);
-        addLog(ownerId === "player" ? "Your turn." : "AI turn.");
+        addLog(`${labelFor(ownerId)} turn.`);
+        if (state.mode === "pass") {
+            state.awaitingPass = true;
+            queueRender();
+            showPassPrompt(ownerId);
+            return;
+        }
         queueRender();
         if (ownerId === "ai") void aiTurnLogic();
     }
@@ -1216,6 +1204,7 @@
             atk: card.atk || 0,
             defender: Boolean(card.defender),
             elemental: Boolean(card.elemental),
+            element: card.element || "",
             thunderSynergy: Boolean(card.thunderSynergy),
             startHeal: card.startHeal || 0,
             originalHp: card.hp || 1
@@ -1252,7 +1241,7 @@
                 break;
             }
             case "summonDefender": {
-                const shield = cloneCard({ id: "frostshield_token", name: "Frost Shield", type: "creature", atk: 0, hp: card.hp || 4, defender: true, desc: "Defender" });
+                const shield = cloneCard({ id: "frostshield_token", image: "assets/cards/frost_shield.webp", name: "Frost Shield", type: "creature", atk: 0, hp: card.hp || 4, defender: true, desc: "Defender" });
                 summonCreature(ownerId, shield);
                 break;
             }
@@ -1330,6 +1319,16 @@
         return true;
     }
 
+
+    function effectiveCreatureAttack(ownerId, creature) {
+        let damage = creature.atk || 0;
+        if (creature.elemental && creature.element) {
+            const matching = actor(ownerId).field.filter(card => card.elemental && card.element === creature.element).length;
+            if (matching >= 2) damage *= 2;
+        }
+        return damage;
+    }
+
     function creatureAttack(ownerId, attackerUid, targetRef) {
         if (!state.active || state.turn !== ownerId) return false;
         const attacker = findCreature(ownerId, attackerUid);
@@ -1360,9 +1359,7 @@
             }
         }
 
-        let damage = attacker.atk || 0;
-        const elementalCount = owner.field.filter(card => card.elemental).length;
-        if (attacker.elemental && elementalCount >= 2) damage *= 2;
+        const damage = effectiveCreatureAttack(ownerId, attacker);
 
         dealDamage(ownerId, targetRef, damage, `⚔️ ${attacker.name}`);
         owner.attackedThisTurn.add(attacker.uid);
@@ -1371,9 +1368,10 @@
         return true;
     }
 
-    function canPlayerAffordAnything() {
-        if (state.arcaneClustersRemaining > 0 && state.player.shards >= ARCANE_CLUSTER_CARD.shopCost) return true;
-        return state.shopCards.some(card => card && state.player.shards >= card.shopCost);
+    function canAffordAnything(ownerId) {
+        const p = actor(ownerId);
+        if (state.arcaneClustersRemaining > 0 && p.shards >= ARCANE_CLUSTER_CARD.shopCost) return true;
+        return state.shopCards.some(card => card && p.shards >= card.shopCost);
     }
 
     function buyShopCard(ownerId, index) {
@@ -1408,8 +1406,8 @@
         return true;
     }
 
-    function startSpellTargeting(card) {
-        const legal = getDamageTargets("player");
+    function startSpellTargeting(ownerId, card) {
+        const legal = getDamageTargets(ownerId);
         if (legal.length === 0) {
             addLog("No legal targets.");
             return;
@@ -1417,7 +1415,7 @@
 
         const maxTargets = card.effect === "thunderstrike" ? Math.min(2, legal.length) : 1;
         state.selectedAttackerUid = null;
-        state.pendingSpell = { cardUid: card.uid, cardName: card.name, effect: card.effect, maxTargets, targets: [] };
+        state.pendingSpell = { ownerId, cardUid: card.uid, cardName: card.name, effect: card.effect, maxTargets, targets: [] };
         addLog(maxTargets === 1 ? `Tap target for ${card.name}.` : `${card.name}: tap ${maxTargets} targets.`);
         queueRender();
     }
@@ -1425,7 +1423,7 @@
     function handlePendingSpellTarget(ref) {
         const pending = state.pendingSpell;
         if (!pending) return;
-        if (!isLegalDamageTarget("player", ref)) {
+        if (!isLegalDamageTarget(pending.ownerId, ref)) {
             addLog("That target is blocked or invalid.");
             return;
         }
@@ -1437,7 +1435,7 @@
         tapFeedback(18);
 
         if (pending.targets.length >= pending.maxTargets) {
-            playCard("player", pending.cardUid, pending.targets);
+            playCard(pending.ownerId, pending.cardUid, pending.targets);
             state.pendingSpell = null;
         } else {
             addLog(`Tap ${pending.maxTargets - pending.targets.length} more target.`);
@@ -1446,7 +1444,8 @@
     }
 
     function handlePlayerHand(cardUid) {
-        if (state.turn !== "player" || !state.active || tapLocked) return;
+        const ownerId = currentHumanOwner();
+        if (state.turn !== ownerId || !state.active || tapLocked || state.awaitingPass) return;
         if (state.pendingSpell) {
             addLog("Finish or cancel your current spell first.");
             return;
@@ -1455,28 +1454,29 @@
             addLog("Finish or cancel your attack first.");
             return;
         }
-        const card = findHandCard("player", cardUid);
+        const card = findHandCard(ownerId, cardUid);
         if (!card) return;
         tapFeedback();
 
         if (card.type === "economy" || card.type === "creature") {
-            playCard("player", card.uid);
+            playCard(ownerId, card.uid);
             return;
         }
 
         if (card.effect === "damage" || card.effect === "thunderstrike") {
-            startSpellTargeting(card);
+            startSpellTargeting(ownerId, card);
             return;
         }
 
-        playCard("player", card.uid, card.effect === "heal" ? [{ kind: "hero", ownerId: "player" }] : []);
+        playCard(ownerId, card.uid, card.effect === "heal" ? [{ kind: "hero", ownerId }] : []);
     }
 
     function handlePlayerCreature(cardUid) {
-        if (state.turn !== "player" || !state.active || state.pendingSpell) return;
-        const creature = findCreature("player", cardUid);
+        const ownerId = currentHumanOwner();
+        if (state.turn !== ownerId || !state.active || state.pendingSpell || state.awaitingPass) return;
+        const creature = findCreature(ownerId, cardUid);
         if (!creature) return;
-        if (state.player.attackedThisTurn.has(cardUid)) {
+        if (actor(ownerId).attackedThisTurn.has(cardUid)) {
             addLog(`${creature.name} already attacked.`);
             return;
         }
@@ -1487,23 +1487,27 @@
     }
 
     async function handleEndTurn() {
-        if (state.turn !== "player" || !state.active) return;
+        const ownerId = currentHumanOwner();
+        if (state.turn !== ownerId || !state.active || state.awaitingPass) return;
         if (state.pendingSpell || state.selectedAttackerUid) {
             addLog("Finish or cancel your action first.");
             return;
         }
 
-        if (state.player.shards > 0 && canPlayerAffordAnything()) {
-            showConfirm(`You have ${state.player.shards} unspent shard${state.player.shards === 1 ? "" : "s"}. End turn and lose them?`, () => endPlayerTurnNow());
+        const p = actor(ownerId);
+        if (p.shards > 0 && canAffordAnything(ownerId)) {
+            showConfirm(`You have ${p.shards} unspent shard${p.shards === 1 ? "" : "s"}. End turn and lose them?`, () => endHumanTurnNow(ownerId));
             return;
         }
 
-        endPlayerTurnNow();
+        endHumanTurnNow(ownerId);
     }
 
-    function endPlayerTurnNow() {
-        endTurn("player");
-        if (state.active) startTurn("ai");
+    function endHumanTurnNow(ownerId) {
+        endTurn(ownerId);
+        if (!state.active) return;
+        const nextOwner = other(ownerId);
+        startTurn(nextOwner);
     }
 
     async function aiTurnLogic() {
@@ -1638,7 +1642,7 @@
     function chooseAiAttackTarget(creature) {
         const legal = getDamageTargets("ai");
         if (legal.length === 0) return null;
-        const damage = creature.atk || 0;
+        const damage = effectiveCreatureAttack("ai", creature);
         const killable = legal
             .filter(ref => isCreatureRef(ref))
             .map(ref => ({ ref, card: resolveRef(ref) }))
@@ -1653,17 +1657,21 @@
         if (state.player.hp <= 0) {
             state.active = false;
             tapLocked = false;
-            showGameOver("You lost...", false);
+            showGameOver(`${labelFor("ai")} wins!`, state.mode === "ai" ? false : true);
         } else if (state.ai.hp <= 0) {
             state.active = false;
             tapLocked = false;
-            showGameOver("You win!", true);
+            showGameOver(`${labelFor("player")} wins!`, true);
         }
     }
 
-    function cardStats(card) {
+    function cardStats(card, ownerId = null) {
         if (card.type === "economy") return `💎 +${card.shardGain || 0}`;
-        if (card.type === "creature") return `${card.defender ? "🛡️ " : ""}⚔️${card.atk || 0} ❤️${card.hp || 0}`;
+        if (card.type === "creature") {
+            const attack = ownerId ? effectiveCreatureAttack(ownerId, card) : (card.atk || 0);
+            const attackText = ownerId && attack !== (card.atk || 0) ? `${attack} (${card.atk})` : `${attack}`;
+            return `${card.defender ? "🛡️ " : ""}⚔️${attackText} ❤️${card.hp || 0}`;
+        }
         if (card.effect === "heal") return `💚 +${card.heal || 0}`;
         if (card.effect === "damage") return `⚔️ ${card.damage || 0}`;
         if (card.effect === "thunderstrike") return `🌩️ ${card.damage || 0}×2`;
@@ -1683,12 +1691,12 @@
 
     function cardHtml(card, opts = {}) {
         const classes = ["card", card.type || "spell"];
-        if (card.image) classes.push("has-art");
         if (opts.shop) classes.push("shop-card");
         if (opts.targetable) classes.push("targetable");
         if (opts.selected) classes.push("selected");
         if (opts.attacked) classes.push("attacked");
         if (opts.disabled) classes.push("disabled");
+        if (card.image) classes.push("has-art");
         const data = opts.data || "";
         const cost = opts.shopCost ? `<span class="cost-badge">💎${card.shopCost}</span>` : "";
         const art = card.image ? `<div class="card-art" style="background-image:url('${escapeAttr(card.image)}')"></div>` : "";
@@ -1696,7 +1704,7 @@
             <div class="${classes.join(" ")}" ${data}>
                 ${art}
                 <div class="card-name">${escapeHtml(card.name)}</div>
-                <div class="card-body">${escapeHtml(cardStats(card))}</div>
+                <div class="card-body">${escapeHtml(cardStats(card, opts.ownerId || null))}</div>
                 <div class="card-desc">${escapeHtml(card.desc || "")}</div>
                 ${cost}<span class="type-badge">${typeIcon(card)}</span>
             </div>`;
@@ -1711,38 +1719,52 @@
         const ai = state.ai;
         if (!player || !ai) return;
 
-        els.turnChip.textContent = state.active ? (state.turn === "player" ? "Your Turn" : "AI Turn") : "Game Over";
+        const bottomOwner = visibleBottomOwner();
+        const topOwner = visibleTopOwner();
+        const activeLabel = labelFor(state.turn);
+        els.turnChip.textContent = state.active ? `${activeLabel} Turn` : "Game Over";
         els.subtitle.textContent = state.pendingSpell
             ? `${state.pendingSpell.cardName}: choose ${state.pendingSpell.maxTargets - state.pendingSpell.targets.length} target${state.pendingSpell.maxTargets - state.pendingSpell.targets.length === 1 ? "" : "s"}`
             : state.selectedAttackerUid
                 ? "Attack mode: tap an enemy target"
-                : "Mobile optimized build";
-        els.statusMini.textContent = state.turn === "player" ? "Player" : "AI";
-        els.endTurnBtn.disabled = !state.active || state.turn !== "player" || tapLocked;
+                : `${state.mode === "pass" ? "Pass & Play" : "Solo vs AI"} · art build`;
+        els.statusMini.textContent = activeLabel;
+        els.endTurnBtn.disabled = !state.active || !isHumanOwner(state.turn) || tapLocked || state.awaitingPass;
 
-        els.playerHp.textContent = Math.max(0, player.hp);
-        els.aiHp.textContent = Math.max(0, ai.hp);
-        els.playerShards.textContent = player.shards;
-        els.aiShards.textContent = ai.shards;
-        els.aiHandCount.textContent = ai.hand.length;
-        els.playerHandCount.textContent = `${player.hand.length} card${player.hand.length === 1 ? "" : "s"}`;
-        els.aiDeckCount.textContent = `Deck ${ai.deck.length} / Discard ${ai.discard.length}`;
-        els.playerDeckCount.textContent = player.deck.length;
-        els.playerDiscardCount.textContent = player.discard.length;
-        els.aiFieldCount.textContent = `${ai.field.length} creature${ai.field.length === 1 ? "" : "s"}`;
-        els.playerFieldCount.textContent = `${player.field.length} creature${player.field.length === 1 ? "" : "s"}`;
+        els.opponentZoneName.textContent = `${topOwner === "ai" && state.mode === "ai" ? "🤖" : "🧙"} ${labelFor(topOwner)}`;
+        els.playerZoneName.textContent = `✨ ${labelFor(bottomOwner)}`;
+        els.opponentFieldLabel.textContent = `${labelFor(topOwner)} Battlefield`;
+        els.opponentHandLabel.textContent = `${labelFor(topOwner)} Hand`;
+        els.playerHandLabel.textContent = `${labelFor(bottomOwner)} Hand`;
+        els.playerFieldLabel.textContent = `${labelFor(bottomOwner)} Creatures`;
+
+        const bottom = actor(bottomOwner);
+        const top = actor(topOwner);
+        els.playerHp.textContent = Math.max(0, bottom.hp);
+        els.aiHp.textContent = Math.max(0, top.hp);
+        els.playerHp.closest(".hp-target").dataset.owner = bottomOwner;
+        els.aiHp.closest(".hp-target").dataset.owner = topOwner;
+        els.playerShards.textContent = bottom.shards;
+        els.aiShards.textContent = top.shards;
+        els.aiHandCount.textContent = top.hand.length;
+        els.playerHandCount.textContent = `${bottom.hand.length} card${bottom.hand.length === 1 ? "" : "s"}`;
+        els.aiDeckCount.textContent = `Deck ${top.deck.length} / Discard ${top.discard.length}`;
+        els.playerDeckCount.textContent = bottom.deck.length;
+        els.playerDiscardCount.textContent = bottom.discard.length;
+        els.aiFieldCount.textContent = `${top.field.length} creature${top.field.length === 1 ? "" : "s"}`;
+        els.playerFieldCount.textContent = `${bottom.field.length} creature${bottom.field.length === 1 ? "" : "s"}`;
         els.centralDeckCount.textContent = state.centralDeck.length;
         els.clusterStock.textContent = state.arcaneClustersRemaining;
 
-        els.aiZone.classList.toggle("cloak-active", ai.cloakActive);
-        els.playerZone.classList.toggle("cloak-active", player.cloakActive);
+        els.aiZone.classList.toggle("cloak-active", actor(topOwner).cloakActive);
+        els.playerZone.classList.toggle("cloak-active", actor(bottomOwner).cloakActive);
 
         renderHeroTargetState();
         renderFloatingTargets();
-        renderHand();
-        renderField("player", els.playerBattlefield);
-        renderField("ai", els.aiBattlefield);
-        renderAiHand();
+        renderHand(bottomOwner);
+        renderField(bottomOwner, els.playerBattlefield);
+        renderField(topOwner, els.aiBattlefield);
+        renderHiddenHand(topOwner);
         renderShop();
         renderLogs();
         renderHint();
@@ -1750,18 +1772,19 @@
 
     function renderHeroTargetState() {
         document.querySelectorAll(".hp-target").forEach(el => el.classList.remove("targetable"));
-        if (state.turn !== "player" || !state.active) return;
+        if (!state.active || !isHumanOwner(state.turn) || state.awaitingPass) return;
 
         if (state.pendingSpell) {
-            const legal = getDamageTargets("player").filter(isHeroRef).map(refKey);
+            const legal = getDamageTargets(state.turn).filter(isHeroRef).map(refKey);
             document.querySelectorAll(".hp-target[data-owner]").forEach(el => {
                 const ref = { kind: "hero", ownerId: el.dataset.owner };
                 if (legal.includes(refKey(ref))) el.classList.add("targetable");
             });
         } else if (state.selectedAttackerUid) {
-            const legal = getDamageTargets("player").filter(isHeroRef).map(refKey);
-            const aiHp = document.querySelector('.hp-target[data-owner="ai"]');
-            if (legal.includes("hero:ai")) aiHp.classList.add("targetable");
+            const legal = getDamageTargets(state.turn).filter(isHeroRef).map(refKey);
+            const enemyId = other(state.turn);
+            const hp = document.querySelector(`.hp-target[data-owner="${enemyId}"]`);
+            if (hp && legal.includes(`hero:${enemyId}`)) hp.classList.add("targetable");
         }
     }
 
@@ -1769,39 +1792,46 @@
         if (!els.floatingTargets) return;
         els.floatingTargets.classList.remove("visible");
 
-        if (state.turn !== "player" || !state.active) return;
+        if (!state.active || !isHumanOwner(state.turn) || state.awaitingPass) return;
 
-        const legalHeroTargets = getDamageTargets("player").filter(isHeroRef).map(refKey);
-        const aiHeroTargetable = legalHeroTargets.includes("hero:ai") && !state.ai.cloakActive;
+        const enemyId = other(state.turn);
+        const legalHeroTargets = getDamageTargets(state.turn).filter(isHeroRef).map(refKey);
+        const aiHeroTargetable = legalHeroTargets.includes(`hero:${enemyId}`) && !actor(enemyId).cloakActive;
         const needsFloatingHero = aiHeroTargetable && Boolean(state.pendingSpell || state.selectedAttackerUid);
 
         if (!needsFloatingHero) return;
 
-        const selected = state.selectedAttackerUid ? findCreature("player", state.selectedAttackerUid) : null;
+        const selected = state.selectedAttackerUid ? findCreature(state.turn, state.selectedAttackerUid) : null;
         const title = state.pendingSpell
-            ? `${state.pendingSpell.cardName}: AI HP is in range`
-            : `${selected ? selected.name : "Creature"} can attack AI HP`;
-        const detail = state.ai.field.some(c => c.defender)
+            ? `${state.pendingSpell.cardName}: ${labelFor(enemyId)} HP is in range`
+            : `${selected ? selected.name : "Creature"} can attack ${labelFor(enemyId)} HP`;
+        const detail = actor(enemyId).field.some(c => c.defender)
             ? "Defender is blocking hero damage."
             : "Tap this instead of scrolling to the top.";
 
         els.floatingTargetLabel.innerHTML = `${escapeHtml(title)}<small>${escapeHtml(detail)}</small>`;
+        const button = document.getElementById("floatingAiTarget");
+        if (button) {
+            button.dataset.owner = enemyId;
+            button.innerHTML = `Hit ${escapeHtml(labelFor(enemyId))} ❤️ <span id="floatingAiHp">${Math.max(0, actor(enemyId).hp)}</span>`;
+        }
         els.floatingTargets.classList.add("visible");
     }
 
-    function renderHand() {
-        if (state.turn !== "player" || !state.active) {
-            els.playerHand.innerHTML = `<div class="empty-lane">Opponent turn...</div>`;
+    function renderHand(ownerId) {
+        const p = actor(ownerId);
+        if (state.turn !== ownerId || !state.active || state.awaitingPass) {
+            els.playerHand.innerHTML = `<div class="empty-lane">Hand hidden until ${escapeHtml(labelFor(ownerId))} starts turn.</div>`;
             return;
         }
 
-        if (state.player.hand.length === 0) {
+        if (p.hand.length === 0) {
             els.playerHand.innerHTML = `<div class="empty-lane">No cards in hand.</div>`;
             return;
         }
 
-        els.playerHand.innerHTML = state.player.hand.map(card => cardHtml(card, {
-            data: `data-action="hand-card" data-owner="player" data-uid="${card.uid}"`,
+        els.playerHand.innerHTML = p.hand.map(card => cardHtml(card, {
+            data: `data-action="hand-card" data-owner="${ownerId}" data-uid="${card.uid}"`,
             disabled: Boolean(state.pendingSpell || state.selectedAttackerUid)
         })).join("");
     }
@@ -1812,33 +1842,35 @@
             container.innerHTML = `<div class="empty-lane">No creatures.</div>`;
             return;
         }
-        const isPlayerField = ownerId === "player";
-        const legalTargets = state.turn === "player" && state.active
-            ? getDamageTargets("player").map(refKey)
+        const bottomOwner = visibleBottomOwner();
+        const isCurrentPlayerField = ownerId === state.turn && isHumanOwner(state.turn);
+        const legalTargets = isHumanOwner(state.turn) && state.active && !state.awaitingPass
+            ? getDamageTargets(state.turn).map(refKey)
             : [];
 
         container.innerHTML = p.field.map(card => {
             const targetRef = { kind: "creature", ownerId, uid: card.uid };
             const canBeSpellTarget = Boolean(state.pendingSpell && legalTargets.includes(refKey(targetRef)));
-            const canBeAttackTarget = Boolean(state.selectedAttackerUid && ownerId === "ai" && legalTargets.includes(refKey(targetRef)));
-            const canSelectAttacker = Boolean(isPlayerField && !state.pendingSpell && state.turn === "player" && state.active && !state.player.attackedThisTurn.has(card.uid));
+            const canBeAttackTarget = Boolean(state.selectedAttackerUid && ownerId === other(state.turn) && legalTargets.includes(refKey(targetRef)));
+            const canSelectAttacker = Boolean(isCurrentPlayerField && !state.pendingSpell && state.active && !actor(ownerId).attackedThisTurn.has(card.uid));
             return cardHtml(card, {
                 data: `data-action="field-card" data-owner="${ownerId}" data-uid="${card.uid}"`,
                 targetable: canBeSpellTarget || canBeAttackTarget || canSelectAttacker,
-                selected: isPlayerField && state.selectedAttackerUid === card.uid,
-                attacked: isPlayerField && state.player.attackedThisTurn.has(card.uid),
-                disabled: isPlayerField && state.player.attackedThisTurn.has(card.uid)
+                selected: isCurrentPlayerField && state.selectedAttackerUid === card.uid,
+                attacked: isCurrentPlayerField && actor(ownerId).attackedThisTurn.has(card.uid),
+                disabled: isCurrentPlayerField && actor(ownerId).attackedThisTurn.has(card.uid),
+                ownerId
             });
         }).join("");
     }
 
-    function renderAiHand() {
-        els.aiHand.innerHTML = aiHandMarkup();
-    }
-
-    function aiHandMarkup() {
-        if (state.ai.hand.length === 0) return `<div class="empty-lane">AI hand empty.</div>`;
-        return Array.from({ length: state.ai.hand.length }, faceDownHtml).join("");
+    function renderHiddenHand(ownerId) {
+        const p = actor(ownerId);
+        if (p.hand.length === 0) {
+            els.aiHand.innerHTML = `<div class="empty-lane">${escapeHtml(labelFor(ownerId))} hand empty.</div>`;
+            return;
+        }
+        els.aiHand.innerHTML = Array.from({ length: p.hand.length }, faceDownHtml).join("");
     }
 
     function renderShop() {
@@ -1846,7 +1878,8 @@
             if (!card) {
                 return `<div class="shop-pill disabled"><div class="shop-title">Empty</div><div class="shop-meta">Sold out</div></div>`;
             }
-            const canBuy = state.turn === "player" && state.active && !state.pendingSpell && !state.selectedAttackerUid && state.player.shards >= card.shopCost;
+            const buyerId = currentHumanOwner();
+            const canBuy = isHumanOwner(state.turn) && !state.awaitingPass && state.active && !state.pendingSpell && !state.selectedAttackerUid && actor(buyerId).shards >= card.shopCost;
             return `
                 <div class="shop-pill ${canBuy ? "targetable" : ""}" data-action="buy-shop" data-index="${index}">
                     ${card.image ? `<div class="shop-thumb" style="background-image:url('${escapeAttr(card.image)}')"></div>` : ""}
@@ -1857,7 +1890,8 @@
                 </div>`;
         });
 
-        const clusterBuyable = state.turn === "player" && state.active && !state.pendingSpell && !state.selectedAttackerUid && state.arcaneClustersRemaining > 0 && state.player.shards >= ARCANE_CLUSTER_CARD.shopCost;
+        const buyerId = currentHumanOwner();
+        const clusterBuyable = isHumanOwner(state.turn) && !state.awaitingPass && state.active && !state.pendingSpell && !state.selectedAttackerUid && state.arcaneClustersRemaining > 0 && actor(buyerId).shards >= ARCANE_CLUSTER_CARD.shopCost;
         cards.push(`
             <div class="shop-pill ${state.arcaneClustersRemaining > 0 ? "" : "disabled"} ${clusterBuyable ? "targetable" : ""}" data-action="buy-cluster">
                 <div class="shop-thumb" style="background-image:url('assets/cards/arcane_cluster.webp')"></div>
@@ -1883,18 +1917,22 @@
         if (!state.active) {
             main = "Game over.";
             small = "Restart to play again.";
-        } else if (state.turn === "ai") {
+        } else if (state.mode === "ai" && state.turn === "ai") {
             main = "AI is taking its turn.";
             small = "Watch the battlefield and plan your next move.";
+        } else if (state.awaitingPass) {
+            main = `Pass the device to ${labelFor(state.turn)}.`;
+            small = "Their hand is hidden until they start the turn.";
         } else if (state.pendingSpell) {
             main = `${state.pendingSpell.cardName}: choose ${state.pendingSpell.maxTargets - state.pendingSpell.targets.length} target${state.pendingSpell.maxTargets - state.pendingSpell.targets.length === 1 ? "" : "s"}.`;
             small = "Use Cancel Action if you change your mind.";
         } else if (state.selectedAttackerUid) {
-            const attacker = findCreature("player", state.selectedAttackerUid);
+            const attacker = findCreature(state.turn, state.selectedAttackerUid);
             main = `${attacker ? attacker.name : "Creature"} selected. Tap an enemy creature or AI HP.`;
             small = "Defenders must be attacked first.";
-        } else if (state.player.shards > 0) {
-            main = `You have ${state.player.shards} shard${state.player.shards === 1 ? "" : "s"}. Buy from the market before ending turn.`;
+        } else if (actor(currentHumanOwner()).shards > 0) {
+            const shards = actor(currentHumanOwner()).shards;
+            main = `${labelFor(currentHumanOwner())} has ${shards} shard${shards === 1 ? "" : "s"}. Buy from the market before ending turn.`;
             small = "Unspent shards reset at end of turn.";
         }
         els.actionHint.innerHTML = `${escapeHtml(main)}<small>${escapeHtml(small)}</small>`;
@@ -1954,10 +1992,10 @@
                 const ref = getTargetRefFromElement(target);
                 if (state.pendingSpell) {
                     handlePendingSpellTarget(ref);
-                } else if (state.selectedAttackerUid && target.dataset.owner === "ai") {
-                    creatureAttack("player", state.selectedAttackerUid, ref);
+                } else if (state.selectedAttackerUid && target.dataset.owner === other(state.turn)) {
+                    creatureAttack(state.turn, state.selectedAttackerUid, ref);
                     tapFeedback(18);
-                } else if (target.dataset.owner === "player") {
+                } else if (target.dataset.owner === state.turn) {
                     handlePlayerCreature(target.dataset.uid);
                 }
                 break;
@@ -1965,19 +2003,19 @@
             case "target-hero": {
                 const ref = getTargetRefFromElement(target);
                 if (state.pendingSpell) handlePendingSpellTarget(ref);
-                else if (state.selectedAttackerUid && target.dataset.owner === "ai") creatureAttack("player", state.selectedAttackerUid, ref);
+                else if (state.selectedAttackerUid && target.dataset.owner === other(state.turn)) creatureAttack(state.turn, state.selectedAttackerUid, ref);
                 break;
             }
             case "buy-shop":
-                if (state.turn === "player" && !state.pendingSpell && !state.selectedAttackerUid) {
+                if (isHumanOwner(state.turn) && !state.awaitingPass && !state.pendingSpell && !state.selectedAttackerUid) {
                     tapFeedback();
-                    buyShopCard("player", Number(target.dataset.index));
+                    buyShopCard(currentHumanOwner(), Number(target.dataset.index));
                 }
                 break;
             case "buy-cluster":
-                if (state.turn === "player" && !state.pendingSpell && !state.selectedAttackerUid) {
+                if (isHumanOwner(state.turn) && !state.awaitingPass && !state.pendingSpell && !state.selectedAttackerUid) {
                     tapFeedback();
-                    buyCluster("player");
+                    buyCluster(currentHumanOwner());
                 }
                 break;
             case "end-turn":
@@ -2030,7 +2068,7 @@
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
                     <h2 class="${isVictory ? "victory" : "defeat"}">${escapeHtml(message)}</h2>
-                    <p>${isVictory ? "Nice run. The shards are yours." : "The AI claimed the shards this time."}</p>
+                    <p>${state.mode === "ai" ? (isVictory ? "Nice run. The shards are yours." : "The AI claimed the shards this time.") : "Great duel. Pass the device back to set up another match."}</p>
                     <button type="button" data-modal="restart">Play Again</button>
                 </div>
             </div>`;
@@ -2053,12 +2091,74 @@
         }
     }
 
-    function delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+
+    function showStartModal() {
+        state.active = false;
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <div class="start-art"></div>
+                    <h2>Arcane Shards</h2>
+                    <p>Choose how to play, read the rules, then start the match.</p>
+                    <div class="mode-grid">
+                        <button type="button" class="mode-choice selected" data-start-mode="ai">Solo vs AI</button>
+                        <button type="button" class="mode-choice" data-start-mode="pass">Pass & Play</button>
+                    </div>
+                    <div class="name-grid">
+                        <input id="startPlayerOne" maxlength="18" value="Player 1" aria-label="Player 1 name" />
+                        <input id="startPlayerTwo" maxlength="18" value="Player 2" aria-label="Player 2 name" />
+                    </div>
+                    <ul class="rules-list">
+                        <li>Play Shard cards to gain shards for this turn.</li>
+                        <li>Buy cards from the market; bought cards go to your discard pile.</li>
+                        <li>Tap a creature, then tap an enemy creature or hero HP to attack.</li>
+                        <li>Defenders must be defeated before hero HP can be hit.</li>
+                        <li>Two matching elementals double that element's attack while both are alive.</li>
+                    </ul>
+                    <button type="button" data-modal="start-game">Start Game</button>
+                </div>
+            </div>`;
+
+        let selectedMode = "ai";
+        const modeButtons = [...els.modalRoot.querySelectorAll("[data-start-mode]")];
+        const p2Input = els.modalRoot.querySelector("#startPlayerTwo");
+        function updateMode(mode) {
+            selectedMode = mode;
+            modeButtons.forEach(btn => btn.classList.toggle("selected", btn.dataset.startMode === mode));
+            p2Input.disabled = mode === "ai";
+            p2Input.style.opacity = mode === "ai" ? "0.45" : "1";
+        }
+        modeButtons.forEach(btn => btn.addEventListener("pointerup", () => updateMode(btn.dataset.startMode)));
+        updateMode("ai");
+        els.modalRoot.querySelector('[data-modal="start-game"]').addEventListener("pointerup", () => {
+            const playerName = els.modalRoot.querySelector("#startPlayerOne").value;
+            const playerTwoName = p2Input.value;
+            els.modalRoot.innerHTML = "";
+            initGame({ mode: selectedMode, playerName, playerTwoName });
+        }, { once: true });
     }
 
-    function escapeAttr(value) {
-        return String(value ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    function showPassPrompt(ownerId) {
+        tapLocked = true;
+        const name = labelFor(ownerId);
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <h2>Pass to ${escapeHtml(name)}</h2>
+                    <p>Hand is hidden. Pass the device, then press Start Turn.</p>
+                    <button type="button" data-modal="start-turn">Start ${escapeHtml(name)} Turn</button>
+                </div>
+            </div>`;
+        els.modalRoot.querySelector('[data-modal="start-turn"]').addEventListener("pointerup", () => {
+            els.modalRoot.innerHTML = "";
+            state.awaitingPass = false;
+            tapLocked = false;
+            queueRender();
+        }, { once: true });
+    }
+
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     function escapeHtml(value) {
@@ -2071,10 +2171,14 @@
         }[char]));
     }
 
+    function escapeAttr(value) {
+        return escapeHtml(value).replace(/`/g, "&#096;");
+    }
+
     document.addEventListener("pointerdown", handlePointerDown, { passive: true });
     document.addEventListener("pointerup", handleTap, { passive: false });
     window.addEventListener("resize", queueRender, { passive: true });
-    initGame();
+    showStartModal();
 })();
 </script>
 </body>
