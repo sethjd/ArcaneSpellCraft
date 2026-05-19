@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>ARCANE SHARDS — AI Play Revealed in Hand (10 sec)</title>
+    <title>ARCANE SHARDS — Mobile Compact</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body {
@@ -11,22 +11,22 @@
             font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
             margin: 0;
             min-height: 100vh;
-            padding: 12px;
+            padding: 6px;
         }
         .game-container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             width: 100%;
             background: rgba(10, 14, 23, 0.7);
             backdrop-filter: blur(3px);
-            border-radius: 2rem;
-            padding: 12px;
+            border-radius: 1.2rem;
+            padding: 8px;
         }
         .opponent-area, .player-area {
             background: rgba(0, 0, 0, 0.35);
-            border-radius: 1.5rem;
-            margin: 8px 0;
-            padding: 12px;
+            border-radius: 1rem;
+            margin: 4px 0;
+            padding: 8px;
             backdrop-filter: blur(4px);
             border: 1px solid rgba(110, 80, 160, 0.4);
             display: flex;
@@ -34,71 +34,71 @@
         }
         .opponent-area .stats {
             order: 2;
-            margin-top: 8px;
+            margin-top: 6px;
             margin-bottom: 0;
         }
         .stats {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
+            align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 6px;
             background: #03060ecc;
-            padding: 8px 12px;
-            border-radius: 2rem;
+            padding: 4px 10px;
+            border-radius: 1.5rem;
         }
         .hp {
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             font-weight: bold;
             color: #ffb347;
-            text-shadow: 0 0 5px #ff7b00;
+            text-shadow: 0 0 3px #ff7b00;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
         }
         .hp-label {
-            font-size: 1rem;
+            font-size: 0.8rem;
             background: #00000066;
-            padding: 4px 10px;
-            border-radius: 2rem;
+            padding: 2px 8px;
+            border-radius: 1rem;
             color: #ddd;
         }
-        .shard-pool { background: #241f3a; padding: 4px 12px; border-radius: 2rem; font-weight: bold; color: #d9c8ff; font-size: 0.9rem; }
+        .shard-pool { background: #241f3a; padding: 2px 8px; border-radius: 1.5rem; font-weight: bold; color: #d9c8ff; font-size: 0.8rem; }
         .hand, .battlefield {
             display: flex;
             flex-wrap: nowrap;
             overflow-x: auto;
-            gap: 10px;
-            padding: 8px 4px;
-            margin-top: 8px;
-            min-height: 140px;
+            gap: 6px;
+            padding: 6px 2px;
+            margin-top: 4px;
+            min-height: 110px;
             scrollbar-width: thin;
             -webkit-overflow-scrolling: touch;
         }
         .card {
             background: #1e1a2f;
-            border-radius: 1rem;
-            width: 85px;
+            border-radius: 0.8rem;
+            width: 75px;
             flex-shrink: 0;
-            padding: 6px 2px;
+            padding: 4px 2px;
             text-align: center;
             cursor: pointer;
             transition: 0.05s linear;
             border: 1px solid #7a5ac5;
-            box-shadow: 0 4px 10px black;
-            font-size: 0.7rem;
+            box-shadow: 0 2px 6px black;
+            font-size: 0.6rem;
             font-weight: bold;
             color: #f0eef7;
             position: relative;
         }
-        @media (min-width: 700px) {
-            .card { width: 110px; font-size: 0.75rem; padding: 8px 4px; }
+        @media (min-width: 600px) {
+            .card { width: 90px; font-size: 0.65rem; padding: 6px 3px; }
         }
-        .card.creature { border-top: 4px solid #e34d4d; }
-        .card.spell { border-top: 4px solid #4b9bff; }
-        .card.economy { border-top: 4px solid #f5c542; }
-        .card.oneshot { border-top: 4px solid #ff884d; }
+        .card.creature { border-top: 3px solid #e34d4d; }
+        .card.spell { border-top: 3px solid #4b9bff; }
+        .card.economy { border-top: 3px solid #f5c542; }
+        .card.oneshot { border-top: 3px solid #ff884d; }
         .card:active { transform: scale(0.97); background: #2f2a48; }
         .card.attacked {
             opacity: 0.6;
@@ -108,15 +108,15 @@
         .card.attacked::after {
             content: "✘";
             position: absolute;
-            top: 2px;
-            right: 4px;
-            font-size: 16px;
+            top: 0px;
+            right: 2px;
+            font-size: 14px;
             font-weight: bold;
             color: #ff5555;
             background: rgba(0,0,0,0.5);
             border-radius: 50%;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -130,9 +130,9 @@
         }
         .card.face-down::before {
             content: "???";
-            font-size: 1.2rem;
+            font-size: 1rem;
             display: block;
-            margin-top: 20px;
+            margin-top: 18px;
         }
         .card.revealed-temp {
             animation: fadeOutCard 10s forwards;
@@ -147,96 +147,97 @@
             display: flex;
             flex-wrap: nowrap;
             overflow-x: auto;
-            gap: 12px;
+            gap: 8px;
             background: #00000066;
-            padding: 12px;
-            border-radius: 1.5rem;
-            margin: 12px 0;
+            padding: 8px;
+            border-radius: 1rem;
+            margin: 6px 0;
             scrollbar-width: thin;
             -webkit-overflow-scrolling: touch;
         }
         .shop-card {
             background: #2a1f3c;
-            width: 95px;
+            width: 80px;
             flex-shrink: 0;
             border: 2px solid #ffd966;
+            font-size: 0.6rem;
         }
-        @media (min-width: 700px) {
-            .shop-card { width: 110px; }
+        @media (min-width: 600px) {
+            .shop-card { width: 95px; font-size: 0.7rem; }
         }
         button {
             background: #5e3a9c;
             border: none;
-            padding: 10px 16px;
-            border-radius: 60px;
+            padding: 6px 12px;
+            border-radius: 2rem;
             font-weight: bold;
             color: white;
             cursor: pointer;
             transition: 0.05s;
-            font-size: 1rem;
+            font-size: 0.9rem;
             touch-action: manipulation;
         }
         button:active { transform: scale(0.96); background: #3c2a6b; }
         .end-turn {
             background: #aa2e4e;
-            font-size: 1.2rem;
-            padding: 12px;
+            font-size: 1rem;
+            padding: 8px;
             width: 100%;
-            margin-top: 8px;
+            margin-top: 6px;
         }
         .restart-btn {
             background: #2a6b3c;
-            font-size: 1rem;
-            padding: 10px;
-            margin-top: 8px;
+            font-size: 0.9rem;
+            padding: 6px;
+            margin-top: 6px;
             width: 100%;
         }
         .log {
             background: #03050be0;
-            border-radius: 1rem;
-            padding: 8px 12px;
-            margin-top: 12px;
-            max-height: 100px;
+            border-radius: 0.8rem;
+            padding: 5px 8px;
+            margin-top: 8px;
+            max-height: 80px;
             overflow-y: auto;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #bdadff;
         }
         .targetable { cursor: pointer; border: 2px solid #ffaa33; }
         .disabled-target { opacity: 0.5; cursor: not-allowed; }
         .debug-area {
-            margin-top: 10px;
+            margin-top: 6px;
             background: #0a0c14;
-            border-radius: 1rem;
-            padding: 8px;
+            border-radius: 0.8rem;
+            padding: 5px;
         }
         .debug-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .debug-header button {
             background: #2a2a4a;
-            padding: 4px 12px;
-            font-size: 0.7rem;
+            padding: 2px 8px;
+            font-size: 0.6rem;
         }
         .debug-area textarea {
             width: 100%;
             background: #1a1a2e;
             color: #0f0;
             font-family: monospace;
-            font-size: 10px;
+            font-size: 9px;
             border-radius: 0.5rem;
             border: 1px solid #3a3a5a;
-            padding: 6px;
+            padding: 4px;
             resize: vertical;
             display: none;
         }
         .debug-area textarea.visible {
             display: block;
         }
-        .action-buttons { margin-top: 10px; }
-        .attack-instruction { color: #ffaa66; font-size: 0.7rem; margin: 5px 0; text-align: center; }
+        .action-buttons { margin-top: 6px; }
+        .attack-instruction { color: #ffaa66; font-size: 0.65rem; margin: 3px 0; text-align: center; }
         .game-over-overlay {
             position: fixed;
             top: 0;
@@ -252,21 +253,21 @@
         }
         .game-over-box {
             background: #1e1a2f;
-            border-radius: 2rem;
-            padding: 24px;
+            border-radius: 1.5rem;
+            padding: 16px;
             text-align: center;
             border: 2px solid #ffd966;
-            max-width: 280px;
+            max-width: 240px;
             width: 80%;
         }
         .game-over-box h2 {
-            margin: 0 0 16px 0;
-            font-size: 2rem;
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
         }
         .game-over-box button {
             background: #5e3a9c;
-            padding: 12px 24px;
-            font-size: 1.2rem;
+            padding: 8px 16px;
+            font-size: 1rem;
             margin-top: 8px;
         }
         .victory { color: #4cff4c; }
@@ -274,11 +275,12 @@
         .cloak-active {
             background: #4433aa88;
             border: 1px solid #aa88ff;
-            box-shadow: 0 0 8px #8866ff;
+            box-shadow: 0 0 5px #8866ff;
         }
         .battlefield-header, .hand-header {
             font-weight: bold;
-            margin-top: 4px;
+            font-size: 0.7rem;
+            margin-top: 2px;
         }
     </style>
 </head>
@@ -287,7 +289,7 @@
     <div class="opponent-area">
         <div class="battlefield-header">⚔️ AI BATTLEFIELD</div>
         <div id="aiBattlefield" class="battlefield"></div>
-        <div class="hand-header">🃏 AI HAND (face down)</div>
+        <div class="hand-header">🃏 AI HAND</div>
         <div id="aiHand" class="hand"></div>
         <div class="stats">
             <div class="hp"><span class="hp-label">🤖 AI</span> <span id="aiHp">80</span></div>
@@ -301,54 +303,54 @@
         <div class="stats">
             <div class="hp"><span class="hp-label">✨ YOU</span> <span id="playerHp">80</span></div>
             <span class="shard-pool">💎 <span id="playerShardDisplay">0</span></span>
-            <button id="endTurnBtn" class="end-turn">🔚 END TURN</button>
+            <button id="endTurnBtn" class="end-turn">END TURN</button>
         </div>
         <div><strong>🃏 YOUR HAND</strong></div>
         <div id="playerHand" class="hand"></div>
         <div><strong>🛡️ YOUR CREATURES</strong></div>
         <div id="playerBattlefield" class="battlefield"></div>
         <div class="action-buttons">
-            <div class="attack-instruction">💡 Tap creature → tap enemy to attack (✘ = already attacked)</div>
-            <button id="restartBtn" class="restart-btn">🔄 RESTART GAME</button>
+            <div class="attack-instruction">💡 Tap creature → tap enemy to attack</div>
+            <button id="restartBtn" class="restart-btn">🔄 RESTART</button>
         </div>
     </div>
     <div class="log" id="gameLog"></div>
     <div class="debug-area">
         <div class="debug-header">
             <span>🔍 AI DEBUG</span>
-            <button id="toggleDebugBtn" class="toggle-debug">Show Log</button>
-            <button id="copyDebugBtn" style="background:#2a2a4a;">Copy</button>
+            <button id="toggleDebugBtn">Show Log</button>
+            <button id="copyDebugBtn">Copy</button>
         </div>
-        <textarea id="debugLog" rows="4" readonly></textarea>
+        <textarea id="debugLog" rows="3" readonly></textarea>
     </div>
 </div>
 
 <script>
     const CARD_DB = [
-        { id: "inferno", name: "Inferno Blast", type: "spell", shopCost: 3, effect: "damage", damage: 4, desc: "🔥 4 damage" },
-        { id: "surge", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "⚡ 2 damage" },
-        { id: "healwave", name: "Healing Wave", type: "spell", shopCost: 3, effect: "heal", heal: 5, desc: "💚 Heal 5 HP" },
-        { id: "frostshield_spell", name: "Frost Shield", type: "spell", shopCost: 2, effect: "summonDefender", hp:4, desc: "🛡️ Summon 0/4 Defender" },
-        { id: "cloak", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "cloak", desc: "✨ You + creatures Immune for opponent's next turn" },
-        { id: "mindcontrol", name: "Mind Control", type: "spell", shopCost: 5, effect: "mindControl", desc: "🧠 Steal enemy creature" },
-        { id: "thunderstrike", name: "Thunderstrike", type: "spell", shopCost: 4, effect: "thunderstrike", damage:4, desc: "🌩️ 4 dmg to 1-2 targets" },
-        { id: "fire_ele", name: "Fire Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🔥 4/6 Elemental" },
-        { id: "earth_ele", name: "Earth Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🌍 4/6 Elemental" },
-        { id: "water_ele", name: "Water Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "💧 4/6 Elemental" },
-        { id: "storm_ele", name: "Storm Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🌪️ 4/6 Elemental" },
+        { id: "inferno", name: "Inferno Blast", type: "spell", shopCost: 3, effect: "damage", damage: 4, desc: "🔥 4" },
+        { id: "surge", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "⚡ 2" },
+        { id: "healwave", name: "Healing Wave", type: "spell", shopCost: 3, effect: "heal", heal: 5, desc: "💚 +5" },
+        { id: "frostshield_spell", name: "Frost Shield", type: "spell", shopCost: 2, effect: "summonDefender", hp:4, desc: "🛡️ 0/4" },
+        { id: "cloak", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "cloak", desc: "✨ Immune" },
+        { id: "mindcontrol", name: "Mind Control", type: "spell", shopCost: 5, effect: "mindControl", desc: "🧠 Steal" },
+        { id: "thunderstrike", name: "Thunderstrike", type: "spell", shopCost: 4, effect: "thunderstrike", damage:4, desc: "🌩️ 4×2" },
+        { id: "fire_ele", name: "Fire Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🔥 4/6" },
+        { id: "earth_ele", name: "Earth Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🌍 4/6" },
+        { id: "water_ele", name: "Water Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "💧 4/6" },
+        { id: "storm_ele", name: "Storm Elemental", type: "creature", shopCost: 4, atk:4, hp:6, element:true, desc: "🌪️ 4/6" },
         { id: "frostwolf", name: "Frostwolf Pack", type: "creature", shopCost: 3, atk:2, hp:4, desc: "🐺 2/4" },
         { id: "panther", name: "Shadow Panther", type: "creature", shopCost: 3, atk:2, hp:4, desc: "🐈‍⬛ 2/4" },
         { id: "hydra", name: "Venomous Hydra", type: "creature", shopCost: 2, atk:2, hp:2, desc: "🐍 2/2" },
-        { id: "unicorn", name: "Celestial Unicorn", type: "creature", shopCost: 3, atk:0, hp:4, startHeal:2, desc: "🦄 0/4, heals you 2 at end of turn" },
-        { id: "golem", name: "Earth Golem", type: "creature", shopCost: 6, atk:0, hp:6, defender:true, onSummonDiscard:true, desc: "🛡️ 0/6 Defender, discard enemy card" },
-        { id: "treant", name: "Ancient Treant", type: "creature", shopCost: 2, atk:0, hp:10, defender:true, desc: "🌳 0/10 Defender" },
-        { id: "frostshield_creature", name: "Frost Shield", type: "creature", shopCost: 2, atk:0, hp:4, defender:true, desc: "❄️ 0/4 Defender" },
-        { id: "thunderbird", name: "Thunderbird", type: "creature", shopCost: 4, atk:4, hp:5, thunderSynergy:true, desc: "🦅 4/5, boosts Thunderstrike" },
+        { id: "unicorn", name: "Celestial Unicorn", type: "creature", shopCost: 3, atk:0, hp:4, startHeal:2, desc: "🦄 heal 2" },
+        { id: "golem", name: "Earth Golem", type: "creature", shopCost: 6, atk:0, hp:6, defender:true, onSummonDiscard:true, desc: "🛡️ 0/6" },
+        { id: "treant", name: "Ancient Treant", type: "creature", shopCost: 2, atk:0, hp:10, defender:true, desc: "🌳 0/10" },
+        { id: "frostshield_creature", name: "Frost Shield", type: "creature", shopCost: 2, atk:0, hp:4, defender:true, desc: "❄️ 0/4" },
+        { id: "thunderbird", name: "Thunderbird", type: "creature", shopCost: 4, atk:4, hp:5, thunderSynergy:true, desc: "🦅 4/5" },
         { id: "behemoth", name: "Ironclad Behemoth", type: "creature", shopCost: 7, atk:5, hp:10, desc: "🦣 5/10" },
-        { id: "wraith", name: "Spectral Wraith", type: "oneshot", shopCost: 4, effect: "damage", damage: 4, desc: "👻 Deal 4 damage" },
-        { id: "lavadrake", name: "Lava Drake", type: "oneshot", shopCost: 5, effect: "damage", damage: 10, desc: "🐉 Deal 10 damage" },
-        { id: "souleater", name: "Soul Eater", type: "oneshot", shopCost: 6, effect: "damage", damage: 4, desc: "💀 Deal 4 damage" },
-        { id: "phoenix", name: "Phoenix Reborn", type: "oneshot", shopCost: 7, effect: "revive", desc: "🔥 Revive 1 creature from graveyard (full HP)" }
+        { id: "wraith", name: "Spectral Wraith", type: "oneshot", shopCost: 4, effect: "damage", damage: 4, desc: "👻 4" },
+        { id: "lavadrake", name: "Lava Drake", type: "oneshot", shopCost: 5, effect: "damage", damage: 10, desc: "🐉 10" },
+        { id: "souleater", name: "Soul Eater", type: "oneshot", shopCost: 6, effect: "damage", damage: 4, desc: "💀 4" },
+        { id: "phoenix", name: "Phoenix Reborn", type: "oneshot", shopCost: 7, effect: "revive", desc: "🔥 Revive full" }
     ];
 
     function buildCentralDeck() {
@@ -368,8 +370,8 @@
     function shuffleArray(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 
     let arcaneClustersRemaining = 6;
-    const ARCINE_CLUSTER_CARD = { id: "cluster", name: "Arcane Cluster", type: "economy", shopCost: 3, shardGain: 3, desc: "🔮 +3 Shards" };
-    const SHARD_CARD_TEMPLATE = { id: "shard", name: "Shard Card", type: "economy", shardGain: 1, desc: "💎 +1 Shard" };
+    const ARCINE_CLUSTER_CARD = { id: "cluster", name: "Arcane Cluster", type: "economy", shopCost: 3, shardGain: 3, desc: "🔮 +3" };
+    const SHARD_CARD_TEMPLATE = { id: "shard", name: "Shard Card", type: "economy", shardGain: 1, desc: "💎 +1" };
 
     let centralDeck = [], shopCards = [];
     let player = { hp:80, field:[], hand:[], deck:[], discard:[], graveyard:[], shards:0, attackedThisTurn: new Set(), cloakActive: false };
@@ -379,7 +381,7 @@
     let pendingAttacker = null;
     let logMessages = [];
 
-    function addLog(msg) { logMessages.unshift(msg); if(logMessages.length>15) logMessages.pop(); document.getElementById("gameLog").innerHTML = logMessages.map(m=>`✨ ${m}`).join('<br>'); }
+    function addLog(msg) { logMessages.unshift(msg); if(logMessages.length>12) logMessages.pop(); document.getElementById("gameLog").innerHTML = logMessages.map(m=>`✨ ${m}`).join('<br>'); }
     function debug(msg) { let db = document.getElementById("debugLog"); if(db) db.value += msg + "\n"; console.log(msg); }
 
     function makeStarterDeck() {
@@ -402,7 +404,7 @@
         pendingAttacker = null;
         pendingSpellCallback = null;
         refreshUI();
-        addLog("Game ready! AI played cards appear face‑up in hand for 10 seconds.");
+        addLog("Ready! Tap creature → enemy.");
         startPlayerTurn();
     }
 
@@ -411,7 +413,7 @@
             if(p.discard.length===0) return null;
             p.deck = shuffleArray([...p.discard]);
             p.discard = [];
-            addLog(`${p===player?"You":"AI"} reshuffles discard.`);
+            addLog(`${p===player?"You":"AI"} reshuffles.`);
         }
         let card = p.deck.pop();
         p.hand.push(card);
@@ -442,11 +444,8 @@
     function getLegalDamageTargets(attackerOwner, isSpell = false) {
         let defender = attackerOwner === player ? ai : player;
         let hasDefender = defender.field.some(c=>c.defender===true);
-        if(hasDefender) {
-            return defender.field.filter(c=>c.defender===true);
-        } else {
-            return [...defender.field, defender];
-        }
+        if(hasDefender) return defender.field.filter(c=>c.defender===true);
+        else return [...defender.field, defender];
     }
 
     function isDamageBlockedByCloak(target, attackerOwner) {
@@ -457,40 +456,30 @@
         return false;
     }
 
-    // Add temporary revealed card to AI hand area
     function addTempRevealedCard(card) {
         let handContainer = document.getElementById("aiHand");
         let cardDiv = document.createElement("div");
         cardDiv.className = `card ${card.type} revealed-temp`;
         let displayText = `<b>${card.name}</b><br>`;
-        if(card.type === "economy") {
-            displayText += `💰 +${card.shardGain}<br>${card.desc || ""}`;
-        } else if(card.type === "spell" || card.type === "oneshot") {
+        if(card.type === "economy") displayText += `💰 +${card.shardGain}<br>${card.desc || ""}`;
+        else if(card.type === "spell" || card.type === "oneshot") {
             if(card.damage) displayText += `⚔️ ${card.damage}<br>${card.desc || ""}`;
             else displayText += `${card.desc || ""}`;
-        } else if(card.type === "creature") {
-            displayText += `⚔️${card.atk} ❤️${card.hp}<br>${card.desc || ""}`;
-        } else {
-            displayText += `${card.desc || ""}`;
-        }
+        } else if(card.type === "creature") displayText += `⚔️${card.atk} ❤️${card.hp}<br>${card.desc || ""}`;
+        else displayText += `${card.desc || ""}`;
         cardDiv.innerHTML = displayText;
         handContainer.appendChild(cardDiv);
-        setTimeout(() => {
-            if(cardDiv && cardDiv.remove) cardDiv.remove();
-        }, 10000);
+        setTimeout(() => { if(cardDiv && cardDiv.remove) cardDiv.remove(); }, 10000);
     }
 
     function playCardFromHand(owner, card, target=null) {
         let idx = owner.hand.findIndex(c=>c.uid===card.uid);
         if(idx===-1) return false;
         owner.hand.splice(idx,1);
-        if(owner === ai) {
-            addTempRevealedCard(card);
-        }
-        
+        if(owner === ai) addTempRevealedCard(card);
         if(card.type === "economy") {
             owner.shards += card.shardGain;
-            addLog(`${owner===player?"You":"AI"} play ${card.name} +${card.shardGain} shards.`);
+            addLog(`${owner===player?"You":"AI"} play ${card.name} +${card.shardGain}.`);
             owner.discard.push(card);
         }
         else if(card.type === "spell") {
@@ -501,7 +490,7 @@
             let newCreature = {...card, currentHp: card.hp, owner:owner, defender:card.defender||false, elemental:card.elemental||false, thunderSynergy:card.thunderSynergy||false, startHeal:card.startHeal||false, originalHp: card.hp};
             if(card.onSummonDiscard && owner===player && ai.hand.length) {
                 let discarded = ai.hand.pop();
-                addLog(`Earth Golem makes AI discard ${discarded.name}.`);
+                addLog(`Earth Golem discards AI ${discarded.name}.`);
             }
             owner.field.push(newCreature);
             addLog(`Summoned ${card.name} (${card.atk}/${card.hp}).`);
@@ -518,16 +507,10 @@
         if(card.effect === "damage") {
             if(!target) return;
             if((owner===player && target===player) || (owner===ai && target===ai)) { addLog("Cannot target self."); return; }
-            if(isDamageBlockedByCloak(target, owner)) {
-                addLog(`Cloak protects ${target.name || target===player?"you":"AI"} from ${card.name}!`);
-                return;
-            }
+            if(isDamageBlockedByCloak(target, owner)) { addLog(`Cloak blocks ${card.name}!`); return; }
             let defender = owner===player ? ai : player;
             let hasDefender = defender.field.some(c=>c.defender===true);
-            if(hasDefender && target === defender) {
-                addLog("Defender blocks! Cannot target player while Defender alive.");
-                return;
-            }
+            if(hasDefender && target === defender) { addLog("Defender blocks!"); return; }
             let dmg = card.damage;
             target.hp = Math.max(0, target.hp - dmg);
             addLog(`${card.name} deals ${dmg} to ${target.name || "enemy player"}.`);
@@ -553,7 +536,7 @@
         }
         else if(card.effect === "cloak") {
             owner.cloakActive = true;
-            addLog(`${owner===player?"You":"AI"} cast Ethereal Cloak! ${owner===player?"You":"AI"} will be immune next turn.`);
+            addLog(`${owner===player?"You":"AI"} cast Cloak! Immune next turn.`);
         }
         else if(card.effect === "mindControl") {
             let enemyField = owner===player ? ai.field : player.field;
@@ -564,28 +547,22 @@
                 let opp = owner===player ? ai : player;
                 opp.hand = [];
                 for(let i=0;i<5;i++) drawCard(opp);
-                addLog(`Mind Control: stole ${stolen.name}.`);
+                addLog(`Mind Control stole ${stolen.name}.`);
             }
         }
         else if(card.effect === "thunderstrike") {
             let legalTargets = getLegalDamageTargets(owner, true);
-            if(legalTargets.length === 0) return;
+            if(legalTargets.length === 0) { addLog("No targets for Thunderstrike."); return; }
             if(legalTargets.length === 1) {
                 let t = legalTargets[0];
-                if(isDamageBlockedByCloak(t, owner)) {
-                    addLog(`Cloak protects ${t.name || t===player?"you":"AI"} from Thunderstrike!`);
-                } else {
-                    let dmg = card.damage;
-                    t.hp = Math.max(0, t.hp - dmg);
-                    addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
+                if(isDamageBlockedByCloak(t, owner)) addLog(`Cloak blocks Thunderstrike!`);
+                else {
+                    t.hp = Math.max(0, t.hp - card.damage);
+                    addLog(`Thunderstrike deals ${card.damage} to ${t.name || "enemy player"}.`);
                     if(t.hp<=0 && t !== owner && t !== (owner===player?ai:player)) {
                         let fieldArr = (t.owner===player?player.field:ai.field);
                         let idx = fieldArr.indexOf(t);
-                        if(idx!==-1) {
-                            fieldArr.splice(idx,1);
-                            (t.owner===player?player.graveyard:ai.graveyard).push(t);
-                            addLog(`${t.name} dies.`);
-                        }
+                        if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
                     }
                 }
                 owner.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
@@ -597,21 +574,15 @@
                 let remaining = legalTargets.filter(t => t !== first);
                 if(remaining.length === 0) {
                     let dmg = card.damage;
-                    if(isDamageBlockedByCloak(first, owner)) {
-                        addLog(`Cloak protects ${first.name || first===player?"you":"AI"} from Thunderstrike!`);
-                    } else {
+                    if(!isDamageBlockedByCloak(first, owner)) {
                         first.hp = Math.max(0, first.hp - dmg);
                         addLog(`Thunderstrike deals ${dmg} to ${first.name || "enemy player"}.`);
                         if(first.hp<=0 && first !== owner && first !== (owner===player?ai:player)) {
                             let fieldArr = (first.owner===player?player.field:ai.field);
                             let idx = fieldArr.indexOf(first);
-                            if(idx!==-1) {
-                                fieldArr.splice(idx,1);
-                                (first.owner===player?player.graveyard:ai.graveyard).push(first);
-                                addLog(`${first.name} dies.`);
-                            }
+                            if(idx!==-1) { fieldArr.splice(idx,1); (first.owner===player?player.graveyard:ai.graveyard).push(first); addLog(`${first.name} dies.`); }
                         }
-                    }
+                    } else addLog(`Cloak blocks Thunderstrike!`);
                     owner.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
                     pendingSpellCallback = null;
                     let idx = owner.hand.findIndex(c=>c.uid===card.uid);
@@ -625,19 +596,14 @@
                 pendingSpellCallback = (second) => {
                     let dmg = card.damage;
                     [first, second].forEach(t=>{
-                        if(isDamageBlockedByCloak(t, owner)) {
-                            addLog(`Cloak protects ${t.name || t===player?"you":"AI"} from Thunderstrike!`);
-                            return;
-                        }
-                        t.hp = Math.max(0, t.hp - dmg);
-                        addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
-                        if(t.hp<=0 && t !== owner && t !== (owner===player?ai:player)) {
-                            let fieldArr = (t.owner===player?player.field:ai.field);
-                            let idx = fieldArr.indexOf(t);
-                            if(idx!==-1) {
-                                fieldArr.splice(idx,1);
-                                (t.owner===player?player.graveyard:ai.graveyard).push(t);
-                                addLog(`${t.name} dies.`);
+                        if(isDamageBlockedByCloak(t, owner)) addLog(`Cloak blocks Thunderstrike on ${t.name || "player"}!`);
+                        else {
+                            t.hp = Math.max(0, t.hp - dmg);
+                            addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
+                            if(t.hp<=0 && t !== owner && t !== (owner===player?ai:player)) {
+                                let fieldArr = (t.owner===player?player.field:ai.field);
+                                let idx = fieldArr.indexOf(t);
+                                if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
                             }
                         }
                     });
@@ -660,7 +626,7 @@
                 let fullHp = revived.originalHp || revived.hp;
                 let newCreature = {...revived, hp: fullHp, currentHp: fullHp, owner: owner};
                 owner.field.push(newCreature);
-                addLog(`Phoenix Reborn revives ${revived.name} with full HP (${fullHp}).`);
+                addLog(`Phoenix revives ${revived.name} (full HP ${fullHp}).`);
             } else addLog("No creature in graveyard.");
         }
         checkWinConditions();
@@ -668,28 +634,14 @@
 
     function attemptManualAttack(attacker, target) {
         if(!gameActive) return false;
-        if(player.attackedThisTurn.has(attacker.uid)) {
-            addLog(`${attacker.name} already attacked.`);
-            return false;
-        }
+        if(player.attackedThisTurn.has(attacker.uid)) { addLog(`${attacker.name} already attacked.`); return false; }
         let defender = target === ai ? ai : (ai.field.includes(target) ? ai : null);
         if(!defender) { addLog("Must attack enemy."); return false; }
-        
-        if(defender === ai && ai.cloakActive) {
-            addLog("AI's Ethereal Cloak blocks all damage this turn!");
-            return false;
-        }
-        
+        if(defender === ai && ai.cloakActive) { addLog("AI's Cloak blocks all damage!"); return false; }
         let hasDefender = defender.field.some(c=>c.defender===true);
         if(hasDefender) {
-            if(target === defender) {
-                addLog("Defender blocks! Cannot attack player directly.");
-                return false;
-            }
-            if(!defender.field.includes(target) || !target.defender) {
-                addLog("Defender blocks! Attack Defender creatures first.");
-                return false;
-            }
+            if(target === defender) { addLog("Defender blocks! Cannot attack player."); return false; }
+            if(!defender.field.includes(target) || !target.defender) { addLog("Attack Defender first!"); return false; }
         }
         let dmg = attacker.atk;
         let elementalCount = player.field.filter(c=>c.elemental).length;
@@ -702,11 +654,7 @@
             addLog(`⚔️ ${attacker.name} deals ${dmg} to ${target.name}.`);
             if(target.hp<=0) {
                 let idx = defender.field.indexOf(target);
-                if(idx!==-1) {
-                    defender.field.splice(idx,1);
-                    defender.graveyard.push(target);
-                    addLog(`${target.name} dies.`);
-                }
+                if(idx!==-1) { defender.field.splice(idx,1); defender.graveyard.push(target); addLog(`${target.name} dies.`); }
             }
         }
         player.attackedThisTurn.add(attacker.uid);
@@ -717,41 +665,25 @@
 
     function applyUnicornHeal(owner) {
         let unicorns = owner.field.filter(c => c.startHeal === 2);
-        if(unicorns.length > 0) {
-            let healAmount = unicorns.length * 2;
-            owner.hp = Math.min(99, owner.hp + healAmount);
-            addLog(`🦄 ${unicorns.length} Celestial Unicorn(s) heal ${owner===player?"you":"AI"} for ${healAmount} HP.`);
+        if(unicorns.length) {
+            let heal = unicorns.length * 2;
+            owner.hp = Math.min(99, owner.hp + heal);
+            addLog(`🦄 ${unicorns.length} Unicorn(s) heal ${heal} HP.`);
         }
     }
 
     function checkWinConditions() {
         if(!gameActive) return;
-        if(player.hp <= 0) {
-            gameActive = false;
-            showGameOver("You lost...", false);
-            return;
-        }
-        if(ai.hp <= 0) {
-            gameActive = false;
-            showGameOver("You win!", true);
-            return;
-        }
+        if(player.hp <= 0) { gameActive = false; showGameOver("You lost...", false); return; }
+        if(ai.hp <= 0) { gameActive = false; showGameOver("You win!", true); return; }
     }
 
     function showGameOver(message, isVictory) {
         const overlay = document.createElement('div');
         overlay.className = 'game-over-overlay';
-        overlay.innerHTML = `
-            <div class="game-over-box">
-                <h2 class="${isVictory ? 'victory' : 'defeat'}">${message}</h2>
-                <button id="gameOverRestartBtn">Play Again</button>
-            </div>
-        `;
+        overlay.innerHTML = `<div class="game-over-box"><h2 class="${isVictory ? 'victory' : 'defeat'}">${message}</h2><button id="gameOverRestartBtn">Play Again</button></div>`;
         document.body.appendChild(overlay);
-        document.getElementById('gameOverRestartBtn').onclick = () => {
-            overlay.remove();
-            restartGame();
-        };
+        document.getElementById('gameOverRestartBtn').onclick = () => { overlay.remove(); restartGame(); };
     }
 
     function restartGame() {
@@ -793,35 +725,25 @@
             if(econ) { playCardFromHand(ai, econ); played=true; continue; }
             let anyCard = ai.hand.find(c=>c.type!=="economy");
             if(anyCard) {
-                if(anyCard.type === "creature") {
-                    playCardFromHand(ai, anyCard);
-                    played=true;
-                } else if(anyCard.type === "spell" || anyCard.type === "oneshot") {
+                if(anyCard.type === "creature") { playCardFromHand(ai, anyCard); played=true; }
+                else if(anyCard.type === "spell" || anyCard.type === "oneshot") {
                     let targets = getLegalDamageTargets(ai, true);
                     let target = targets.length ? targets[0] : ai;
                     if(anyCard.effect === "heal") target = ai;
-                    if(anyCard.effect === "cloak") {
-                        playCardFromHand(ai, anyCard);
-                        played=true;
-                    } else if(anyCard.effect === "thunderstrike") {
+                    if(anyCard.effect === "cloak") { playCardFromHand(ai, anyCard); played=true; }
+                    else if(anyCard.effect === "thunderstrike") {
                         let dmg = anyCard.damage;
-                        let targetsToHit = targets.slice(0,2);
-                        for(let t of targetsToHit) {
+                        let toHit = targets.slice(0,2);
+                        for(let t of toHit) {
                             if(!isDamageBlockedByCloak(t, ai)) {
                                 t.hp = Math.max(0, t.hp - dmg);
                                 addLog(`AI Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
                                 if(t.hp<=0 && t !== ai && t !== player) {
                                     let fieldArr = (t.owner===player?player.field:ai.field);
                                     let idx = fieldArr.indexOf(t);
-                                    if(idx!==-1) {
-                                        fieldArr.splice(idx,1);
-                                        (t.owner===player?player.graveyard:ai.graveyard).push(t);
-                                        addLog(`${t.name} dies.`);
-                                    }
+                                    if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
                                 }
-                            } else {
-                                addLog(`Cloak protects ${t.name || t===player?"you":"AI"} from Thunderstrike!`);
-                            }
+                            } else addLog(`Cloak blocks AI Thunderstrike.`);
                         }
                         ai.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
                         ai.discard.push(anyCard);
@@ -829,10 +751,7 @@
                         if(idx2!==-1) ai.hand.splice(idx2,1);
                         checkWinConditions();
                         played=true;
-                    } else {
-                        playCardFromHand(ai, anyCard, target);
-                        played=true;
-                    }
+                    } else { playCardFromHand(ai, anyCard, target); played=true; }
                 }
             } else break;
         }
@@ -878,11 +797,7 @@
                     addLog(`AI: ${creature.name} deals ${dmg} to ${target.name}.`);
                     if(target.hp<=0) {
                         let idx = player.field.indexOf(target);
-                        if(idx!==-1) {
-                            player.field.splice(idx,1);
-                            player.graveyard.push(target);
-                            addLog(`${target.name} dies.`);
-                        }
+                        if(idx!==-1) { player.field.splice(idx,1); player.graveyard.push(target); addLog(`${target.name} dies.`); }
                     }
                 }
                 ai.attackedThisTurn.add(creature.uid);
@@ -890,14 +805,9 @@
                 refreshUI();
                 if(!gameActive) return;
             }
-        } else {
-            addLog("Your Ethereal Cloak blocks all AI attacks this turn!");
-        }
+        } else { addLog("Your Cloak blocks all AI attacks!"); }
         endTurn(ai);
-        if(gameActive) {
-            turn = "player";
-            startPlayerTurn();
-        }
+        if(gameActive) { turn = "player"; startPlayerTurn(); }
         refreshUI();
     }
 
@@ -910,26 +820,24 @@
         renderField("playerBattlefield", player.field, false);
         renderField("aiBattlefield", ai.field, true);
         renderShop();
-        // Render AI hand as face-down cards (excluding temporary revealed cards)
         let aiHandContainer = document.getElementById("aiHand");
-        // Clear only the face-down cards, keep revealed-temp cards (they remove themselves)
-        let existingFacedown = aiHandContainer.querySelectorAll('.card:not(.revealed-temp)');
-        for(let el of existingFacedown) el.remove();
-        for(let i=0;i<ai.hand.length;i++) {
+        let existingFaceDown = aiHandContainer.querySelectorAll(".card.face-down");
+        while(existingFaceDown.length < ai.hand.length) {
             let backDiv = document.createElement("div");
             backDiv.className = "card face-down";
-            backDiv.innerText = "";
             aiHandContainer.appendChild(backDiv);
         }
-        let aiHpElem = document.getElementById("aiHp");
+        while(aiHandContainer.querySelectorAll(".card.face-down").length > ai.hand.length) {
+            let last = aiHandContainer.querySelector(".card.face-down:last-child");
+            if(last) last.remove();
+        }
         let hasDefender = ai.field.some(c=>c.defender===true);
+        let aiHpElem = document.getElementById("aiHp");
         if(hasDefender) aiHpElem.classList.add("disabled-target");
         else aiHpElem.classList.remove("disabled-target");
-        
         let playerArea = document.querySelector(".player-area");
         if(player.cloakActive) playerArea.classList.add("cloak-active");
         else playerArea.classList.remove("cloak-active");
-        
         let aiArea = document.querySelector(".opponent-area");
         if(ai.cloakActive) aiArea.classList.add("cloak-active");
         else aiArea.classList.remove("cloak-active");
@@ -943,29 +851,21 @@
             let div = document.createElement("div");
             div.className = `card ${card.type}`;
             let displayText = `<b>${card.name}</b><br>`;
-            if(card.type === "economy") {
-                displayText += `💰 +${card.shardGain}<br>${card.desc || ""}`;
-            } else if(card.type === "spell" || card.type === "oneshot") {
+            if(card.type === "economy") displayText += `💰 +${card.shardGain}<br>${card.desc || ""}`;
+            else if(card.type === "spell" || card.type === "oneshot") {
                 if(card.damage) displayText += `⚔️ ${card.damage}<br>${card.desc || ""}`;
                 else displayText += `${card.desc || ""}`;
-            } else if(card.type === "creature") {
-                displayText += `⚔️${card.atk} ❤️${card.hp}<br>${card.desc || ""}`;
-            } else {
-                displayText += `${card.desc || ""}`;
-            }
+            } else if(card.type === "creature") displayText += `⚔️${card.atk} ❤️${card.hp}<br>${card.desc || ""}`;
+            else displayText += `${card.desc || ""}`;
             div.innerHTML = displayText;
             div.onclick = (e)=>{
                 e.stopPropagation();
                 if(!gameActive) return;
                 if(pendingAttacker) { addLog("Finish attack first."); return; }
                 if(pendingSpellCallback) { addLog("Finish spell first."); return; }
-                if(card.type==="creature" || card.type==="economy") {
-                    playCardFromHand(player, card);
-                } 
+                if(card.type==="creature" || card.type==="economy") { playCardFromHand(player, card); }
                 else if(card.type==="spell" || card.type==="oneshot") {
-                    if(card.effect === "heal") {
-                        playCardFromHand(player, card, player);
-                    } 
+                    if(card.effect === "heal") playCardFromHand(player, card, player);
                     else if(card.effect === "damage") {
                         let targets = getLegalDamageTargets(player, true);
                         if(targets.length===0) return;
@@ -973,30 +873,22 @@
                         pendingSpellCallback = (t)=>{ playCardFromHand(player, card, t); pendingSpellCallback=null; refreshUI(); };
                         refreshUI();
                     }
-                    else if(card.effect === "cloak") {
-                        playCardFromHand(player, card);
-                    }
+                    else if(card.effect === "cloak") playCardFromHand(player, card);
                     else if(card.effect === "thunderstrike") {
                         let targets = getLegalDamageTargets(player, true);
                         if(targets.length===0) return;
                         if(targets.length === 1) {
+                            let dmg = card.damage;
                             let t = targets[0];
-                            if(isDamageBlockedByCloak(t, player)) {
-                                addLog(`Cloak protects ${t.name || t===player?"you":"AI"} from Thunderstrike!`);
-                            } else {
-                                let dmg = card.damage;
+                            if(!isDamageBlockedByCloak(t, player)) {
                                 t.hp = Math.max(0, t.hp - dmg);
                                 addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
                                 if(t.hp<=0 && t !== player && t !== ai) {
                                     let fieldArr = (t.owner===player?player.field:ai.field);
                                     let idx = fieldArr.indexOf(t);
-                                    if(idx!==-1) {
-                                        fieldArr.splice(idx,1);
-                                        (t.owner===player?player.graveyard:ai.graveyard).push(t);
-                                        addLog(`${t.name} dies.`);
-                                    }
+                                    if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
                                 }
-                            }
+                            } else addLog(`Cloak blocks Thunderstrike!`);
                             player.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
                             let idx = player.hand.findIndex(c=>c.uid===card.uid);
                             if(idx!==-1) player.hand.splice(idx,1);
@@ -1010,21 +902,15 @@
                             let remaining = targets.filter(t => t !== first);
                             if(remaining.length === 0) {
                                 let dmg = card.damage;
-                                if(isDamageBlockedByCloak(first, player)) {
-                                    addLog(`Cloak protects ${first.name || first===player?"you":"AI"} from Thunderstrike!`);
-                                } else {
+                                if(!isDamageBlockedByCloak(first, player)) {
                                     first.hp = Math.max(0, first.hp - dmg);
                                     addLog(`Thunderstrike deals ${dmg} to ${first.name || "enemy player"}.`);
                                     if(first.hp<=0 && first !== player && first !== ai) {
                                         let fieldArr = (first.owner===player?player.field:ai.field);
                                         let idx = fieldArr.indexOf(first);
-                                        if(idx!==-1) {
-                                            fieldArr.splice(idx,1);
-                                            (first.owner===player?player.graveyard:ai.graveyard).push(first);
-                                            addLog(`${first.name} dies.`);
-                                        }
+                                        if(idx!==-1) { fieldArr.splice(idx,1); (first.owner===player?player.graveyard:ai.graveyard).push(first); addLog(`${first.name} dies.`); }
                                     }
-                                }
+                                } else addLog(`Cloak blocks Thunderstrike!`);
                                 player.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
                                 pendingSpellCallback = null;
                                 let idx = player.hand.findIndex(c=>c.uid===card.uid);
@@ -1038,21 +924,15 @@
                             pendingSpellCallback = (second) => {
                                 let dmg = card.damage;
                                 [first, second].forEach(t=>{
-                                    if(isDamageBlockedByCloak(t, player)) {
-                                        addLog(`Cloak protects ${t.name || t===player?"you":"AI"} from Thunderstrike!`);
-                                        return;
-                                    }
-                                    t.hp = Math.max(0, t.hp - dmg);
-                                    addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
-                                    if(t.hp<=0 && t !== player && t !== ai) {
-                                        let fieldArr = (t.owner===player?player.field:ai.field);
-                                        let idx = fieldArr.indexOf(t);
-                                        if(idx!==-1) {
-                                            fieldArr.splice(idx,1);
-                                            (t.owner===player?player.graveyard:ai.graveyard).push(t);
-                                            addLog(`${t.name} dies.`);
+                                    if(!isDamageBlockedByCloak(t, player)) {
+                                        t.hp = Math.max(0, t.hp - dmg);
+                                        addLog(`Thunderstrike deals ${dmg} to ${t.name || "enemy player"}.`);
+                                        if(t.hp<=0 && t !== player && t !== ai) {
+                                            let fieldArr = (t.owner===player?player.field:ai.field);
+                                            let idx = fieldArr.indexOf(t);
+                                            if(idx!==-1) { fieldArr.splice(idx,1); (t.owner===player?player.graveyard:ai.graveyard).push(t); addLog(`${t.name} dies.`); }
                                         }
-                                    }
+                                    } else addLog(`Cloak blocks Thunderstrike!`);
                                 });
                                 player.field.forEach(cr=>{ if(cr.thunderSynergy) cr.atk += 1; });
                                 pendingSpellCallback = null;
@@ -1066,9 +946,7 @@
                         };
                         refreshUI();
                     }
-                    else {
-                        playCardFromHand(player, card);
-                    }
+                    else { playCardFromHand(player, card); }
                 }
             };
             container.appendChild(div);
@@ -1087,32 +965,17 @@
             if(turn==="player" && !isEnemy && !pendingSpellCallback && !pendingAttacker && gameActive && !player.attackedThisTurn.has(c.uid)) {
                 div.style.cursor = "pointer";
                 div.classList.add("targetable");
-                div.onclick = (e)=>{
-                    e.stopPropagation();
-                    pendingAttacker = c;
-                    addLog(`🔨 Attacker: ${c.name}. Now tap enemy target.`);
-                    refreshUI();
-                };
+                div.onclick = (e)=>{ e.stopPropagation(); pendingAttacker = c; addLog(`🔨 Attacker: ${c.name}. Now tap enemy target.`); refreshUI(); };
             }
             else if(turn==="player" && isEnemy && pendingAttacker && gameActive) {
                 div.style.cursor = "pointer";
                 div.classList.add("targetable");
-                div.onclick = (e)=>{
-                    e.stopPropagation();
-                    attemptManualAttack(pendingAttacker, c);
-                    pendingAttacker = null;
-                    refreshUI();
-                };
+                div.onclick = (e)=>{ e.stopPropagation(); attemptManualAttack(pendingAttacker, c); pendingAttacker = null; refreshUI(); };
             }
             else if(turn==="player" && isEnemy && pendingSpellCallback && gameActive) {
                 div.style.cursor = "pointer";
                 div.classList.add("targetable");
-                div.onclick = (e)=>{
-                    e.stopPropagation();
-                    pendingSpellCallback(c);
-                    pendingSpellCallback = null;
-                    refreshUI();
-                };
+                div.onclick = (e)=>{ e.stopPropagation(); pendingSpellCallback(c); pendingSpellCallback = null; refreshUI(); };
             }
             container.appendChild(div);
         }
@@ -1129,26 +992,14 @@
                 aiHpElem.classList.add("targetable");
                 aiHpElem.onclick = ()=>{ attemptManualAttack(pendingAttacker, ai); pendingAttacker=null; refreshUI(); };
             }
-            else {
-                aiHpElem.style.cursor = "default";
-                aiHpElem.onclick = null;
-                aiHpElem.classList.remove("targetable");
-            }
-        } else {
-            aiHpElem.style.cursor = "default";
-            aiHpElem.onclick = null;
-            aiHpElem.classList.remove("targetable");
-        }
+            else { aiHpElem.style.cursor = "default"; aiHpElem.onclick = null; aiHpElem.classList.remove("targetable"); }
+        } else { aiHpElem.style.cursor = "default"; aiHpElem.onclick = null; aiHpElem.classList.remove("targetable"); }
         let playerHpElem = document.getElementById("playerHp");
         if(turn==="player" && pendingSpellCallback && gameActive) {
             playerHpElem.style.cursor = "pointer";
             playerHpElem.classList.add("targetable");
             playerHpElem.onclick = ()=>{ pendingSpellCallback(player); pendingSpellCallback=null; refreshUI(); };
-        } else {
-            playerHpElem.style.cursor = "default";
-            playerHpElem.onclick = null;
-            playerHpElem.classList.remove("targetable");
-        }
+        } else { playerHpElem.style.cursor = "default"; playerHpElem.onclick = null; playerHpElem.classList.remove("targetable"); }
     }
 
     function renderShop() {
@@ -1159,9 +1010,7 @@
             if(!card) { let empty = document.createElement("div"); empty.className="card shop-card disabled"; empty.innerText="EMPTY"; shopDiv.appendChild(empty); continue; }
             let div = document.createElement("div");
             div.className = "card shop-card";
-            let display = `<b>${card.name}</b><br>💰 ${card.shopCost}<br>`;
-            if(card.damage) display += `⚔️ ${card.damage}<br>`;
-            display += `${card.desc || ""}`;
+            let display = `<b>${card.name}</b><br>💰 ${card.shopCost}<br>${card.desc || ""}`;
             div.innerHTML = display;
             if(turn==="player" && gameActive && !pendingSpellCallback && !pendingAttacker) div.onclick = ()=>attemptBuyStandard(i);
             shopDiv.appendChild(div);
@@ -1183,8 +1032,8 @@
             player.shards -= card.shopCost;
             player.discard.push({...card, uid: Math.random()});
             addLog(`Bought ${card.name}.`);
-            if(centralDeck.length) shopCards[index]=centralDeck.shift();
-            else shopCards[index]=null;
+            if(centralDeck.length) shopCards[index] = centralDeck.shift();
+            else shopCards[index] = null;
             refreshUI();
         } else addLog(`Need ${card.shopCost} shards.`);
     }
