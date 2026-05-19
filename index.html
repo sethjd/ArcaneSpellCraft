@@ -47,7 +47,7 @@
 
         body {
             min-height: 100dvh;
-            padding: max(8px, var(--safe-top)) 8px calc(88px + var(--safe-bottom));
+            padding: max(8px, var(--safe-top)) 8px calc(150px + var(--safe-bottom));
             background:
                 radial-gradient(circle at 12% 0%, rgba(124, 92, 255, 0.26), transparent 34%),
                 radial-gradient(circle at 85% 18%, rgba(255, 135, 79, 0.14), transparent 30%),
@@ -425,6 +425,62 @@
             align-content: space-between;
             gap: 8px;
             scroll-snap-align: start;
+            touch-action: pan-x;
+        }
+
+        .scroll-lane.shop {
+            touch-action: pan-x;
+            scroll-snap-type: x mandatory;
+        }
+
+        .floating-targets {
+            position: fixed;
+            left: 8px;
+            right: 8px;
+            bottom: calc(92px + var(--safe-bottom));
+            z-index: 58;
+            width: min(100% - 16px, 920px);
+            margin: 0 auto;
+            display: none;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid rgba(255, 180, 95, 0.36);
+            border-radius: 20px;
+            background: rgba(12, 9, 18, 0.9);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 -10px 34px rgba(0,0,0,0.35), 0 0 26px rgba(255,180,95,0.16);
+        }
+
+        .floating-targets.visible {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+        }
+
+        .floating-target-label {
+            min-width: 0;
+            color: #ffe3bd;
+            font-size: 0.82rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .floating-target-label small {
+            display: block;
+            color: var(--muted);
+            font-weight: 720;
+            margin-top: 1px;
+        }
+
+        .floating-hero-button {
+            min-width: 104px;
+            min-height: 48px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 180, 95, 0.75);
+            background: linear-gradient(135deg, rgba(255, 180, 95, 0.26), rgba(124, 92, 255, 0.25));
+            color: var(--orange);
+            font-weight: 950;
+            box-shadow: 0 0 0 2px rgba(255, 180, 95, 0.12);
         }
 
         .shop-pill.disabled {
@@ -596,7 +652,7 @@
 
         @media (min-width: 720px) {
             body {
-                padding-bottom: 98px;
+                padding-bottom: 156px;
             }
 
             .app {
@@ -720,6 +776,11 @@
         </section>
     </main>
 
+    <div class="floating-targets" id="floatingTargets" aria-live="polite">
+        <div class="floating-target-label" id="floatingTargetLabel">Target available<small>No scrolling needed.</small></div>
+        <button class="floating-hero-button" type="button" data-action="target-hero" data-owner="ai" id="floatingAiTarget">Hit AI ❤️ <span id="floatingAiHp">80</span></button>
+    </div>
+
     <div class="action-dock">
         <div class="hint" id="actionHint">Tap cards to play. Tap one of your creatures, then tap an enemy to attack.<small>Swipe lanes sideways to view more cards.</small></div>
         <button class="end-turn" type="button" data-action="end-turn" id="endTurnBtn">End Turn</button>
@@ -783,6 +844,9 @@
         playerZone: document.getElementById("playerZone"),
         aiHp: document.getElementById("aiHp"),
         playerHp: document.getElementById("playerHp"),
+        floatingTargets: document.getElementById("floatingTargets"),
+        floatingTargetLabel: document.getElementById("floatingTargetLabel"),
+        floatingAiHp: document.getElementById("floatingAiHp"),
         aiShards: document.getElementById("aiShards"),
         playerShards: document.getElementById("playerShards"),
         aiHandCount: document.getElementById("aiHandCount"),
@@ -806,6 +870,7 @@
     };
 
     let uidCounter = 1;
+    let pointerStart = null;
     let renderQueued = false;
     let tapLocked = false;
 
@@ -1622,6 +1687,7 @@
         els.playerZone.classList.toggle("cloak-active", player.cloakActive);
 
         renderHeroTargetState();
+        renderFloatingTargets();
         renderHand();
         renderField("player", els.playerBattlefield);
         renderField("ai", els.aiBattlefield);
@@ -1646,6 +1712,30 @@
             const aiHp = document.querySelector('.hp-target[data-owner="ai"]');
             if (legal.includes("hero:ai")) aiHp.classList.add("targetable");
         }
+    }
+
+    function renderFloatingTargets() {
+        if (!els.floatingTargets) return;
+        els.floatingTargets.classList.remove("visible");
+
+        if (state.turn !== "player" || !state.active) return;
+
+        const legalHeroTargets = getDamageTargets("player").filter(isHeroRef).map(refKey);
+        const aiHeroTargetable = legalHeroTargets.includes("hero:ai") && !state.ai.cloakActive;
+        const needsFloatingHero = aiHeroTargetable && Boolean(state.pendingSpell || state.selectedAttackerUid);
+
+        if (!needsFloatingHero) return;
+
+        const selected = state.selectedAttackerUid ? findCreature("player", state.selectedAttackerUid) : null;
+        const title = state.pendingSpell
+            ? `${state.pendingSpell.cardName}: AI HP is in range`
+            : `${selected ? selected.name : "Creature"} can attack AI HP`;
+        const detail = state.ai.field.some(c => c.defender)
+            ? "Defender is blocking hero damage."
+            : "Tap this instead of scrolling to the top.";
+
+        els.floatingTargetLabel.innerHTML = `${escapeHtml(title)}<small>${escapeHtml(detail)}</small>`;
+        els.floatingTargets.classList.add("visible");
     }
 
     function renderHand() {
@@ -1766,10 +1856,38 @@
         node.addEventListener("animationend", () => node.remove(), { once: true });
     }
 
+    function handlePointerDown(event) {
+        const actionTarget = event.target.closest("[data-action]");
+        pointerStart = {
+            id: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+            time: performance.now(),
+            action: actionTarget ? actionTarget.dataset.action : "",
+            inShop: Boolean(event.target.closest(".scroll-lane.shop"))
+        };
+    }
+
+    function isSwipeLikeShopGesture(event, action) {
+        if (!pointerStart || pointerStart.id !== event.pointerId) return false;
+        if (!pointerStart.inShop && action !== "buy-shop" && action !== "buy-cluster") return false;
+
+        const dx = Math.abs(event.clientX - pointerStart.x);
+        const dy = Math.abs(event.clientY - pointerStart.y);
+        const movedEnoughToBeSwipe = dx > 10 || dy > 10;
+        const mostlyHorizontal = dx > dy * 0.75;
+        return movedEnoughToBeSwipe && mostlyHorizontal;
+    }
+
     function handleTap(event) {
         const target = event.target.closest("[data-action]");
         if (!target) return;
         const action = target.dataset.action;
+
+        if ((action === "buy-shop" || action === "buy-cluster") && isSwipeLikeShopGesture(event, action)) {
+            pointerStart = null;
+            return;
+        }
 
         if (!["toggle-debug", "copy-debug"].includes(action)) {
             event.preventDefault();
@@ -1896,6 +2014,7 @@
         }[char]));
     }
 
+    document.addEventListener("pointerdown", handlePointerDown, { passive: true });
     document.addEventListener("pointerup", handleTap, { passive: false });
     window.addEventListener("resize", queueRender, { passive: true });
     initGame();
