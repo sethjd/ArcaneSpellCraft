@@ -1025,7 +1025,7 @@
         { id: "behemoth", image: "assets/cards/ironclad_behemoth.webp", name: "Ironclad Behemoth", type: "creature", shopCost: 7, atk: 5, hp: 10, desc: "Huge body" },
         { id: "wraith", image: "assets/cards/spectral_wraith.webp", name: "Spectral Wraith", type: "oneshot", shopCost: 4, effect: "damage", damage: 4, desc: "Strike 4" },
         { id: "lavadrake", image: "assets/cards/lava_drake.webp", name: "Lava Drake", type: "oneshot", shopCost: 5, effect: "damage", damage: 10, desc: "Blast 10" },
-        { id: "souleater", image: "assets/cards/soul_eater.webp", name: "Soul Eater", type: "oneshot", shopCost: 6, effect: "damage", damage: 4, desc: "Drain strike" },
+        { id: "souleater", image: "assets/cards/soul_eater.webp", name: "Soul Eater", type: "oneshot", shopCost: 6, effect: "stealDeckRandom", desc: "Steal random deck card" },
         { id: "phoenix", image: "assets/cards/phoenix_reborn.webp", name: "Phoenix Reborn", type: "oneshot", shopCost: 7, effect: "revive", desc: "Revive full" }
     ]);
 
@@ -1473,6 +1473,18 @@
                 addLog(`${labelFor(ownerId)} steal ${stolen.name} with Mind Control.`);
                 break;
             }
+            case "stealDeckRandom": {
+                if (opponent.deck.length === 0) {
+                    addLog(`${card.name} found no cards in ${labelFor(opponentId)}'s deck.`);
+                    return;
+                }
+                const randomIndex = Math.floor(Math.random() * opponent.deck.length);
+                const [stolenCard] = opponent.deck.splice(randomIndex, 1);
+                stolenCard.uid = nextUid();
+                owner.discard.push(stolenCard);
+                addLog(`${labelFor(ownerId)} use ${card.name} to steal a random card from ${labelFor(opponentId)}'s deck: ${stolenCard.name}.`);
+                break;
+            }
             case "thunderstrike": {
                 const legalTargets = targetRefs.filter(ref => isLegalDamageTarget(ownerId, ref));
                 if (legalTargets.length === 0) {
@@ -1760,7 +1772,7 @@
         playable.sort((a, b) => aiCardScore(b) - aiCardScore(a));
         const card = playable[0];
 
-        if (card.type === "creature" || card.effect === "heal" || card.effect === "cloak" || card.effect === "mindControl" || card.effect === "revive" || card.effect === "summonDefender") {
+        if (card.type === "creature" || card.effect === "heal" || card.effect === "cloak" || card.effect === "mindControl" || card.effect === "stealDeckRandom" || card.effect === "revive" || card.effect === "summonDefender") {
             return playCard("ai", card.uid);
         }
 
@@ -1785,6 +1797,7 @@
         if (card.effect === "heal") score += state.ai.hp <= 55 ? 18 : 2;
         if (card.effect === "cloak") score += state.player.field.length >= 2 ? 16 : 4;
         if (card.effect === "mindControl") score += state.player.field.length ? 22 : 0;
+        if (card.effect === "stealDeckRandom") score += state.player.deck.length ? 16 : 0;
         if (card.effect === "revive") score += state.ai.graveyard.length ? 18 : 0;
         if (card.defender) score += 4;
         return score;
@@ -1832,6 +1845,7 @@
         if (card.effect === "damage") score += (card.damage || 0) * 2;
         if (card.effect === "heal") score += 4;
         if (card.effect === "mindControl" || card.effect === "revive") score += 8;
+        if (card.effect === "stealDeckRandom") score += 6;
         if (card.effect === "thunderstrike") score += 7;
         if (card.defender) score += 3;
         return score;
@@ -1887,6 +1901,7 @@
         if (card.effect === "thunderstrike") return `🌩️ ${card.damage || 0}×2`;
         if (card.effect === "cloak") return "✨ Cloak";
         if (card.effect === "mindControl") return "🧠 Steal";
+        if (card.effect === "stealDeckRandom") return "🃏 Steal deck";
         if (card.effect === "revive") return "🔥 Revive";
         return card.desc || "Spell";
     }
