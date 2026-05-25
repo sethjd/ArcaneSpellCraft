@@ -759,6 +759,25 @@
             gap: 8px;
         }
 
+        .settings-row {
+            display: grid;
+            gap: 8px;
+            margin: 12px 0 14px;
+        }
+
+        .settings-row button {
+            --btn-bg: url('assets/ui/button_small_dark.webp');
+            width: 100%;
+        }
+
+        .menu-note {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+
 
         .ui-inline, .stat-icon-wrap, .button-inline {
             display: inline-flex;
@@ -880,7 +899,7 @@
             }
 
             .utility-row {
-                grid-template-columns: 1fr 1fr 1fr 1fr;
+                grid-template-columns: repeat(5, 1fr);
             }
         }
 
@@ -970,10 +989,11 @@
         </section>
 
         <div class="utility-row">
+            <button type="button" data-action="main-menu"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Menu</span></button>
+            <button type="button" data-action="toggle-music" id="musicToggleBtn"><span class="button-inline">Music On</span></button>
+            <button type="button" data-action="toggle-sfx" id="sfxToggleBtn"><span class="button-inline">SFX On</span></button>
             <button type="button" data-action="restart"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Restart</span></button>
-            <button type="button" data-action="toggle-debug"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_cloak.webp" alt="" /> Debug</span></button>
-            <button type="button" data-action="copy-debug"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Copy Debug</span></button>
-            <button type="button" data-action="cancel-action"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Cancel Action</span></button>
+            <button type="button" data-action="cancel-action"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Cancel</span></button>
         </div>
 
         <section class="log-panel">
@@ -1082,7 +1102,9 @@
         shop: document.getElementById("shop"),
         gameLog: document.getElementById("gameLog"),
         debugLog: document.getElementById("debugLog"),
-        modalRoot: document.getElementById("modalRoot")
+        modalRoot: document.getElementById("modalRoot"),
+        musicToggleBtn: document.getElementById("musicToggleBtn"),
+        sfxToggleBtn: document.getElementById("sfxToggleBtn")
     };
 
     let uidCounter = 1;
@@ -1106,6 +1128,256 @@
         player: null,
         ai: null
     };
+
+    const audioState = {
+        ctx: null,
+        musicEnabled: localStorage.getItem("arcaneSpellCraftMusic") !== "off",
+        sfxEnabled: localStorage.getItem("arcaneSpellCraftSfx") !== "off",
+        musicTimer: null,
+        musicGain: null,
+        musicStep: 0,
+        musicStarted: false
+    };
+
+    const NOTE_FREQ = Object.freeze({
+        D2: 73.42, F2: 87.31, A2: 110.00, Bb3: 233.08,
+        C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00, A3: 220.00,
+        C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, Bb4: 466.16,
+        C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00, B5: 987.77,
+        C6: 1046.50, D6: 1174.66, F6: 1396.91, G6: 1567.98
+    });
+
+    function getAudioContext() {
+        if (!audioState.ctx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return null;
+            audioState.ctx = new AudioContextClass();
+        }
+        if (audioState.ctx.state === "suspended") void audioState.ctx.resume();
+        return audioState.ctx;
+    }
+
+    function masterGain(value = 0.35) {
+        const ctx = getAudioContext();
+        if (!ctx) return null;
+        const gain = ctx.createGain();
+        gain.gain.value = value;
+        gain.connect(ctx.destination);
+        return gain;
+    }
+
+    function playTone(freq, start, duration, options = {}) {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const destination = options.destination || masterGain(options.master ?? 0.25);
+        if (!destination) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const attack = options.attack ?? 0.01;
+        const release = options.release ?? 0.1;
+        const volume = options.volume ?? 0.2;
+        osc.type = options.type || "sine";
+        osc.frequency.setValueAtTime(freq, start);
+        if (options.slideTo) osc.frequency.exponentialRampToValueAtTime(Math.max(20, options.slideTo), start + duration);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, volume), start + attack);
+        gain.gain.setValueAtTime(Math.max(0.0002, volume), Math.max(start + attack, start + duration - release));
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        osc.connect(gain);
+        gain.connect(destination);
+        osc.start(start);
+        osc.stop(start + duration + 0.04);
+    }
+
+    function playNoise(start, duration, options = {}) {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const destination = options.destination || masterGain(options.master ?? 0.2);
+        if (!destination) return;
+        const length = Math.max(1, Math.floor(ctx.sampleRate * duration));
+        const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+        const source = ctx.createBufferSource();
+        const filter = ctx.createBiquadFilter();
+        const gain = ctx.createGain();
+        filter.type = options.filterType || "lowpass";
+        filter.frequency.value = options.frequency || 900;
+        filter.Q.value = options.q || 0.8;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(options.volume ?? 0.12, start + (options.attack ?? 0.01));
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        source.buffer = buffer;
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(destination);
+        source.start(start);
+        source.stop(start + duration + 0.02);
+    }
+
+    function playBell(noteName, offset = 0, options = {}) {
+        const ctx = getAudioContext();
+        if (!ctx || !NOTE_FREQ[noteName]) return;
+        const when = ctx.currentTime + offset;
+        const dest = options.destination || masterGain(options.master ?? 0.18);
+        const freq = NOTE_FREQ[noteName];
+        const duration = options.duration ?? 0.42;
+        const volume = options.volume ?? 0.12;
+        playTone(freq, when, duration, { ...options, destination: dest, type: "sine", volume });
+        playTone(freq * 2.02, when, duration * 0.72, { ...options, destination: dest, type: "sine", volume: volume * 0.38 });
+        playTone(freq * 4.07, when, duration * 0.46, { ...options, destination: dest, type: "sine", volume: volume * 0.16 });
+    }
+
+    function playSfx(name) {
+        if (!audioState.sfxEnabled) return;
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        switch (name) {
+            case "uiTap":
+                playBell("A5", 0, { duration: 0.08, volume: 0.12, master: 0.18 });
+                playBell("D6", 0.05, { duration: 0.12, volume: 0.08, master: 0.16 });
+                break;
+            case "cardPlay":
+                ["D5", "A5", "D6", "F6"].forEach((note, i) => playBell(note, 0.02 + i * 0.055, { duration: 0.38, volume: 0.085, master: 0.18 }));
+                playNoise(now + 0.08, 0.38, { volume: 0.025, frequency: 700, master: 0.12 });
+                break;
+            case "cardBuy":
+                ["G5", "B5", "D6", "G6"].forEach((note, i) => playBell(note, 0.02 + i * 0.07, { duration: 0.32, volume: 0.09, master: 0.18 }));
+                break;
+            case "endTurn":
+                ["D5", "A4", "F4"].forEach((note, i) => playBell(note, i * 0.16, { duration: 0.32, volume: 0.08, master: 0.16 }));
+                break;
+            case "attackHit":
+                playTone(NOTE_FREQ.D2, now, 0.28, { type: "sine", volume: 0.28, attack: 0.002, release: 0.22, master: 0.24 });
+                playNoise(now, 0.09, { volume: 0.08, frequency: 450, master: 0.16 });
+                playTone(900, now + 0.01, 0.08, { type: "triangle", volume: 0.07, attack: 0.002, release: 0.055, master: 0.16 });
+                break;
+            case "creatureDie":
+                playTone(NOTE_FREQ.D3, now, 0.22, { type: "sawtooth", volume: 0.06, release: 0.16, master: 0.16 });
+                playTone(NOTE_FREQ.A2, now + 0.17, 0.30, { type: "sawtooth", volume: 0.07, release: 0.24, master: 0.16 });
+                playTone(NOTE_FREQ.D2, now + 0.42, 0.48, { type: "sine", volume: 0.14, release: 0.42, master: 0.16 });
+                playNoise(now + 0.12, 0.75, { volume: 0.035, frequency: 330, master: 0.12 });
+                break;
+            case "shieldBlock":
+                playBell("D4", 0, { duration: 0.20, volume: 0.12, master: 0.18 });
+                playBell("A4", 0.04, { duration: 0.25, volume: 0.08, master: 0.16 });
+                break;
+            case "heal":
+                ["F5", "A5", "C6", "F6"].forEach((note, i) => playBell(note, i * 0.12, { duration: 0.52, volume: 0.08, master: 0.18 }));
+                break;
+            case "fireSpell":
+                playNoise(now, 0.18, { volume: 0.10, frequency: 420, master: 0.16 });
+                playTone(NOTE_FREQ.D3, now + 0.18, 0.18, { type: "sawtooth", volume: 0.055, slideTo: NOTE_FREQ.F3, master: 0.14 });
+                playTone(NOTE_FREQ.F3, now + 0.33, 0.20, { type: "sawtooth", volume: 0.07, slideTo: NOTE_FREQ.A3, master: 0.14 });
+                playNoise(now + 0.52, 0.25, { volume: 0.14, frequency: 260, master: 0.20 });
+                playTone(NOTE_FREQ.D2, now + 0.52, 0.34, { type: "sine", volume: 0.18, release: 0.28, master: 0.18 });
+                break;
+            case "thunderSpell":
+                [0, 0.045, 0.095, 0.18].forEach((offset, i) => {
+                    playNoise(now + offset, 0.035, { volume: 0.24 - i * 0.035, filterType: "highpass", frequency: 1200, master: 0.22 });
+                    playTone(i % 2 ? 950 : 1600, now + offset + 0.005, 0.035, { type: "square", volume: 0.035, release: 0.022, master: 0.14 });
+                });
+                playNoise(now + 0.12, 0.75, { volume: 0.065, frequency: 180, master: 0.13 });
+                break;
+            case "soulEater":
+                playTone(NOTE_FREQ.D2, now + 0.06, 0.70, { type: "sine", volume: 0.24, release: 0.55, master: 0.20 });
+                playTone(NOTE_FREQ.A3, now + 0.2, 0.45, { type: "sine", volume: 0.05, attack: 0.16, release: 0.25, master: 0.14 });
+                playNoise(now + 0.05, 1.0, { volume: 0.035, frequency: 300, master: 0.12 });
+                break;
+            case "mindControl":
+                for (let i = 0; i < 8; i++) playTone(300 + Math.sin(i * 0.9) * 70, now + i * 0.06, 0.18, { type: "sine", volume: 0.045, release: 0.16, master: 0.14 });
+                playTone(NOTE_FREQ.Bb3, now, 1.0, { type: "sine", volume: 0.08, attack: 0.08, release: 0.7, master: 0.14 });
+                break;
+            case "victory":
+                [["D4", "F4", "A4"], ["F4", "A4", "C5"], ["A4", "C5", "E5"], ["D5", "F5", "A5"]].forEach((chord, i) => chord.forEach(note => playBell(note, i * 0.28, { duration: 0.75, volume: 0.075, master: 0.18 })));
+                playBell("D6", 1.15, { duration: 0.75, volume: 0.05, master: 0.16 });
+                break;
+            case "defeat":
+                [["D4", "F4", "A4"], ["C4", "F4", "A4"], ["Bb3", "D4", "F4"]].forEach((chord, i) => chord.forEach(note => playBell(note, i * 0.35, { duration: 0.75, volume: 0.055, master: 0.14 })));
+                break;
+        }
+    }
+
+    function startMusic() {
+        const ctx = getAudioContext();
+        if (!ctx || !audioState.musicEnabled || audioState.musicStarted) return;
+        audioState.musicStarted = true;
+        audioState.musicStep = 0;
+        audioState.musicGain = ctx.createGain();
+        audioState.musicGain.gain.value = 0.16;
+        audioState.musicGain.connect(ctx.destination);
+        const chords = [
+            ["D2", "A2", "D3", "F3"],
+            ["Bb3", "D4", "F4"],
+            ["F2", "C3", "F3", "A3"],
+            ["C3", "E3", "G3"]
+        ];
+        const melody = ["D5", "F5", "A5", "D6", "C6", "A5", "F5", "A5", "E5", "G5", "A5", "C6", "A5", "G5", "F5", "E5"];
+
+        function scheduleBeat() {
+            if (!audioState.musicEnabled || !audioState.musicStarted || !audioState.ctx) return;
+            const when = audioState.ctx.currentTime + 0.08;
+            const step = audioState.musicStep;
+            const chordNotes = chords[Math.floor(step / 16) % chords.length];
+            const noteName = melody[step % melody.length];
+            chordNotes.forEach(note => playTone(NOTE_FREQ[note], when, 2.4, { type: "triangle", volume: 0.025, attack: 0.25, release: 1.2, destination: audioState.musicGain }));
+            playBell(noteName, 0.08, { duration: 0.46, volume: 0.045, destination: audioState.musicGain });
+            if (step % 2 === 0) playTone(NOTE_FREQ.D2, when, 0.22, { type: "sine", volume: 0.05, attack: 0.004, release: 0.16, destination: audioState.musicGain });
+            audioState.musicStep = (audioState.musicStep + 1) % 64;
+        }
+
+        scheduleBeat();
+        audioState.musicTimer = setInterval(scheduleBeat, 375);
+    }
+
+    function stopMusic() {
+        audioState.musicStarted = false;
+        if (audioState.musicTimer) {
+            clearInterval(audioState.musicTimer);
+            audioState.musicTimer = null;
+        }
+        if (audioState.musicGain) {
+            try {
+                audioState.musicGain.gain.exponentialRampToValueAtTime(0.0001, audioState.ctx.currentTime + 0.12);
+                setTimeout(() => {
+                    try { audioState.musicGain.disconnect(); } catch {}
+                    audioState.musicGain = null;
+                }, 180);
+            } catch {
+                audioState.musicGain = null;
+            }
+        }
+    }
+
+    function setMusicEnabled(enabled) {
+        audioState.musicEnabled = enabled;
+        localStorage.setItem("arcaneSpellCraftMusic", enabled ? "on" : "off");
+        if (enabled && state.active) startMusic();
+        else stopMusic();
+        updateAudioButtons();
+    }
+
+    function setSfxEnabled(enabled) {
+        audioState.sfxEnabled = enabled;
+        localStorage.setItem("arcaneSpellCraftSfx", enabled ? "on" : "off");
+        if (enabled) playSfx("uiTap");
+        updateAudioButtons();
+    }
+
+    function updateAudioButtons() {
+        if (els.musicToggleBtn) els.musicToggleBtn.innerHTML = `<span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span>`;
+        if (els.sfxToggleBtn) els.sfxToggleBtn.innerHTML = `<span class="button-inline">SFX ${audioState.sfxEnabled ? "On" : "Off"}</span>`;
+        document.querySelectorAll("[data-modal='toggle-music']").forEach(btn => btn.innerHTML = `<span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span>`);
+        document.querySelectorAll("[data-modal='toggle-sfx']").forEach(btn => btn.innerHTML = `<span class="button-inline">Game Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span>`);
+    }
+
+    function unlockAudioFromGesture() {
+        getAudioContext();
+        updateAudioButtons();
+        if (audioState.musicEnabled && state.active) startMusic();
+    }
+
 
     function nextUid() {
         uidCounter += 1;
@@ -1309,6 +1581,9 @@
         state.logs = [];
         state.debugLines = [];
         els.modalRoot.innerHTML = "";
+        unlockAudioFromGesture();
+        if (audioState.musicEnabled) startMusic();
+        updateAudioButtons();
         addLog(`${labelFor("player")} starts. Tap cards to play, then attack with your creatures.`);
         startTurn("player");
     }
@@ -1356,6 +1631,7 @@
         p.attackedThisTurn.clear();
         state.selectedAttackerUid = null;
         state.pendingSpell = null;
+        playSfx("endTurn");
         queueRender();
     }
 
@@ -1387,6 +1663,7 @@
         if (card.type === "economy") {
             owner.shards += card.shardGain || 0;
             owner.discard.push(card);
+            playSfx("cardPlay");
             addLog(`${labelFor(ownerId)} play ${card.name}: +${card.shardGain} shards.`);
         } else if (card.type === "creature") {
             summonCreature(ownerId, card);
@@ -1427,6 +1704,7 @@
         }
 
         owner.field.push(creature);
+        playSfx(card.defender ? "shieldBlock" : "cardPlay");
         addLog(`${labelFor(ownerId)} summon ${card.name} (${creature.atk}/${creature.hp}).`);
     }
 
@@ -1442,11 +1720,13 @@
                     addLog(`${card.name} fizzles: no legal target.`);
                     return;
                 }
+                playSfx(card.id === "inferno" || card.id === "lavadrake" ? "fireSpell" : card.id === "souleater" ? "soulEater" : "attackHit");
                 dealDamage(ownerId, ref, card.damage || 0, card.name);
                 break;
             }
             case "heal": {
                 owner.hp = clampHp(owner.hp + (card.heal || 0));
+                playSfx("heal");
                 addLog(`${labelFor(ownerId)} cast ${card.name}: heal ${card.heal}.`);
                 break;
             }
@@ -1457,6 +1737,7 @@
             }
             case "cloak": {
                 owner.cloakActive = true;
+                playSfx("cardPlay");
                 addLog(`${labelFor(ownerId)} cast ${card.name}. Damage blocked until next turn.`);
                 break;
             }
@@ -1470,6 +1751,7 @@
                 owner.field.push(stolen);
                 opponent.discard.push(...opponent.hand.splice(0));
                 for (let i = 0; i < HAND_DRAW; i++) drawCard(opponentId);
+                playSfx("mindControl");
                 addLog(`${labelFor(ownerId)} steal ${stolen.name} with Mind Control.`);
                 break;
             }
@@ -1482,6 +1764,7 @@
                 const [stolenCard] = opponent.deck.splice(randomIndex, 1);
                 stolenCard.uid = nextUid();
                 owner.discard.push(stolenCard);
+                playSfx("soulEater");
                 addLog(`${labelFor(ownerId)} use ${card.name} to steal a random card from ${labelFor(opponentId)}'s deck: ${stolenCard.name}.`);
                 break;
             }
@@ -1491,6 +1774,7 @@
                     addLog("Thunderstrike fizzles: no target.");
                     return;
                 }
+                playSfx("thunderSpell");
                 legalTargets.slice(0, 2).forEach(ref => dealDamage(ownerId, ref, card.damage || 0, "Thunderstrike"));
                 owner.field.forEach(creature => {
                     if (creature.thunderSynergy) creature.atk += 1;
@@ -1506,6 +1790,7 @@
                 const revived = owner.graveyard.pop();
                 const fullHp = revived.originalHp || revived.maxHp || revived.hp || 1;
                 owner.field.push({ ...revived, uid: nextUid(), ownerId, hp: fullHp, maxHp: fullHp });
+                playSfx("fireSpell");
                 addLog(`Phoenix revives ${revived.name} at full HP.`);
                 break;
             }
@@ -1524,6 +1809,7 @@
         if (isHeroRef(ref)) {
             const target = actor(ref.ownerId);
             target.hp = Math.max(0, target.hp - amount);
+            playSfx("attackHit");
             addLog(`${sourceName} deals ${amount} to ${ref.ownerId === "player" ? "you" : "AI"}.`);
         } else {
             const target = resolveRef(ref);
@@ -1532,7 +1818,10 @@
             addLog(`${sourceName} deals ${amount} to ${target.name}.`);
             if (target.hp <= 0) {
                 const dead = removeCreature(ref.ownerId, ref.uid);
-                if (dead) addLog(`${dead.name} dies.`);
+                if (dead) {
+                    playSfx("creatureDie");
+                    addLog(`${dead.name} dies.`);
+                }
             }
         }
 
@@ -1607,6 +1896,7 @@
         }
         p.shards -= card.shopCost;
         p.discard.push(cloneCard(card));
+        playSfx("cardBuy");
         addLog(`${labelFor(ownerId)} bought ${card.name}.`);
         state.shopCards[index] = state.centralDeck.length ? state.centralDeck.shift() : null;
         queueRender();
@@ -1623,6 +1913,7 @@
         p.shards -= ARCANE_CLUSTER_CARD.shopCost;
         state.arcaneClustersRemaining -= 1;
         p.discard.push(cloneCard(ARCANE_CLUSTER_CARD));
+        playSfx("cardBuy");
         addLog(`${labelFor(ownerId)} bought Arcane Cluster.`);
         queueRender();
         return true;
@@ -1881,10 +2172,14 @@
         if (state.player.hp <= 0) {
             state.active = false;
             tapLocked = false;
+            playSfx("defeat");
+            stopMusic();
             showGameOver(`${labelFor("ai")} wins!`, state.mode === "ai" ? false : true);
         } else if (state.ai.hp <= 0) {
             state.active = false;
             tapLocked = false;
+            playSfx("victory");
+            stopMusic();
             showGameOver(`${labelFor("player")} wins!`, true);
         }
     }
@@ -1993,6 +2288,7 @@
         renderShop();
         renderLogs();
         renderHint();
+        updateAudioButtons();
     }
 
     function renderHeroTargetState() {
@@ -2196,6 +2492,7 @@
     }
 
     function handleTap(event) {
+        unlockAudioFromGesture();
         const target = event.target.closest("[data-action]");
         if (!target) return;
         const action = target.dataset.action;
@@ -2247,6 +2544,19 @@
                 tapFeedback();
                 void handleEndTurn();
                 break;
+            case "main-menu":
+                tapFeedback();
+                playSfx("uiTap");
+                showMainMenu();
+                break;
+            case "toggle-music":
+                tapFeedback();
+                setMusicEnabled(!audioState.musicEnabled);
+                break;
+            case "toggle-sfx":
+                tapFeedback();
+                setSfxEnabled(!audioState.sfxEnabled);
+                break;
             case "restart":
                 tapFeedback();
                 showConfirm("Restart the match?", initGame);
@@ -2265,6 +2575,38 @@
                 copyDebug();
                 break;
         }
+    }
+
+
+    function showMainMenu() {
+        updateAudioButtons();
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <h2>Arcane Spell Craft</h2>
+                    <p>Pause, audio settings, or start a new match.</p>
+                    <div class="settings-row">
+                        <button type="button" data-modal="resume-game"><span class="button-inline">Resume Game</span></button>
+                        <button type="button" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
+                        <button type="button" data-modal="toggle-sfx"><span class="button-inline">Game Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
+                        <button type="button" class="btn-orange" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> New Game</span></button>
+                    </div>
+                    <p class="menu-note">Music starts after a tap because mobile browsers block autoplay.</p>
+                </div>
+            </div>`;
+        updateAudioButtons();
+
+        els.modalRoot.querySelector('[data-modal="resume-game"]').addEventListener("pointerup", () => {
+            els.modalRoot.innerHTML = "";
+            if (audioState.musicEnabled) startMusic();
+        }, { once: true });
+        els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
+        els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+        els.modalRoot.querySelector('[data-modal="main-menu-new-game"]').addEventListener("pointerup", () => {
+            stopMusic();
+            state.active = false;
+            showStartModal();
+        }, { once: true });
     }
 
     function showConfirm(message, onConfirm) {
@@ -2340,6 +2682,10 @@
                         <li>Defenders must be defeated before hero HP can be targeted.</li>
                         <li>Two matching elementals double that element's attack while both are alive.</li>
                     </ul>
+                    <div class="settings-row">
+                        <button type="button" data-modal="toggle-music"><span class="button-inline">Music On</span></button>
+                        <button type="button" data-modal="toggle-sfx"><span class="button-inline">Game Sounds On</span></button>
+                    </div>
                     <button type="button" class="btn-wide" data-modal="start-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Game</span></button>
                 </div>
             </div>`;
@@ -2353,9 +2699,16 @@
             p2Input.disabled = mode === "ai";
             p2Input.style.opacity = mode === "ai" ? "0.45" : "1";
         }
-        modeButtons.forEach(btn => btn.addEventListener("pointerup", () => updateMode(btn.dataset.startMode)));
+        modeButtons.forEach(btn => btn.addEventListener("pointerup", () => {
+            playSfx("uiTap");
+            updateMode(btn.dataset.startMode);
+        }));
         updateMode("ai");
+        updateAudioButtons();
+        els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
+        els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
         els.modalRoot.querySelector('[data-modal="start-game"]').addEventListener("pointerup", () => {
+            unlockAudioFromGesture();
             const playerName = els.modalRoot.querySelector("#startPlayerOne").value;
             const playerTwoName = p2Input.value;
             els.modalRoot.innerHTML = "";
@@ -2375,6 +2728,8 @@
                 </div>
             </div>`;
         els.modalRoot.querySelector('[data-modal="start-turn"]').addEventListener("pointerup", () => {
+            unlockAudioFromGesture();
+            playSfx("uiTap");
             els.modalRoot.innerHTML = "";
             state.awaitingPass = false;
             tapLocked = false;
