@@ -727,29 +727,34 @@
             inset: 0;
             z-index: 100;
             display: grid;
-            place-items: center;
-            padding: 18px;
+            place-items: start center;
+            padding: max(10px, var(--safe-top)) 12px max(18px, var(--safe-bottom));
             background: rgba(0,0,0,0.78);
             backdrop-filter: blur(12px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .modal-card {
             width: min(92vw, 340px);
+            max-height: calc(100dvh - max(28px, var(--safe-top)) - max(28px, var(--safe-bottom)));
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             border: 1px solid rgba(255, 215, 106, 0.66);
             border-radius: 24px;
             background: linear-gradient(145deg, #231a38, #0e1220);
             box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-            padding: 20px;
+            padding: 16px;
             text-align: center;
         }
 
         .modal-card h2 {
-            margin: 0 0 10px;
-            font-size: 1.7rem;
+            margin: 0 0 8px;
+            font-size: clamp(1.25rem, 5vw, 1.7rem);
         }
 
         .modal-card p {
-            margin: 0 0 16px;
+            margin: 0 0 10px;
             color: var(--muted);
         }
 
@@ -762,12 +767,44 @@
         .settings-row {
             display: grid;
             gap: 8px;
-            margin: 12px 0 14px;
+            margin: 10px 0 12px;
         }
 
         .settings-row button {
             --btn-bg: url('assets/ui/button_small_dark.webp');
             width: 100%;
+        }
+
+        .audio-control {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 6px 10px;
+            align-items: center;
+            text-align: left;
+            padding: 9px 10px;
+            border-radius: 14px;
+            background: rgba(6, 9, 17, 0.66);
+            border: 1px solid rgba(255,255,255,0.09);
+        }
+
+        .audio-control label {
+            color: #eadfff;
+            font-size: 0.82rem;
+            font-weight: 900;
+        }
+
+        .audio-control output {
+            color: var(--gold);
+            font-size: 0.78rem;
+            font-weight: 950;
+            min-width: 38px;
+            text-align: right;
+        }
+
+        .audio-control input[type="range"] {
+            grid-column: 1 / -1;
+            width: 100%;
+            accent-color: var(--gold);
         }
 
         .menu-note {
@@ -819,9 +856,9 @@
 
         .start-art {
             width: 100%;
-            aspect-ratio: 16 / 9;
+            aspect-ratio: 16 / 8;
             border-radius: 18px;
-            margin: 0 0 14px;
+            margin: 0 0 10px;
             border: 1px solid rgba(255,255,255,0.12);
             background:
                 linear-gradient(180deg, rgba(5, 8, 18, 0.08), rgba(5, 8, 18, 0.28)),
@@ -834,7 +871,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
-            margin: 12px 0;
+            margin: 8px 0;
         }
 
         .mode-choice {
@@ -848,8 +885,8 @@
 
         .name-grid {
             display: grid;
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 7px;
+            margin-bottom: 8px;
         }
 
         .name-grid input {
@@ -864,16 +901,44 @@
         }
 
         .rules-list {
-            margin: 0 0 16px;
-            padding-left: 20px;
+            margin: 0 0 10px;
+            padding-left: 18px;
             text-align: left;
             color: #d8cdff;
-            font-size: 0.9rem;
-            line-height: 1.35;
+            font-size: 0.8rem;
+            line-height: 1.24;
         }
 
         .rules-list li + li {
-            margin-top: 6px;
+            margin-top: 3px;
+        }
+
+
+        @media (max-height: 760px) {
+            .start-art {
+                aspect-ratio: 16 / 6.6;
+            }
+
+            .modal-card {
+                padding: 12px;
+            }
+
+            .rules-list {
+                font-size: 0.74rem;
+            }
+
+            .settings-row {
+                gap: 6px;
+                margin: 8px 0;
+            }
+
+            .audio-control {
+                padding: 7px 9px;
+            }
+
+            .modal-card p {
+                font-size: 0.86rem;
+            }
         }
 
         .victory { color: var(--green); }
@@ -1133,6 +1198,8 @@
         ctx: null,
         musicEnabled: localStorage.getItem("arcaneSpellCraftMusic") !== "off",
         sfxEnabled: localStorage.getItem("arcaneSpellCraftSfx") !== "off",
+        musicVolume: Number(localStorage.getItem("arcaneSpellCraftMusicVolume") || "0.6"),
+        sfxVolume: Number(localStorage.getItem("arcaneSpellCraftSfxVolume") || "0.75"),
         musicTimer: null,
         musicGain: null,
         musicStep: 0,
@@ -1161,7 +1228,7 @@
         const ctx = getAudioContext();
         if (!ctx) return null;
         const gain = ctx.createGain();
-        gain.gain.value = value;
+        gain.gain.value = value * audioState.sfxVolume;
         gain.connect(ctx.destination);
         return gain;
     }
@@ -1305,7 +1372,7 @@
         audioState.musicStarted = true;
         audioState.musicStep = 0;
         audioState.musicGain = ctx.createGain();
-        audioState.musicGain.gain.value = 0.16;
+        audioState.musicGain.gain.value = 0.16 * audioState.musicVolume;
         audioState.musicGain.connect(ctx.destination);
         const chords = [
             ["D2", "A2", "D3", "F3"],
@@ -1365,11 +1432,69 @@
         updateAudioButtons();
     }
 
+
+    function setMusicVolume(value) {
+        audioState.musicVolume = Math.max(0, Math.min(1, Number(value) || 0));
+        localStorage.setItem("arcaneSpellCraftMusicVolume", String(audioState.musicVolume));
+        if (audioState.musicGain) {
+            audioState.musicGain.gain.setTargetAtTime(0.16 * audioState.musicVolume, audioState.ctx.currentTime, 0.04);
+        }
+        updateAudioButtons();
+    }
+
+    function setSfxVolume(value) {
+        audioState.sfxVolume = Math.max(0, Math.min(1, Number(value) || 0));
+        localStorage.setItem("arcaneSpellCraftSfxVolume", String(audioState.sfxVolume));
+        updateAudioButtons();
+    }
+
+    function audioControlHtml(kind) {
+        const isMusic = kind === "music";
+        const label = isMusic ? "Music Volume" : "Game Sound Volume";
+        const value = isMusic ? audioState.musicVolume : audioState.sfxVolume;
+        const action = isMusic ? "music-volume" : "sfx-volume";
+        const percent = Math.round(value * 100);
+        return `
+            <div class="audio-control">
+                <label for="${action}">${label}</label>
+                <output data-volume-output="${action}">${percent}%</output>
+                <input id="${action}" data-volume-control="${action}" type="range" min="0" max="100" step="5" value="${percent}" />
+            </div>`;
+    }
+
+    function bindAudioVolumeControls(root = document) {
+        root.querySelectorAll("[data-volume-control]").forEach(input => {
+            if (input.dataset.bound === "true") return;
+            input.dataset.bound = "true";
+            input.addEventListener("input", () => {
+                const value = Number(input.value) / 100;
+                if (input.dataset.volumeControl === "music-volume") setMusicVolume(value);
+                if (input.dataset.volumeControl === "sfx-volume") setSfxVolume(value);
+            });
+            input.addEventListener("change", () => {
+                if (input.dataset.volumeControl === "sfx-volume" && audioState.sfxEnabled) playSfx("uiTap");
+            });
+        });
+    }
+
     function updateAudioButtons() {
         if (els.musicToggleBtn) els.musicToggleBtn.innerHTML = `<span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span>`;
         if (els.sfxToggleBtn) els.sfxToggleBtn.innerHTML = `<span class="button-inline">SFX ${audioState.sfxEnabled ? "On" : "Off"}</span>`;
         document.querySelectorAll("[data-modal='toggle-music']").forEach(btn => btn.innerHTML = `<span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span>`);
         document.querySelectorAll("[data-modal='toggle-sfx']").forEach(btn => btn.innerHTML = `<span class="button-inline">Game Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span>`);
+        document.querySelectorAll("[data-volume-control='music-volume']").forEach(input => {
+            const value = Math.round(audioState.musicVolume * 100);
+            input.value = String(value);
+            const output = input.closest(".audio-control")?.querySelector("output");
+            if (output) output.textContent = `${value}%`;
+        });
+        document.querySelectorAll("[data-volume-control='sfx-volume']").forEach(input => {
+            const value = Math.round(audioState.sfxVolume * 100);
+            input.value = String(value);
+            const output = input.closest(".audio-control")?.querySelector("output");
+            if (output) output.textContent = `${value}%`;
+        });
+        bindAudioVolumeControls();
     }
 
     function unlockAudioFromGesture() {
@@ -2588,13 +2713,16 @@
                     <div class="settings-row">
                         <button type="button" data-modal="resume-game"><span class="button-inline">Resume Game</span></button>
                         <button type="button" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
+                        ${audioControlHtml("music")}
                         <button type="button" data-modal="toggle-sfx"><span class="button-inline">Game Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
+                        ${audioControlHtml("sfx")}
                         <button type="button" class="btn-orange" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> New Game</span></button>
                     </div>
                     <p class="menu-note">Music starts after a tap because mobile browsers block autoplay.</p>
                 </div>
             </div>`;
         updateAudioButtons();
+        bindAudioVolumeControls(els.modalRoot);
 
         els.modalRoot.querySelector('[data-modal="resume-game"]').addEventListener("pointerup", () => {
             els.modalRoot.innerHTML = "";
@@ -2666,7 +2794,7 @@
                 <div class="modal-card">
                     <div class="start-art"></div>
                     <h2>Arcane Spell Craft</h2>
-                    <p>Choose your mode, name the players, then jump into the fully illustrated build.</p>
+                    <p>Choose mode, names, audio, then start.</p>
                     <div class="mode-grid">
                         <button type="button" class="mode-choice selected" data-start-mode="ai"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_helmet.webp" alt="" /> Solo vs AI</span></button>
                         <button type="button" class="mode-choice" data-start-mode="pass"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_passplay.webp" alt="" /> Pass &amp; Play</span></button>
@@ -2676,15 +2804,17 @@
                         <input id="startPlayerTwo" maxlength="18" value="Player 2" aria-label="Player 2 name" />
                     </div>
                     <ul class="rules-list">
-                        <li>Play Shard cards to gain shards for this turn and build up your options.</li>
-                        <li>Buy cards from the market; purchased cards go to your discard pile.</li>
-                        <li>Tap a creature, then tap an enemy creature or hero HP to attack.</li>
-                        <li>Defenders must be defeated before hero HP can be targeted.</li>
-                        <li>Two matching elementals double that element's attack while both are alive.</li>
+                        <li>Play Shards to gain resources.</li>
+                        <li>Buy market cards into discard.</li>
+                        <li>Tap creature, then enemy target.</li>
+                        <li>Defenders block hero damage.</li>
+                        <li>Two matching elementals double attack.</li>
                     </ul>
                     <div class="settings-row">
                         <button type="button" data-modal="toggle-music"><span class="button-inline">Music On</span></button>
+                        ${audioControlHtml("music")}
                         <button type="button" data-modal="toggle-sfx"><span class="button-inline">Game Sounds On</span></button>
+                        ${audioControlHtml("sfx")}
                     </div>
                     <button type="button" class="btn-wide" data-modal="start-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Game</span></button>
                 </div>
@@ -2705,6 +2835,7 @@
         }));
         updateMode("ai");
         updateAudioButtons();
+        bindAudioVolumeControls(els.modalRoot);
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
         els.modalRoot.querySelector('[data-modal="start-game"]').addEventListener("pointerup", () => {
