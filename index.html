@@ -1185,9 +1185,55 @@
                 flex: 0 0 auto;
             }
 
+
+            .player-zone .stat,
+            .player-zone .hp-target,
+            .ai-zone .stat,
+            .ai-zone .hp-target {
+                display: grid;
+                grid-template-columns: auto auto;
+                grid-template-rows: auto auto;
+                align-content: center;
+                align-items: center;
+                justify-content: center;
+                column-gap: 3px;
+                row-gap: 1px;
+                min-height: 42px;
+                padding: 3px 4px 4px;
+            }
+
+            .player-zone .stat > .ui-icon,
+            .player-zone .hp-target > .ui-icon,
+            .ai-zone .stat > .ui-icon,
+            .ai-zone .hp-target > .ui-icon {
+                grid-column: 1;
+                grid-row: 1;
+                justify-self: end;
+            }
+
+            .player-zone .stat > span:not(.stat-word),
+            .player-zone .hp-target > span:not(.stat-word),
+            .ai-zone .stat > span:not(.stat-word),
+            .ai-zone .hp-target > span:not(.stat-word) {
+                grid-column: 2;
+                grid-row: 1;
+                justify-self: start;
+            }
+
             .player-zone .stat-word,
             .ai-zone .stat-word {
-                display: none;
+                display: block;
+                grid-column: 1 / -1;
+                font-size: 0.52rem;
+                line-height: 1;
+                letter-spacing: 0.02em;
+                opacity: 0.78;
+                color: #cfc3ff;
+                text-transform: uppercase;
+                margin-top: -1px;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             .market .card {
@@ -1226,8 +1272,14 @@
             .player-zone .hp-target,
             .ai-zone .stat,
             .ai-zone .hp-target {
-                font-size: 0.86rem;
-                padding: 0 4px;
+                font-size: 0.84rem;
+                padding: 3px 3px 4px;
+                min-height: 40px;
+            }
+
+            .player-zone .stat-word,
+            .ai-zone .stat-word {
+                font-size: 0.48rem;
             }
 
             .player-zone .stat .ui-icon,
@@ -1263,8 +1315,8 @@
             <div class="zone-head">
                 <div class="zone-name" id="opponentZoneName">🤖 AI Opponent</div>
                 <div class="stats">
-                    <div class="hp-target" data-action="target-hero" data-owner="ai"><img class="ui-icon" src="assets/ui/icon_heart.webp" alt="" /> <span id="aiHp">80</span></div>
-                    <div class="stat small"><img class="ui-icon" src="assets/ui/icon_crystal.webp" alt="" /> <span id="aiShards">0</span></div>
+                    <div class="hp-target" data-action="target-hero" data-owner="ai"><img class="ui-icon" src="assets/ui/icon_heart.webp" alt="" /> <span id="aiHp">80</span><span class="stat-word">Life</span></div>
+                    <div class="stat small"><img class="ui-icon" src="assets/ui/icon_crystal.webp" alt="" /> <span id="aiShards">0</span><span class="stat-word">Shards</span></div>
                     <div class="stat small"><img class="ui-icon" src="assets/ui/icon_cards.webp" alt="" /> <span id="aiHandCount">0</span></div>
                 </div>
             </div>
@@ -1290,8 +1342,8 @@
             <div class="zone-head">
                 <div class="zone-name" id="playerZoneName">✨ You</div>
                 <div class="stats">
-                    <div class="hp-target" data-action="target-hero" data-owner="player"><img class="ui-icon" src="assets/ui/icon_heart.webp" alt="" /> <span id="playerHp">80</span></div>
-                    <div class="stat small"><img class="ui-icon" src="assets/ui/icon_crystal.webp" alt="" /> <span id="playerShards">0</span></div>
+                    <div class="hp-target" data-action="target-hero" data-owner="player"><img class="ui-icon" src="assets/ui/icon_heart.webp" alt="" /> <span id="playerHp">80</span><span class="stat-word">Life</span></div>
+                    <div class="stat small"><img class="ui-icon" src="assets/ui/icon_crystal.webp" alt="" /> <span id="playerShards">0</span><span class="stat-word">Shards</span></div>
                     <div class="stat small"><img class="ui-icon" src="assets/ui/icon_deck.webp" alt="" /> <span class="stat-word">Deck</span><span id="playerDeckCount">0</span></div>
                     <div class="stat small"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> <span class="stat-word">Discard</span><span id="playerDiscardCount">0</span></div>
                 </div>
