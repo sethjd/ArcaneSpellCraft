@@ -1101,6 +1101,145 @@
             }
         }
 
+
+        /* FINAL MOBILE FIT OVERRIDE */
+        @media (max-width: 430px) {
+            body {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            .app {
+                gap: 8px;
+            }
+
+            .top-bar {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+
+            .title {
+                font-size: clamp(1.25rem, 7vw, 1.65rem);
+                letter-spacing: 0.03em;
+            }
+
+            .subtitle {
+                font-size: 0.82rem;
+            }
+
+            .turn-pill {
+                padding: 8px 12px;
+                font-size: clamp(0.9rem, 4.8vw, 1.15rem);
+            }
+
+            .zone-head {
+                padding: 7px 8px;
+            }
+
+            .player-zone .zone-head,
+            .ai-zone .zone-head {
+                grid-template-columns: 1fr;
+                gap: 7px;
+            }
+
+            .player-zone .zone-name,
+            .ai-zone .zone-name {
+                font-size: 0.76rem;
+                line-height: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .player-zone .stats,
+            .ai-zone .stats {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 5px;
+                width: 100%;
+                justify-content: stretch;
+                flex-wrap: nowrap;
+            }
+
+            .player-zone .stat,
+            .player-zone .hp-target,
+            .ai-zone .stat,
+            .ai-zone .hp-target {
+                min-width: 0;
+                width: 100%;
+                min-height: 36px;
+                padding: 0 6px;
+                justify-content: center;
+                gap: 3px;
+                font-size: 0.95rem;
+                line-height: 1;
+                white-space: nowrap;
+            }
+
+            .player-zone .stat .ui-icon,
+            .player-zone .hp-target .ui-icon,
+            .ai-zone .stat .ui-icon,
+            .ai-zone .hp-target .ui-icon {
+                width: 18px;
+                height: 18px;
+                flex: 0 0 auto;
+            }
+
+            .player-zone .stat-word,
+            .ai-zone .stat-word {
+                display: none;
+            }
+
+            .market .card {
+                --card-w: 112px;
+                --card-h: 170px;
+            }
+
+            .lane-label {
+                padding: 8px 12px 4px;
+                font-size: 0.74rem;
+            }
+
+            .hint-card {
+                padding: 12px 14px;
+            }
+
+            .hint-main {
+                font-size: 1rem;
+                line-height: 1.18;
+            }
+
+            .utility-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 7px;
+            }
+
+            .utility-row button {
+                min-height: 42px;
+                font-size: 0.82rem;
+                padding: 8px 10px;
+            }
+        }
+
+        @media (max-width: 370px) {
+            .player-zone .stat,
+            .player-zone .hp-target,
+            .ai-zone .stat,
+            .ai-zone .hp-target {
+                font-size: 0.86rem;
+                padding: 0 4px;
+            }
+
+            .player-zone .stat .ui-icon,
+            .player-zone .hp-target .ui-icon,
+            .ai-zone .stat .ui-icon,
+            .ai-zone .hp-target .ui-icon {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
                 animation-duration: 0.01ms !important;
@@ -1153,8 +1292,8 @@
                 <div class="stats">
                     <div class="hp-target" data-action="target-hero" data-owner="player"><img class="ui-icon" src="assets/ui/icon_heart.webp" alt="" /> <span id="playerHp">80</span></div>
                     <div class="stat small"><img class="ui-icon" src="assets/ui/icon_crystal.webp" alt="" /> <span id="playerShards">0</span></div>
-                    <div class="stat small"><img class="ui-icon" src="assets/ui/icon_deck.webp" alt="" /> Deck <span id="playerDeckCount">0</span></div>
-                    <div class="stat small"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Discard <span id="playerDiscardCount">0</span></div>
+                    <div class="stat small"><img class="ui-icon" src="assets/ui/icon_deck.webp" alt="" /> <span class="stat-word">Deck</span><span id="playerDeckCount">0</span></div>
+                    <div class="stat small"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> <span class="stat-word">Discard</span><span id="playerDiscardCount">0</span></div>
                 </div>
             </div>
             <div class="lane-label"><span id="playerHandLabel">Your Hand</span><span class="lane-count" id="playerHandCount"></span></div>
