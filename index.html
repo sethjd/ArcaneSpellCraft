@@ -1090,6 +1090,7 @@
     const CARD_DB = Object.freeze([
         { id: "inferno", image: "assets/cards/inferno_blast.webp", name: "Inferno Blast", type: "spell", shopCost: 3, effect: "damage", damage: 4, desc: "Burn 4" },
         { id: "surge", image: "assets/cards/arcane_surge.webp", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "Zap 2" },
+        { id: "arcanestudy", image: "assets/cards/arcane_study.webp", name: "Arcane Study", type: "spell", shopCost: 3, effect: "drawCards", draw: 2, desc: "Draw 2" },
         { id: "healwave", image: "assets/cards/healing_wave.webp", name: "Healing Wave", type: "spell", shopCost: 3, effect: "heal", heal: 5, desc: "Heal 5" },
         { id: "frostshield_spell", image: "assets/cards/frost_shield.webp", name: "Frost Shield", type: "spell", shopCost: 2, effect: "summonDefender", hp: 4, desc: "Summon 0/4" },
         { id: "cloak", image: "assets/cards/ethereal_cloak.webp", name: "Ethereal Cloak", type: "spell", shopCost: 3, effect: "cloak", desc: "Block damage" },
@@ -1115,7 +1116,7 @@
     ]);
 
     const CENTRAL_MULTIPLIER = Object.freeze({
-        inferno: 4, surge: 3, healwave: 3, frostshield_spell: 3, cloak: 3, mindcontrol: 1, thunderstrike: 3,
+        inferno: 4, surge: 3, arcanestudy: 4, healwave: 3, frostshield_spell: 3, cloak: 3, mindcontrol: 1, thunderstrike: 3,
         fire_ele: 3, earth_ele: 3, water_ele: 3, storm_ele: 3, frostwolf: 3, panther: 3, hydra: 3, unicorn: 3,
         golem: 2, treant: 2, frostshield_creature: 2, thunderbird: 2, behemoth: 2,
         wraith: 3, lavadrake: 2, souleater: 2, phoenix: 1
@@ -1866,6 +1867,16 @@
                 addLog(`${labelFor(ownerId)} cast ${card.name}. Damage blocked until next turn.`);
                 break;
             }
+            case "drawCards": {
+                const drawCount = card.draw || 2;
+                let drawn = 0;
+                for (let i = 0; i < drawCount; i++) {
+                    if (drawCard(ownerId)) drawn += 1;
+                }
+                playSfx("cardPlay");
+                addLog(`${labelFor(ownerId)} cast ${card.name}: draw ${drawn} card${drawn === 1 ? "" : "s"}.`);
+                break;
+            }
             case "mindControl": {
                 if (opponent.field.length === 0) {
                     addLog(`${card.name} has no creature to steal.`);
@@ -2188,7 +2199,7 @@
         playable.sort((a, b) => aiCardScore(b) - aiCardScore(a));
         const card = playable[0];
 
-        if (card.type === "creature" || card.effect === "heal" || card.effect === "cloak" || card.effect === "mindControl" || card.effect === "stealDeckRandom" || card.effect === "revive" || card.effect === "summonDefender") {
+        if (card.type === "creature" || card.effect === "heal" || card.effect === "cloak" || card.effect === "mindControl" || card.effect === "stealDeckRandom" || card.effect === "revive" || card.effect === "summonDefender" || card.effect === "drawCards") {
             return playCard("ai", card.uid);
         }
 
@@ -2214,6 +2225,7 @@
         if (card.effect === "cloak") score += state.player.field.length >= 2 ? 16 : 4;
         if (card.effect === "mindControl") score += state.player.field.length ? 22 : 0;
         if (card.effect === "stealDeckRandom") score += state.player.deck.length ? 16 : 0;
+        if (card.effect === "drawCards") score += 12;
         if (card.effect === "revive") score += state.ai.graveyard.length ? 18 : 0;
         if (card.defender) score += 4;
         return score;
@@ -2262,6 +2274,7 @@
         if (card.effect === "heal") score += 4;
         if (card.effect === "mindControl" || card.effect === "revive") score += 8;
         if (card.effect === "stealDeckRandom") score += 6;
+        if (card.effect === "drawCards") score += 5;
         if (card.effect === "thunderstrike") score += 7;
         if (card.defender) score += 3;
         return score;
@@ -2320,6 +2333,7 @@
         if (card.effect === "damage") return `⚔️ ${card.damage || 0}`;
         if (card.effect === "thunderstrike") return `🌩️ ${card.damage || 0}×2`;
         if (card.effect === "cloak") return "✨ Cloak";
+        if (card.effect === "drawCards") return `📚 Draw ${card.draw || 2}`;
         if (card.effect === "mindControl") return "🧠 Steal";
         if (card.effect === "stealDeckRandom") return "🃏 Steal deck";
         if (card.effect === "revive") return "🔥 Revive";
