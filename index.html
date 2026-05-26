@@ -409,8 +409,8 @@
             right: 7px;
             display: grid;
             place-items: center;
-            width: 22px;
-            height: 22px;
+            width: 21px;
+            height: 21px;
             border-radius: 50%;
             background: rgba(0,0,0,0.62);
             color: #ffb4b4;
@@ -842,9 +842,9 @@
         .player-zone .hp-target,
         .ai-zone .stat,
         .ai-zone .hp-target {
-            min-height: 42px;
-            padding: 0 13px;
-            font-size: clamp(1rem, 4.2vw, 1.22rem);
+            min-height: 41px;
+            padding: 0 11px;
+            font-size: clamp(0.98rem, 4vw, 1.18rem);
             border-color: rgba(255, 215, 106, 0.22);
             box-shadow: 0 0 18px rgba(255, 215, 106, 0.08);
         }
@@ -859,8 +859,8 @@
         .player-zone .hp-target .ui-icon,
         .ai-zone .stat .ui-icon,
         .ai-zone .hp-target .ui-icon {
-            width: 22px;
-            height: 22px;
+            width: 21px;
+            height: 21px;
         }
 
         .player-zone .stat.small,
@@ -979,21 +979,48 @@
         @media (max-width: 430px) {
             .player-zone .zone-head,
             .ai-zone .zone-head {
-                grid-template-columns: 1fr;
+                grid-template-columns: minmax(76px, 1fr) auto;
+                gap: 6px;
+                padding: 7px 8px;
+            }
+
+            .player-zone .zone-name,
+            .ai-zone .zone-name {
+                font-size: 0.74rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
             .player-zone .stats,
             .ai-zone .stats {
-                justify-content: flex-start;
+                justify-content: flex-end;
+                gap: 4px;
+                flex-wrap: nowrap;
             }
 
             .player-zone .stat,
             .player-zone .hp-target,
             .ai-zone .stat,
             .ai-zone .hp-target {
-                min-height: 40px;
-                padding: 0 12px;
-                font-size: 1rem;
+                min-height: 38px;
+                padding: 0 9px;
+                font-size: 0.98rem;
+                gap: 4px;
+                white-space: nowrap;
+            }
+
+            .player-zone .stat .ui-icon,
+            .player-zone .hp-target .ui-icon,
+            .ai-zone .stat .ui-icon,
+            .ai-zone .hp-target .ui-icon {
+                width: 19px;
+                height: 19px;
+            }
+
+            .player-zone .lane-count,
+            .ai-zone .lane-count {
+                display: none;
             }
         }
 
