@@ -807,6 +807,67 @@
             accent-color: var(--gold);
         }
 
+
+        .settings-row.audio-compact {
+            grid-template-columns: 1fr 1fr;
+            align-items: stretch;
+        }
+
+        .settings-row.audio-compact button {
+            min-height: 38px;
+            padding: 7px 10px;
+            font-size: 0.76rem;
+        }
+
+        .settings-row.audio-compact .audio-control {
+            padding: 6px 8px;
+            gap: 3px 8px;
+            min-width: 0;
+        }
+
+        .settings-row.audio-compact .audio-control label {
+            font-size: 0.7rem;
+        }
+
+        .settings-row.audio-compact .audio-control output {
+            font-size: 0.68rem;
+            min-width: 30px;
+        }
+
+        .settings-row.audio-compact .audio-control input[type="range"] {
+            height: 18px;
+        }
+
+        .player-zone .stat,
+        .player-zone .hp-target,
+        .ai-zone .stat,
+        .ai-zone .hp-target {
+            min-height: 42px;
+            padding: 0 13px;
+            font-size: clamp(1rem, 4.2vw, 1.22rem);
+            border-color: rgba(255, 215, 106, 0.22);
+            box-shadow: 0 0 18px rgba(255, 215, 106, 0.08);
+        }
+
+        .player-zone .hp-target,
+        .ai-zone .hp-target {
+            color: #ffd39a;
+            border-color: rgba(255, 180, 95, 0.34);
+        }
+
+        .player-zone .stat .ui-icon,
+        .player-zone .hp-target .ui-icon,
+        .ai-zone .stat .ui-icon,
+        .ai-zone .hp-target .ui-icon {
+            width: 22px;
+            height: 22px;
+        }
+
+        .player-zone .stat.small,
+        .ai-zone .stat.small {
+            font-size: clamp(0.98rem, 4vw, 1.15rem);
+        }
+
         .menu-note {
             margin: 8px 0 0;
             color: var(--muted);
@@ -913,6 +974,28 @@
             margin-top: 3px;
         }
 
+
+
+        @media (max-width: 430px) {
+            .player-zone .zone-head,
+            .ai-zone .zone-head {
+                grid-template-columns: 1fr;
+            }
+
+            .player-zone .stats,
+            .ai-zone .stats {
+                justify-content: flex-start;
+            }
+
+            .player-zone .stat,
+            .player-zone .hp-target,
+            .ai-zone .stat,
+            .ai-zone .hp-target {
+                min-height: 40px;
+                padding: 0 12px;
+                font-size: 1rem;
+            }
+        }
 
         @media (max-height: 760px) {
             .start-art {
@@ -2824,10 +2907,10 @@
                         <li>Defenders block hero damage.</li>
                         <li>Two matching elementals double attack.</li>
                     </ul>
-                    <div class="settings-row">
+                    <div class="settings-row audio-compact">
                         <button type="button" data-modal="toggle-music"><span class="button-inline">Music On</span></button>
-                        ${audioControlHtml("music")}
                         <button type="button" data-modal="toggle-sfx"><span class="button-inline">Game Sounds On</span></button>
+                        ${audioControlHtml("music")}
                         ${audioControlHtml("sfx")}
                     </div>
                     <button type="button" class="btn-wide" data-modal="start-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Game</span></button>
