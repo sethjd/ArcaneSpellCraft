@@ -1292,6 +1292,69 @@
         }
 
 
+        .game-over-card {
+            width: min(94vw, 520px);
+            text-align: left;
+        }
+
+        .game-over-card h2,
+        .game-over-card > p {
+            text-align: center;
+        }
+
+        .game-stats {
+            margin: 12px 0 14px;
+            padding: 10px;
+            border-radius: 16px;
+            background: rgba(3, 5, 11, 0.58);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            box-shadow: inset 0 1px rgba(255,255,255,0.05);
+        }
+
+        .game-stats h3 {
+            margin: 0 0 8px;
+            color: #ffe4a8;
+            font-size: 0.95rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .stats-table {
+            display: grid;
+            gap: 2px;
+            font-size: 0.78rem;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1.25fr 0.8fr 0.8fr;
+            gap: 6px;
+            align-items: center;
+            padding: 5px 6px;
+            border-radius: 9px;
+            background: rgba(255,255,255,0.035);
+        }
+
+        .stats-row span:nth-child(2),
+        .stats-row span:nth-child(3) {
+            text-align: right;
+            font-weight: 900;
+            color: #f6f2ff;
+        }
+
+        .stats-head {
+            background: rgba(124, 92, 255, 0.18);
+            color: #d9ceff;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .stats-head span {
+            font-size: 0.68rem;
+        }
+
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
                 animation-duration: 0.01ms !important;
@@ -1824,7 +1887,22 @@
             graveyard: [],
             shards: 0,
             attackedThisTurn: new Set(),
-            cloakActive: false
+            cloakActive: false,
+            stats: {
+                damageDealt: 0,
+                heroDamageDealt: 0,
+                creatureDamageDealt: 0,
+                creaturesKilled: 0,
+                creaturesSummoned: 0,
+                creaturesStolen: 0,
+                creaturesRevived: 0,
+                cardsPlayed: 0,
+                spellsCast: 0,
+                cardsDrawn: 0,
+                cardsBought: 0,
+                currencySpent: 0,
+                shardsGenerated: 0
+            }
         };
     }
 
@@ -2023,6 +2101,7 @@
         }
         const card = p.deck.pop();
         p.hand.push(card);
+        if (p.stats) p.stats.cardsDrawn += 1;
         return card;
     }
 
@@ -2086,8 +2165,14 @@
 
         if (ownerId === "ai") revealAiCard(card);
 
+        if (owner.stats) {
+            owner.stats.cardsPlayed += 1;
+            if (card.type === "spell" || card.type === "oneshot") owner.stats.spellsCast += 1;
+        }
+
         if (card.type === "economy") {
             owner.shards += card.shardGain || 0;
+            if (owner.stats) owner.stats.shardsGenerated += card.shardGain || 0;
             owner.discard.push(card);
             playSfx("cardPlay");
             addLog(`${labelFor(ownerId)} play ${card.name}: +${card.shardGain} shards.`);
@@ -2130,6 +2215,7 @@
         }
 
         owner.field.push(creature);
+        if (owner.stats) owner.stats.creaturesSummoned += 1;
         playSfx(card.defender ? "shieldBlock" : "cardPlay");
         addLog(`${labelFor(ownerId)} summon ${card.name} (${creature.atk}/${creature.hp}).`);
     }
@@ -2185,6 +2271,7 @@
                 const stolen = opponent.field.shift();
                 stolen.ownerId = ownerId;
                 owner.field.push(stolen);
+                if (owner.stats) owner.stats.creaturesStolen += 1;
                 playSfx("mindControl");
                 addLog(`${labelFor(ownerId)} steal ${stolen.name} with Mind Control.`);
                 break;
@@ -2224,6 +2311,10 @@
                 const revived = owner.graveyard.pop();
                 const fullHp = revived.originalHp || revived.maxHp || revived.hp || 1;
                 owner.field.push({ ...revived, uid: nextUid(), ownerId, hp: fullHp, maxHp: fullHp });
+                if (owner.stats) {
+                    owner.stats.creaturesRevived += 1;
+                    owner.stats.creaturesSummoned += 1;
+                }
                 playSfx("fireSpell");
                 addLog(`Phoenix revives ${revived.name} at full HP.`);
                 break;
@@ -2240,19 +2331,33 @@
             return false;
         }
 
+        const source = actor(sourceOwnerId);
+        let actualDamage = amount;
+
         if (isHeroRef(ref)) {
             const target = actor(ref.ownerId);
+            actualDamage = Math.min(amount, target.hp);
             target.hp = Math.max(0, target.hp - amount);
+            if (source.stats) {
+                source.stats.damageDealt += actualDamage;
+                source.stats.heroDamageDealt += actualDamage;
+            }
             playSfx("attackHit");
             addLog(`${sourceName} deals ${amount} to ${ref.ownerId === "player" ? "you" : "AI"}.`);
         } else {
             const target = resolveRef(ref);
             if (!target) return false;
+            actualDamage = Math.min(amount, Math.max(0, target.hp));
             target.hp -= amount;
+            if (source.stats) {
+                source.stats.damageDealt += actualDamage;
+                source.stats.creatureDamageDealt += actualDamage;
+            }
             addLog(`${sourceName} deals ${amount} to ${target.name}.`);
             if (target.hp <= 0) {
                 const dead = removeCreature(ref.ownerId, ref.uid);
                 if (dead) {
+                    if (source.stats) source.stats.creaturesKilled += 1;
                     playSfx("creatureDie");
                     addLog(`${dead.name} dies.`);
                 }
@@ -2329,6 +2434,10 @@
             return false;
         }
         p.shards -= card.shopCost;
+        if (p.stats) {
+            p.stats.currencySpent += card.shopCost;
+            p.stats.cardsBought += 1;
+        }
         p.discard.push(cloneCard(card));
         playSfx("cardBuy");
         addLog(`${labelFor(ownerId)} bought ${card.name}.`);
@@ -2345,6 +2454,10 @@
             return false;
         }
         p.shards -= ARCANE_CLUSTER_CARD.shopCost;
+        if (p.stats) {
+            p.stats.currencySpent += ARCANE_CLUSTER_CARD.shopCost;
+            p.stats.cardsBought += 1;
+        }
         state.arcaneClustersRemaining -= 1;
         p.discard.push(cloneCard(ARCANE_CLUSTER_CARD));
         playSfx("cardBuy");
@@ -3070,12 +3183,55 @@
         }, { once: true });
     }
 
+    function gameOverStatsHtml() {
+        const rows = [
+            ["Damage Done", "damageDealt"],
+            ["Hero Damage", "heroDamageDealt"],
+            ["Monster Damage", "creatureDamageDealt"],
+            ["Monsters Killed", "creaturesKilled"],
+            ["Monsters Summoned", "creaturesSummoned"],
+            ["Monsters Stolen", "creaturesStolen"],
+            ["Monsters Revived", "creaturesRevived"],
+            ["Cards Played", "cardsPlayed"],
+            ["Spells Cast", "spellsCast"],
+            ["Cards Drawn", "cardsDrawn"],
+            ["Cards Bought", "cardsBought"],
+            ["Shards Made", "shardsGenerated"],
+            ["Currency Spent", "currencySpent"]
+        ];
+
+        const playerStats = state.player?.stats || {};
+        const opponentStats = state.ai?.stats || {};
+        const playerName = labelFor("player");
+        const opponentName = labelFor("ai");
+
+        return `
+            <div class="game-stats">
+                <h3>Match Stats</h3>
+                <div class="stats-table">
+                    <div class="stats-row stats-head">
+                        <span>Stat</span>
+                        <span>${escapeHtml(playerName)}</span>
+                        <span>${escapeHtml(opponentName)}</span>
+                    </div>
+                    ${rows.map(([label, key]) => `
+                        <div class="stats-row">
+                            <span>${escapeHtml(label)}</span>
+                            <span>${Number(playerStats[key] || 0)}</span>
+                            <span>${Number(opponentStats[key] || 0)}</span>
+                        </div>
+                    `).join("")}
+                </div>
+            </div>`;
+    }
+
     function showGameOver(message, isVictory) {
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
-                <div class="modal-card">
+                <div class="modal-card game-over-card">
                     <h2 class="${isVictory ? "victory" : "defeat"}">${escapeHtml(message)}</h2>
                     <p>${state.mode === "ai" ? (isVictory ? "Nice run. The shards are yours." : "The AI claimed the shards this time.") : "Great duel. Pass the device back to set up another match."}</p>
+                    ${gameOverStatsHtml()}
                     <button type="button" class="btn-wide" data-modal="restart"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Play Again</span></button>
                 </div>
             </div>`;
