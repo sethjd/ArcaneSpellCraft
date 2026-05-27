@@ -1417,7 +1417,7 @@
     ]);
 
     const CENTRAL_MULTIPLIER = Object.freeze({
-        inferno: 4, surge: 3, arcanestudy: 4, healwave: 3, frostshield_spell: 3, cloak: 2, mindcontrol: 2, thunderstrike: 3,
+        inferno: 4, surge: 3, arcanestudy: 4, healwave: 3, frostshield_spell: 3, cloak: 3, mindcontrol: 1, thunderstrike: 3,
         fire_ele: 3, earth_ele: 3, water_ele: 3, storm_ele: 3, frostwolf: 3, panther: 3, hydra: 3, unicorn: 3,
         golem: 2, treant: 2, frostshield_creature: 2, thunderbird: 2, behemoth: 2,
         wraith: 3, lavadrake: 2, souleater: 2, phoenix: 1
@@ -2186,8 +2186,6 @@
                 const stolen = opponent.field.shift();
                 stolen.ownerId = ownerId;
                 owner.field.push(stolen);
-                opponent.discard.push(...opponent.hand.splice(0));
-                for (let i = 0; i < HAND_DRAW; i++) drawCard(opponentId);
                 playSfx("mindControl");
                 addLog(`${labelFor(ownerId)} steal ${stolen.name} with Mind Control.`);
                 break;
