@@ -1838,6 +1838,28 @@
 (() => {
     "use strict";
 
+    const FIREBASE_CONFIG = Object.freeze({
+        apiKey: "AIzaSyBCkuVU9eKyVY68cwHCyEn2jZQkxA_djoU",
+        authDomain: "arcane-spell-craft-online.firebaseapp.com",
+        databaseURL: "https://arcane-spell-craft-online-default-rtdb.asia-southeast1.firebasedatabase.app/",
+        projectId: "arcane-spell-craft-online",
+        storageBucket: "arcane-spell-craft-online.firebasestorage.app",
+        messagingSenderId: "118889050222",
+        appId: "1:118889050222:web:420b2921788785c42e767f",
+        measurementId: "G-9595ES7DR5"
+    });
+
+    const firebaseClient = {
+        loaded: false,
+        app: null,
+        auth: null,
+        db: null,
+        uid: "",
+        roomUnsubscribe: null,
+        pushTimer: null,
+        fns: null
+    };
+
     const CARD_DB = Object.freeze([
         { id: "inferno", image: "assets/cards/inferno_blast.webp", name: "Inferno Blast", type: "spell", shopCost: 3, effect: "damage", damage: 4, desc: "Burn 4" },
         { id: "surge", image: "assets/cards/arcane_surge.webp", name: "Arcane Surge", type: "spell", shopCost: 2, effect: "damage", damage: 2, desc: "Zap 2" },
@@ -2112,6 +2134,14 @@
         active: false,
         mode: "ai",
         names: { player: "Player 1", ai: "AI" },
+        online: {
+            enabled: false,
+            roomCode: "",
+            localOwner: "player",
+            host: false,
+            applyingRemote: false,
+            version: 0
+        },
         awaitingPass: false,
         turn: "player",
         centralDeck: [],
@@ -2527,14 +2557,17 @@
     }
 
     function isHumanOwner(ownerId) {
+        if (state.mode === "online") return ownerId === state.online.localOwner;
         return ownerId === "player" || state.mode === "pass";
     }
 
     function currentHumanOwner() {
+        if (state.mode === "online") return state.online.localOwner;
         return state.mode === "pass" ? state.turn : "player";
     }
 
     function visibleBottomOwner() {
+        if (state.mode === "online") return state.online.localOwner;
         return state.mode === "pass" && state.turn === "ai" ? "ai" : "player";
     }
 
@@ -2645,7 +2678,9 @@
     }
 
     function initGame(options = {}) {
+        if (state.online?.enabled && options.mode !== "online") leaveOnlineRoom(false);
         uidCounter = 1;
+        state.online.enabled = options.mode === "online";
         state.mode = options.mode || state.mode || "ai";
         const p1 = (options.playerName ?? state.names?.player ?? "Player 1").trim() || "Player 1";
         const p2 = (options.playerTwoName ?? state.names?.ai ?? (state.mode === "ai" ? "AI" : "Player 2")).trim() || (state.mode === "ai" ? "AI" : "Player 2");
@@ -2710,7 +2745,7 @@
             return;
         }
         queueRender();
-        if (ownerId === "ai") void aiTurnLogic();
+        if (ownerId === "ai" && state.mode === "ai") void aiTurnLogic();
     }
 
     function endTurn(ownerId) {
@@ -3157,9 +3192,13 @@
 
     function endHumanTurnNow(ownerId) {
         endTurn(ownerId);
-        if (!state.active) return;
+        if (!state.active) {
+            if (state.online.enabled) scheduleOnlinePush();
+            return;
+        }
         const nextOwner = other(ownerId);
         startTurn(nextOwner);
+        if (state.online.enabled) scheduleOnlinePush();
     }
 
     async function aiTurnLogic() {
@@ -3420,8 +3459,8 @@
             ? `${state.pendingSpell.cardName}: choose ${state.pendingSpell.maxTargets - state.pendingSpell.targets.length} target${state.pendingSpell.maxTargets - state.pendingSpell.targets.length === 1 ? "" : "s"}`
             : state.selectedAttackerUid
                 ? "Attack mode: tap an enemy target"
-                : `${state.mode === "pass" ? "Pass & Play" : "Solo vs AI"} · full art build`;
-        els.statusMini.textContent = activeLabel;
+                : `${state.mode === "online" ? `Online room ${state.online.roomCode}` : (state.mode === "pass" ? "Pass & Play" : "Solo vs AI")} · full art build`;
+        els.statusMini.textContent = state.mode === "online" ? `Room ${state.online.roomCode}` : activeLabel;
         els.endTurnBtn.disabled = !state.active || !isHumanOwner(state.turn) || tapLocked || state.awaitingPass;
 
         if (els.cancelActionBtn) {
@@ -3615,6 +3654,9 @@
         if (!state.active) {
             main = "Game over.";
             small = "Restart to play again.";
+        } else if (state.mode === "online" && !isHumanOwner(state.turn)) {
+            main = `${labelFor(state.turn)} is taking their online turn.`;
+            small = `Room ${state.online.roomCode}. Your cards are shown at the bottom.`;
         } else if (state.mode === "ai" && state.turn === "ai") {
             main = "AI is taking its turn.";
             small = "Watch the battlefield and plan your next move.";
@@ -3754,7 +3796,14 @@
                 break;
             case "restart":
                 tapFeedback();
-                showConfirm("Restart the match?", initGame);
+                if (state.online.enabled) {
+                    showConfirm("Leave this online match and return to the menu?", () => {
+                        leaveOnlineRoom();
+                        showStartModal();
+                    });
+                } else {
+                    showConfirm("Restart the match?", initGame);
+                }
                 break;
             case "cancel-action":
                 state.pendingSpell = null;
@@ -3769,6 +3818,10 @@
             case "copy-debug":
                 copyDebug();
                 break;
+        }
+
+        if (state.online.enabled && isOnlineGameAction(action)) {
+            scheduleOnlinePush();
         }
     }
 
@@ -3901,6 +3954,7 @@
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
         els.modalRoot.querySelector('[data-modal="main-menu-new-game"]').addEventListener("pointerup", () => {
             stopMusic();
+            if (state.online.enabled) leaveOnlineRoom(false);
             state.active = false;
             showStartModal();
         }, { once: true });
@@ -3999,6 +4053,408 @@
     }
 
 
+
+    async function ensureFirebaseReady() {
+        if (firebaseClient.loaded) return firebaseClient;
+        try {
+            const [appMod, authMod, dbMod] = await Promise.all([
+                import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
+                import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"),
+                import("https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js")
+            ]);
+
+            firebaseClient.app = appMod.initializeApp(FIREBASE_CONFIG);
+            firebaseClient.auth = authMod.getAuth(firebaseClient.app);
+            firebaseClient.db = dbMod.getDatabase(firebaseClient.app);
+            firebaseClient.fns = {
+                ref: dbMod.ref,
+                set: dbMod.set,
+                get: dbMod.get,
+                update: dbMod.update,
+                onValue: dbMod.onValue,
+                remove: dbMod.remove
+            };
+
+            await authMod.signInAnonymously(firebaseClient.auth);
+            firebaseClient.uid = firebaseClient.auth.currentUser?.uid || "";
+            if (!firebaseClient.uid) {
+                await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error("Firebase sign-in timed out.")), 8000);
+                    const unsub = authMod.onAuthStateChanged(firebaseClient.auth, user => {
+                        if (user) {
+                            clearTimeout(timeout);
+                            unsub();
+                            firebaseClient.uid = user.uid;
+                            resolve();
+                        }
+                    });
+                });
+            }
+
+            firebaseClient.loaded = true;
+            return firebaseClient;
+        } catch (error) {
+            console.error(error);
+            throw new Error(`Could not connect to Firebase: ${error.message || error}`);
+        }
+    }
+
+    function onlineRoomRef(roomCode) {
+        return firebaseClient.fns.ref(firebaseClient.db, `rooms/${roomCode}`);
+    }
+
+    function generateRoomCode() {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        let code = "";
+        for (let i = 0; i < 5; i++) code += chars[Math.floor(Math.random() * chars.length)];
+        return code;
+    }
+
+    async function generateUnusedRoomCode() {
+        for (let i = 0; i < 20; i++) {
+            const code = generateRoomCode();
+            const snap = await firebaseClient.fns.get(onlineRoomRef(code));
+            if (!snap.exists()) return code;
+        }
+        throw new Error("Could not make a unique room code. Try again.");
+    }
+
+    function showOnlineMessage(title, message, buttons = "") {
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <h2>${escapeHtml(title)}</h2>
+                    <p>${escapeHtml(message)}</p>
+                    ${buttons}
+                </div>
+            </div>`;
+    }
+
+    function setOnlineState({ roomCode, localOwner, host }) {
+        state.online.enabled = true;
+        state.online.roomCode = roomCode;
+        state.online.localOwner = localOwner;
+        state.online.host = Boolean(host);
+        state.online.version = 0;
+        state.mode = "online";
+        state.awaitingPass = false;
+    }
+
+    function leaveOnlineRoom(clearModal = true) {
+        if (firebaseClient.roomUnsubscribe) {
+            firebaseClient.roomUnsubscribe();
+            firebaseClient.roomUnsubscribe = null;
+        }
+        if (firebaseClient.pushTimer) {
+            clearTimeout(firebaseClient.pushTimer);
+            firebaseClient.pushTimer = null;
+        }
+        state.online.enabled = false;
+        state.online.roomCode = "";
+        state.online.localOwner = "player";
+        state.online.host = false;
+        state.online.applyingRemote = false;
+        state.online.version = 0;
+        if (clearModal) els.modalRoot.innerHTML = "";
+    }
+
+    function serializePlayer(player) {
+        return {
+            hp: player.hp,
+            field: player.field,
+            hand: player.hand,
+            deck: player.deck,
+            discard: player.discard,
+            graveyard: player.graveyard,
+            shards: player.shards,
+            attackedThisTurn: [...player.attackedThisTurn],
+            cloakActive: player.cloakActive,
+            stats: player.stats
+        };
+    }
+
+    function hydratePlayer(player) {
+        const fresh = makePlayer();
+        const merged = { ...fresh, ...player };
+        merged.field = Array.isArray(player?.field) ? player.field : [];
+        merged.hand = Array.isArray(player?.hand) ? player.hand : [];
+        merged.deck = Array.isArray(player?.deck) ? player.deck : [];
+        merged.discard = Array.isArray(player?.discard) ? player.discard : [];
+        merged.graveyard = Array.isArray(player?.graveyard) ? player.graveyard : [];
+        merged.attackedThisTurn = new Set(player?.attackedThisTurn || []);
+        merged.stats = { ...fresh.stats, ...(player?.stats || {}) };
+        return merged;
+    }
+
+    function serializeGameState() {
+        return {
+            active: state.active,
+            mode: "online",
+            names: state.names,
+            awaitingPass: false,
+            turn: state.turn,
+            centralDeck: state.centralDeck,
+            shopCards: state.shopCards,
+            arcaneClustersRemaining: state.arcaneClustersRemaining,
+            selectedAttackerUid: null,
+            pendingSpell: null,
+            logs: state.logs,
+            debugLines: [],
+            player: serializePlayer(state.player),
+            ai: serializePlayer(state.ai),
+            uidCounter
+        };
+    }
+
+    function applyRemoteGameState(gameState, version = 0) {
+        if (!gameState) return;
+        const online = { ...state.online };
+        state.online.applyingRemote = true;
+        uidCounter = Number(gameState.uidCounter || uidCounter || 1);
+        state.active = Boolean(gameState.active);
+        state.mode = "online";
+        state.names = gameState.names || state.names;
+        state.awaitingPass = false;
+        state.turn = gameState.turn || "player";
+        state.centralDeck = Array.isArray(gameState.centralDeck) ? gameState.centralDeck : [];
+        state.shopCards = Array.isArray(gameState.shopCards) ? gameState.shopCards : [];
+        state.arcaneClustersRemaining = Number(gameState.arcaneClustersRemaining ?? 0);
+        state.selectedAttackerUid = gameState.selectedAttackerUid || null;
+        state.pendingSpell = gameState.pendingSpell || null;
+        state.logs = Array.isArray(gameState.logs) ? gameState.logs : [];
+        state.debugLines = Array.isArray(gameState.debugLines) ? gameState.debugLines : [];
+        state.player = hydratePlayer(gameState.player || {});
+        state.ai = hydratePlayer(gameState.ai || {});
+        state.online = { ...online, enabled: true, version };
+        state.online.applyingRemote = false;
+        tapLocked = false;
+        if (audioState.musicEnabled) startMusic();
+        els.modalRoot.querySelector(".online-waiting")?.closest(".modal")?.remove();
+        queueRender();
+    }
+
+    async function pushOnlineStateNow() {
+        if (!state.online.enabled || state.online.applyingRemote || !firebaseClient.loaded || !state.online.roomCode) return;
+        const nextVersion = (state.online.version || 0) + 1;
+        state.online.version = nextVersion;
+        await firebaseClient.fns.update(onlineRoomRef(state.online.roomCode), {
+            status: state.active ? "active" : "finished",
+            gameState: serializeGameState(),
+            version: nextVersion,
+            updatedAt: Date.now()
+        });
+    }
+
+    function scheduleOnlinePush() {
+        if (!state.online.enabled || state.online.applyingRemote) return;
+        if (firebaseClient.pushTimer) clearTimeout(firebaseClient.pushTimer);
+        firebaseClient.pushTimer = setTimeout(() => {
+            pushOnlineStateNow().catch(error => {
+                console.error(error);
+                addLog("Online sync failed. Check your connection.");
+            });
+        }, 80);
+    }
+
+    function isOnlineGameAction(action) {
+        return ["hand-card", "field-card", "target-hero", "buy-shop", "buy-cluster", "end-turn", "cancel-action"].includes(action);
+    }
+
+    async function hostOnlineGame(playerName) {
+        unlockAudioFromGesture();
+        showOnlineMessage("Connecting", "Creating online room...");
+        try {
+            await ensureFirebaseReady();
+            const roomCode = await generateUnusedRoomCode();
+            setOnlineState({ roomCode, localOwner: "player", host: true });
+            state.names = { player: (playerName || "Player 1").trim() || "Player 1", ai: "Player 2" };
+            await firebaseClient.fns.set(onlineRoomRef(roomCode), {
+                status: "waiting",
+                roomCode,
+                hostUid: firebaseClient.uid,
+                hostName: state.names.player,
+                guestUid: "",
+                guestName: "",
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+                version: 0
+            });
+            listenToOnlineRoom(roomCode);
+            showHostWaiting(roomCode);
+        } catch (error) {
+            showOnlineError(error.message || String(error));
+        }
+    }
+
+    function showHostWaiting(roomCode) {
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card online-waiting">
+                    <h2>Online Room</h2>
+                    <p>Send this code to your friend.</p>
+                    <div class="turn-chip" style="font-size:1.4rem;margin:10px auto;width:max-content;">${escapeHtml(roomCode)}</div>
+                    <p>Waiting for Player 2 to join...</p>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-dark" data-modal="copy-room-code">Copy Code</button>
+                        <button type="button" class="btn-dark" data-modal="cancel-online">Cancel</button>
+                    </div>
+                </div>
+            </div>`;
+        els.modalRoot.querySelector('[data-modal="copy-room-code"]').addEventListener("pointerup", async () => {
+            try {
+                await navigator.clipboard.writeText(roomCode);
+                addLog("Room code copied.");
+            } catch {
+                addLog(`Room code: ${roomCode}`);
+            }
+        });
+        els.modalRoot.querySelector('[data-modal="cancel-online"]').addEventListener("pointerup", () => {
+            cancelOnlineRoom().catch(error => showOnlineError(error.message || String(error)));
+        }, { once: true });
+    }
+
+    async function cancelOnlineRoom() {
+        const roomCode = state.online.roomCode;
+        if (roomCode && firebaseClient.loaded) {
+            await firebaseClient.fns.remove(onlineRoomRef(roomCode));
+        }
+        leaveOnlineRoom();
+        showStartModal();
+    }
+
+    function showJoinOnlineModal() {
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <h2>Join Online Game</h2>
+                    <p>Enter the 5-character room code from your friend.</p>
+                    <div class="name-grid" style="grid-template-columns:1fr;">
+                        <input id="joinPlayerName" maxlength="18" value="Player 2" aria-label="Your name" />
+                        <input id="joinRoomCode" maxlength="5" placeholder="ROOM CODE" aria-label="Room code" style="text-transform:uppercase;" />
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-dark" data-modal="back-start">Back</button>
+                        <button type="button" class="btn-orange" data-modal="join-online-room">Join</button>
+                    </div>
+                </div>
+            </div>`;
+        els.modalRoot.querySelector('[data-modal="back-start"]').addEventListener("pointerup", showStartModal, { once: true });
+        els.modalRoot.querySelector('[data-modal="join-online-room"]').addEventListener("pointerup", () => {
+            const name = els.modalRoot.querySelector("#joinPlayerName").value;
+            const code = els.modalRoot.querySelector("#joinRoomCode").value;
+            joinOnlineGame(code, name);
+        });
+    }
+
+    async function joinOnlineGame(code, playerName) {
+        const roomCode = String(code || "").trim().toUpperCase();
+        if (!/^[A-Z2-9]{5}$/.test(roomCode)) {
+            showOnlineError("Enter a valid 5-character room code.");
+            return;
+        }
+
+        showOnlineMessage("Connecting", `Joining room ${roomCode}...`);
+        try {
+            await ensureFirebaseReady();
+            const roomRef = onlineRoomRef(roomCode);
+            const snap = await firebaseClient.fns.get(roomRef);
+            if (!snap.exists()) throw new Error("Room not found. Check the code and try again.");
+            const room = snap.val();
+
+            let localOwner = "";
+            if (room.hostUid === firebaseClient.uid) {
+                localOwner = "player";
+            } else if (room.guestUid === firebaseClient.uid) {
+                localOwner = "ai";
+            } else if (!room.guestUid) {
+                localOwner = "ai";
+                await firebaseClient.fns.update(roomRef, {
+                    guestUid: firebaseClient.uid,
+                    guestName: (playerName || "Player 2").trim() || "Player 2",
+                    status: "ready",
+                    updatedAt: Date.now()
+                });
+            } else {
+                throw new Error("That room already has two players.");
+            }
+
+            setOnlineState({ roomCode, localOwner, host: localOwner === "player" });
+            listenToOnlineRoom(roomCode);
+            showOnlineMessage("Joined", "Waiting for the host to start the match...");
+        } catch (error) {
+            showOnlineError(error.message || String(error));
+        }
+    }
+
+    function listenToOnlineRoom(roomCode) {
+        if (firebaseClient.roomUnsubscribe) firebaseClient.roomUnsubscribe();
+        firebaseClient.roomUnsubscribe = firebaseClient.fns.onValue(onlineRoomRef(roomCode), snap => {
+            if (!snap.exists()) {
+                if (state.online.enabled) {
+                    leaveOnlineRoom();
+                    showOnlineError("The online room was closed.");
+                }
+                return;
+            }
+
+            const room = snap.val();
+            const version = Number(room.version || 0);
+
+            if (state.online.host && (room.status === "ready" || room.guestUid) && !room.gameState) {
+                startHostedOnlineMatch(room).catch(error => showOnlineError(error.message || String(error)));
+                return;
+            }
+
+            if (room.gameState) {
+                if (version >= state.online.version) {
+                    applyRemoteGameState(room.gameState, version);
+                }
+            }
+        });
+    }
+
+    async function startHostedOnlineMatch(room) {
+        uidCounter = 1;
+        state.mode = "online";
+        state.awaitingPass = false;
+        state.names = {
+            player: room.hostName || "Player 1",
+            ai: room.guestName || "Player 2"
+        };
+        state.centralDeck = buildCentralDeck();
+        state.shopCards = [];
+        for (let i = 0; i < 4 && state.centralDeck.length; i++) state.shopCards.push(state.centralDeck.shift());
+        state.arcaneClustersRemaining = 6;
+        state.player = makePlayer();
+        state.ai = makePlayer();
+        state.active = true;
+        state.turn = "player";
+        state.selectedAttackerUid = null;
+        state.pendingSpell = null;
+        state.logs = [];
+        state.debugLines = [];
+        els.modalRoot.innerHTML = "";
+        unlockAudioFromGesture();
+        if (audioState.musicEnabled) startMusic();
+        updateAudioButtons();
+        addLog(`Online match started. ${labelFor("player")} goes first.`);
+        startTurn("player");
+        await pushOnlineStateNow();
+    }
+
+    function showOnlineError(message) {
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <h2>Online Play</h2>
+                    <p>${escapeHtml(message)}</p>
+                    <button type="button" class="btn-wide" data-modal="online-back">Back</button>
+                </div>
+            </div>`;
+        const back = els.modalRoot.querySelector('[data-modal="online-back"]');
+        if (back) back.addEventListener("pointerup", showStartModal, { once: true });
+    }
+
     function showStartModal() {
         state.active = false;
         els.modalRoot.innerHTML = `
@@ -4010,6 +4466,8 @@
                     <div class="mode-grid">
                         <button type="button" class="mode-choice selected" data-start-mode="ai"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_helmet.webp" alt="" /> Solo vs AI</span></button>
                         <button type="button" class="mode-choice" data-start-mode="pass"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_passplay.webp" alt="" /> Pass &amp; Play</span></button>
+                        <button type="button" class="mode-choice" data-modal="host-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Host Online</span></button>
+                        <button type="button" class="mode-choice" data-modal="join-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Join Online</span></button>
                     </div>
                     <div class="name-grid">
                         <input id="startPlayerOne" maxlength="18" value="Player 1" aria-label="Player 1 name" />
@@ -4050,6 +4508,11 @@
         bindAudioVolumeControls(els.modalRoot);
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+        els.modalRoot.querySelector('[data-modal="host-online"]').addEventListener("pointerup", () => {
+            const playerName = els.modalRoot.querySelector("#startPlayerOne").value;
+            hostOnlineGame(playerName);
+        });
+        els.modalRoot.querySelector('[data-modal="join-online"]').addEventListener("pointerup", showJoinOnlineModal);
         els.modalRoot.querySelector('[data-modal="start-game"]').addEventListener("pointerup", () => {
             unlockAudioFromGesture();
             const playerName = els.modalRoot.querySelector("#startPlayerOne").value;
