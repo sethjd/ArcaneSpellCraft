@@ -180,6 +180,43 @@
             box-shadow: 0 0 0 1px rgba(177, 142, 255, 0.25), 0 0 28px rgba(124, 92, 255, 0.26);
         }
 
+        .shop-zone {
+            border-color: rgba(255, 199, 104, 0.42);
+            box-shadow: 0 12px 34px rgba(0,0,0,0.32), 0 0 30px rgba(255, 174, 74, 0.08);
+        }
+
+        .shop-zone::before {
+            background:
+                linear-gradient(90deg, rgba(6, 7, 14, 0.22), rgba(6, 7, 14, 0.46) 38%, rgba(6, 7, 14, 0.46) 62%, rgba(6, 7, 14, 0.22)),
+                linear-gradient(180deg, rgba(2, 5, 11, 0.18), rgba(2, 5, 11, 0.52)),
+                url('assets/ui/shop_market_bg.webp') center / cover no-repeat;
+            opacity: 1;
+        }
+
+        .shop-zone .zone-head {
+            background: linear-gradient(90deg, rgba(15, 11, 22, 0.72), rgba(47, 28, 13, 0.48), rgba(15, 11, 22, 0.72));
+            border-bottom-color: rgba(255, 202, 116, 0.18);
+        }
+
+        .shop-zone .zone-name {
+            color: #ffe6b8;
+            text-shadow: 0 0 14px rgba(255, 178, 76, 0.34);
+        }
+
+        .shop-zone .stats {
+            gap: 5px;
+            flex-wrap: nowrap;
+        }
+
+        .shop-zone .stat.small {
+            min-height: 30px;
+            padding: 0 9px;
+            color: #fff2d3;
+            background: rgba(5, 4, 10, 0.42);
+            border-color: rgba(255, 210, 127, 0.22);
+            box-shadow: inset 0 1px rgba(255,255,255,0.06), 0 0 14px rgba(255,176,66,0.06);
+        }
+
         .zone-head {
             display: grid;
             grid-template-columns: 1fr auto;
@@ -585,6 +622,32 @@
             opacity: 0.48;
             filter: grayscale(0.3);
             cursor: not-allowed;
+        }
+
+        .shop-pill.affordable {
+            border-color: rgba(255, 218, 119, 0.96);
+            box-shadow:
+                0 0 0 1px rgba(255, 224, 130, 0.42),
+                0 0 18px rgba(255, 186, 74, 0.34),
+                0 0 30px rgba(130, 82, 255, 0.16),
+                inset 0 1px rgba(255,255,255,0.16);
+            filter: saturate(1.13) brightness(1.08);
+        }
+
+        .shop-pill.affordable::after {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            pointer-events: none;
+            background: linear-gradient(135deg, rgba(255, 235, 156, 0.25), transparent 26%, rgba(124, 92, 255, 0.18) 72%, rgba(255, 180, 84, 0.22));
+            opacity: 0.86;
+            mix-blend-mode: screen;
+        }
+
+        .shop-pill.unaffordable:not(.disabled) {
+            opacity: 0.72;
+            filter: saturate(0.74) brightness(0.82);
         }
 
         .shop-title {
@@ -1028,6 +1091,29 @@
 
 
 
+        @media (max-width: 520px) {
+            .shop-zone .zone-head {
+                grid-template-columns: auto 1fr;
+                gap: 6px;
+                padding: 7px 8px;
+            }
+
+            .shop-zone .zone-name {
+                font-size: 0.78rem;
+            }
+
+            .shop-zone .stats {
+                justify-content: flex-end;
+            }
+
+            .shop-zone .stat.small {
+                min-height: 28px;
+                padding: 0 7px;
+                font-size: 0.7rem;
+                gap: 4px;
+            }
+        }
+
         @media (max-width: 430px) {
             .player-zone .zone-head,
             .ai-zone .zone-head {
@@ -1462,11 +1548,11 @@
         </section>
 
         <section class="zone shop-zone">
-            <div class="zone-head">
+            <div class="zone-head shop-head">
                 <div class="zone-name"><span class="ui-inline"><img class="ui-icon" src="assets/ui/icon_market.webp" alt="" /> Market</span></div>
-                <div class="stats">
-                    <div class="stat small">Cluster stock: <span id="clusterStock">6</span></div>
-                    <div class="stat small">Deck: <span id="centralDeckCount">0</span></div>
+                <div class="stats shop-stats">
+                    <div class="stat small">Clusters <span id="clusterStock">6</span></div>
+                    <div class="stat small">Deck <span id="centralDeckCount">0</span></div>
                 </div>
             </div>
             <div class="scroll-lane shop" id="shop"></div>
@@ -3038,7 +3124,7 @@
             const buyerId = currentHumanOwner();
             const canBuy = isHumanOwner(state.turn) && !state.awaitingPass && state.active && !state.pendingSpell && !state.selectedAttackerUid && actor(buyerId).shards >= card.shopCost;
             return `
-                <div class="shop-pill ${canBuy ? "targetable" : ""}" data-action="buy-shop" data-index="${index}">
+                <div class="shop-pill ${canBuy ? "targetable affordable" : "unaffordable"}" data-action="buy-shop" data-index="${index}">
                     ${card.image ? `<div class="shop-thumb" style="background-image:url('${escapeAttr(card.image)}')"></div>` : ""}
                     <div class="shop-title">${escapeHtml(card.name)}</div>
                     <div class="shop-meta">💎 ${card.shopCost}</div>
@@ -3050,7 +3136,7 @@
         const buyerId = currentHumanOwner();
         const clusterBuyable = isHumanOwner(state.turn) && !state.awaitingPass && state.active && !state.pendingSpell && !state.selectedAttackerUid && state.arcaneClustersRemaining > 0 && actor(buyerId).shards >= ARCANE_CLUSTER_CARD.shopCost;
         cards.push(`
-            <div class="shop-pill ${state.arcaneClustersRemaining > 0 ? "" : "disabled"} ${clusterBuyable ? "targetable" : ""}" data-action="buy-cluster">
+            <div class="shop-pill ${state.arcaneClustersRemaining > 0 ? "" : "disabled"} ${clusterBuyable ? "targetable affordable" : "unaffordable"}" data-action="buy-cluster">
                 <div class="shop-thumb" style="background-image:url('assets/cards/arcane_cluster.webp')"></div>
                 <div class="shop-title">Arcane Cluster</div>
                 <div class="shop-meta">💎 3</div>
