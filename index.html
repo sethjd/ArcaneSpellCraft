@@ -586,6 +586,11 @@
             color: #d9ceff;
         }
 
+        .type-badge .card-stat-icon {
+            width: 18px;
+            height: 18px;
+        }
+
         .shop-pill {
             flex: 0 0 118px;
             min-height: 118px;
@@ -2945,7 +2950,8 @@
         const iconMap = {
             heart: "assets/ui/icon_heart.webp",
             crystal: "assets/ui/icon_crystal.webp",
-            sword: "assets/ui/icon_sword.webp"
+            sword: "assets/ui/icon_sword.webp",
+            deck: "assets/ui/icon_deck.webp"
         };
         const src = iconMap[kind] || iconMap.crystal;
         const cls = extraClass ? `card-stat-icon ${extraClass}` : "card-stat-icon";
@@ -2977,7 +2983,7 @@
         }
 
         if (card.effect === "cloak") return `<span class="card-stats-line">✨ Cloak</span>`;
-        if (card.effect === "drawCards") return `<span class="card-stats-line">📚 Draw ${card.draw || 2}</span>`;
+        if (card.effect === "drawCards") return `<span class="card-stats-line">${iconHtml("deck")}<span>Draw ${card.draw || 2}</span></span>`;
         if (card.effect === "mindControl") return `<span class="card-stats-line">🧠 Steal</span>`;
         if (card.effect === "stealDeckRandom") return `<span class="card-stats-line">🃏 Steal deck</span>`;
         if (card.effect === "revive") return `<span class="card-stats-line">🔥 Revive</span>`;
@@ -2988,7 +2994,7 @@
         if (card.type === "creature") return "⚔️";
         if (card.type === "spell") return "✦";
         if (card.type === "oneshot") return "☄";
-        if (card.type === "economy") return "💎";
+        if (card.type === "economy") return iconHtml("crystal");
         return "◆";
     }
 
@@ -3003,12 +3009,13 @@
         const data = opts.data || "";
         const cost = opts.shopCost ? `<span class="cost-badge"><span class="card-stats-line">${iconHtml("crystal")}<span>${card.shopCost}</span></span></span>` : "";
         const art = card.image ? `<div class="card-art" style="background-image:url('${escapeAttr(card.image)}')"></div>` : "";
+        const desc = card.type === "economy" ? "" : escapeHtml(card.desc || "");
         return `
             <div class="${classes.join(" ")}" ${data}>
                 ${art}
                 <div class="card-name">${escapeHtml(card.name)}</div>
                 <div class="card-body">${cardStats(card, opts.ownerId || null)}</div>
-                <div class="card-desc">${escapeHtml(card.desc || "")}</div>
+                ${desc ? `<div class="card-desc">${desc}</div>` : ""}
                 ${cost}<span class="type-badge">${typeIcon(card)}</span>
             </div>`;
     }
