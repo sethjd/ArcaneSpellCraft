@@ -508,6 +508,54 @@
             line-height: 1.16;
         }
 
+        .card-body .card-stats-line,
+        .shop-meta .card-stats-line,
+        .cost-badge .card-stats-line {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.18rem;
+        }
+
+        .card-body .card-stats-line {
+            gap: 0.22rem;
+        }
+
+        .card-stat-icon {
+            width: 1em;
+            height: 1em;
+            object-fit: contain;
+            flex: 0 0 auto;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.45));
+            vertical-align: -0.12em;
+        }
+
+        .cost-badge .card-stat-icon,
+        .shop-meta .card-stat-icon {
+            width: 0.96em;
+            height: 0.96em;
+        }
+
+        .card-stat-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.12rem;
+        }
+
+        .card-keyword {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.08rem 0.34rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(10, 14, 26, 0.48);
+            color: #e7dcff;
+            font-size: 0.68em;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
         .card-desc {
             position: relative;
             z-index: 1;
@@ -2899,22 +2947,34 @@
         }
     }
 
+    function iconHtml(kind, extraClass = "") {
+        const iconMap = {
+            heart: "assets/ui/icon_heart.webp",
+            crystal: "assets/ui/icon_crystal.webp",
+            sword: "assets/ui/icon_sword.webp"
+        };
+        const src = iconMap[kind] || iconMap.crystal;
+        const cls = extraClass ? `card-stat-icon ${extraClass}` : "card-stat-icon";
+        return `<img class="${cls}" src="${src}" alt="" />`;
+    }
+
     function cardStats(card, ownerId = null) {
-        if (card.type === "economy") return `💎 +${card.shardGain || 0}`;
+        if (card.type === "economy") return `<span class="card-stats-line">${iconHtml("crystal")}<span>+${card.shardGain || 0}</span></span>`;
         if (card.type === "creature") {
             const attack = ownerId ? effectiveCreatureAttack(ownerId, card) : (card.atk || 0);
             const attackText = ownerId && attack !== (card.atk || 0) ? `${attack} (${card.atk})` : `${attack}`;
-            return `${card.defender ? "🛡️ " : ""}⚔️${attackText} ❤️${card.hp || 0}`;
+            const guard = card.defender ? `<span class="card-keyword">Guard</span>` : "";
+            return `<span class="card-stats-line">${guard}${iconHtml("sword")}<span>${attackText}</span>${iconHtml("heart")}<span>${card.hp || 0}</span></span>`;
         }
-        if (card.effect === "heal") return `💚 +${card.heal || 0}`;
-        if (card.effect === "damage") return `⚔️ ${card.damage || 0}`;
-        if (card.effect === "thunderstrike") return `🌩️ ${card.damage || 0}×2`;
-        if (card.effect === "cloak") return "✨ Cloak";
-        if (card.effect === "drawCards") return `📚 Draw ${card.draw || 2}`;
-        if (card.effect === "mindControl") return "🧠 Steal";
-        if (card.effect === "stealDeckRandom") return "🃏 Steal deck";
-        if (card.effect === "revive") return "🔥 Revive";
-        return card.desc || "Spell";
+        if (card.effect === "heal") return `<span class="card-stats-line">${iconHtml("heart")}<span>+${card.heal || 0}</span></span>`;
+        if (card.effect === "damage") return `<span class="card-stats-line">${iconHtml("sword")}<span>${card.damage || 0}</span></span>`;
+        if (card.effect === "thunderstrike") return `<span class="card-stats-line">${iconHtml("sword")}<span>${card.damage || 0}×2</span></span>`;
+        if (card.effect === "cloak") return "<span class="card-stats-line">✨ Cloak</span>";
+        if (card.effect === "drawCards") return `<span class="card-stats-line">📚 Draw ${card.draw || 2}</span>`;
+        if (card.effect === "mindControl") return "<span class="card-stats-line">🧠 Steal</span>";
+        if (card.effect === "stealDeckRandom") return "<span class="card-stats-line">🃏 Steal deck</span>";
+        if (card.effect === "revive") return "<span class="card-stats-line">🔥 Revive</span>";
+        return `<span class="card-stats-line">${escapeHtml(card.desc || "Spell")}</span>`;
     }
 
     function typeIcon(card) {
@@ -2934,13 +2994,13 @@
         if (opts.disabled) classes.push("disabled");
         if (card.image) classes.push("has-art");
         const data = opts.data || "";
-        const cost = opts.shopCost ? `<span class="cost-badge">💎${card.shopCost}</span>` : "";
+        const cost = opts.shopCost ? `<span class="cost-badge"><span class="card-stats-line">${iconHtml("crystal")}<span>${card.shopCost}</span></span></span>` : "";
         const art = card.image ? `<div class="card-art" style="background-image:url('${escapeAttr(card.image)}')"></div>` : "";
         return `
             <div class="${classes.join(" ")}" ${data}>
                 ${art}
                 <div class="card-name">${escapeHtml(card.name)}</div>
-                <div class="card-body">${escapeHtml(cardStats(card, opts.ownerId || null))}</div>
+                <div class="card-body">${cardStats(card, opts.ownerId || null)}</div>
                 <div class="card-desc">${escapeHtml(card.desc || "")}</div>
                 ${cost}<span class="type-badge">${typeIcon(card)}</span>
             </div>`;
@@ -3055,7 +3115,7 @@
         const button = document.getElementById("floatingAiTarget");
         if (button) {
             button.dataset.owner = enemyId;
-            button.innerHTML = `Hit ${escapeHtml(labelFor(enemyId))} ❤️ <span id="floatingAiHp">${Math.max(0, actor(enemyId).hp)}</span>`;
+            button.innerHTML = `Hit ${escapeHtml(labelFor(enemyId))} ${iconHtml("heart")} <span id="floatingAiHp">${Math.max(0, actor(enemyId).hp)}</span>`;
         }
         els.floatingTargets.classList.add("visible");
     }
@@ -3127,8 +3187,8 @@
                 <div class="shop-pill ${canBuy ? "targetable affordable" : "unaffordable"}" data-action="buy-shop" data-index="${index}">
                     ${card.image ? `<div class="shop-thumb" style="background-image:url('${escapeAttr(card.image)}')"></div>` : ""}
                     <div class="shop-title">${escapeHtml(card.name)}</div>
-                    <div class="shop-meta">💎 ${card.shopCost}</div>
-                    <div class="card-body">${escapeHtml(cardStats(card))}</div>
+                    <div class="shop-meta"><span class="card-stats-line">${iconHtml("crystal")}<span>${card.shopCost}</span></span></div>
+                    <div class="card-body">${cardStats(card)}</div>
                     <div class="card-desc">${escapeHtml(card.desc || "")}</div>
                 </div>`;
         });
@@ -3139,8 +3199,8 @@
             <div class="shop-pill ${state.arcaneClustersRemaining > 0 ? "" : "disabled"} ${clusterBuyable ? "targetable affordable" : "unaffordable"}" data-action="buy-cluster">
                 <div class="shop-thumb" style="background-image:url('assets/cards/arcane_cluster.webp')"></div>
                 <div class="shop-title">Arcane Cluster</div>
-                <div class="shop-meta">💎 3</div>
-                <div class="card-body">💎 +3</div>
+                <div class="shop-meta"><span class="card-stats-line">${iconHtml("crystal")}<span>3</span></span></div>
+                <div class="card-body"><span class="card-stats-line">${iconHtml("crystal")}<span>+3</span></span></div>
                 <div class="card-desc">${state.arcaneClustersRemaining > 0 ? `${state.arcaneClustersRemaining} left` : "Sold out"}</div>
             </div>`);
 
