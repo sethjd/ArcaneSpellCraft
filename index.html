@@ -1058,6 +1058,15 @@
             height: 20px;
         }
 
+        .ai-avatar-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            vertical-align: -5px;
+            margin-right: 6px;
+            filter: drop-shadow(0 0 6px rgba(124, 92, 255, 0.45));
+        }
+
         .stat .ui-icon, .hp-target .ui-icon {
             width: 17px;
             height: 17px;
@@ -1580,7 +1589,7 @@
 
         <section class="zone opponent-zone" id="aiZone">
             <div class="zone-head">
-                <div class="zone-name" id="opponentZoneName">🤖 AI Opponent</div>
+                <div class="zone-name" id="opponentZoneName"><img class="ai-avatar-icon" src="assets/ui/icon_ai_wizard.webp" alt="" />AI Opponent</div>
                 <div class="stats">
                     <div class="hp-target" data-action="target-hero" data-owner="ai"><img class="ui-icon" src="assets/ui/icon_heart.webp" alt="" /> <span id="aiHp">80</span><span class="stat-word">Life</span></div>
                     <div class="stat small"><img class="ui-icon" src="assets/ui/icon_crystal.webp" alt="" /> <span id="aiShards">0</span><span class="stat-word">Shards</span></div>
@@ -2148,6 +2157,18 @@
 
     function labelFor(ownerId) {
         return state.names?.[ownerId] || (ownerId === "player" ? "Player 1" : "AI");
+    }
+
+    function ownerNameHtml(ownerId, icon = "") {
+        const prefix = icon ? `${icon} ` : "";
+        return `${prefix}${escapeHtml(labelFor(ownerId))}`;
+    }
+
+    function opponentIconHtml(ownerId) {
+        if (ownerId === "ai" && state.mode === "ai") {
+            return '<img class="ai-avatar-icon" src="assets/ui/icon_ai_wizard.webp" alt="" />';
+        }
+        return "🧙";
     }
 
     function isHumanOwner(ownerId) {
@@ -3046,7 +3067,7 @@
             els.cancelActionBtn.hidden = !showCancel;
         }
 
-        els.opponentZoneName.textContent = `${topOwner === "ai" && state.mode === "ai" ? "🤖" : "🧙"} ${labelFor(topOwner)}`;
+        els.opponentZoneName.innerHTML = ownerNameHtml(topOwner, opponentIconHtml(topOwner));
         els.playerZoneName.textContent = `✨ ${labelFor(bottomOwner)}`;
         els.opponentFieldLabel.textContent = `${labelFor(topOwner)} Battlefield`;
         els.opponentHandLabel.textContent = `${labelFor(topOwner)} Hand`;
