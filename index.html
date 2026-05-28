@@ -526,6 +526,8 @@
             flex: 0 0 auto;
             filter: drop-shadow(0 1px 2px rgba(0,0,0,0.45));
             vertical-align: -0.12em;
+            transform: scale(1.03);
+            transform-origin: center;
         }
 
         .cost-badge .card-stat-icon,
@@ -545,6 +547,20 @@
             font-size: 0.68em;
             letter-spacing: 0.02em;
             text-transform: uppercase;
+        }
+
+        .card-stats-stack {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            line-height: 1.05;
+        }
+
+        .defender-keyword {
+            margin-top: 1px;
+            font-size: 0.58em;
         }
 
         .card-desc {
@@ -1062,6 +1078,8 @@
             vertical-align: -5px;
             margin-right: 6px;
             filter: drop-shadow(0 0 6px rgba(124, 92, 255, 0.45));
+            transform: scale(1.03);
+            transform-origin: center;
         }
 
         .stat .ui-icon, .hp-target .ui-icon {
@@ -1564,6 +1582,14 @@
         .stats-head span {
             font-size: 0.68rem;
         }
+
+        .ui-icon,
+        .card-stat-icon,
+        .ai-avatar-icon {
+            transform: scale(1.03);
+            transform-origin: center;
+        }
+
 
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
@@ -2165,7 +2191,7 @@
         if (ownerId === "ai" && state.mode === "ai") {
             return '<img class="ai-avatar-icon" src="assets/ui/icon_ai_wizard.webp" alt="" />';
         }
-        return "🧙";
+        return '<img class="ai-avatar-icon" src="assets/ui/icon_player_wizard.webp" alt="" />';
     }
 
     function isHumanOwner(ownerId) {
@@ -2367,7 +2393,7 @@
         if (count === 0) return;
         const heal = count * 2;
         p.hp = clampHp(p.hp + heal);
-        addLog(`🦄 ${labelFor(ownerId)} heal ${heal} from Unicorn.`);
+        addLog(`${labelFor(ownerId)} heal ${heal} from Unicorn.`);
     }
 
     function removeFromHand(ownerId, uid) {
@@ -2632,7 +2658,7 @@
 
         const damage = effectiveCreatureAttack(ownerId, attacker);
 
-        dealDamage(ownerId, targetRef, damage, `⚔️ ${attacker.name}`);
+        dealDamage(ownerId, targetRef, damage, `${attacker.name}`);
         owner.attackedThisTurn.add(attacker.uid);
         state.selectedAttackerUid = null;
         queueRender();
@@ -2969,7 +2995,12 @@
             heart: "assets/ui/icon_heart.webp",
             crystal: "assets/ui/icon_crystal.webp",
             sword: "assets/ui/icon_sword.webp",
-            deck: "assets/ui/icon_deck.webp"
+            deck: "assets/ui/icon_deck.webp",
+            mind: "assets/ui/icon_mind_control.webp",
+            phoenix: "assets/ui/icon_phoenix_reborn.webp",
+            cloak: "assets/ui/icon_cloak.webp",
+            playerWizard: "assets/ui/icon_player_wizard.webp",
+            arcaneSpark: "assets/ui/icon_arcane_spark.webp"
         };
         const src = iconMap[kind] || iconMap.crystal;
         const cls = extraClass ? `card-stat-icon ${extraClass}` : "card-stat-icon";
@@ -2984,8 +3015,8 @@
         if (card.type === "creature") {
             const attack = ownerId ? effectiveCreatureAttack(ownerId, card) : (card.atk || 0);
             const attackText = ownerId && attack !== (card.atk || 0) ? `${attack} (${card.atk})` : `${attack}`;
-            const guard = card.defender ? `<span class="card-keyword">Guard</span>` : "";
-            return `<span class="card-stats-line">${guard}${iconHtml("sword")}<span>${attackText}</span>${iconHtml("heart")}<span>${card.hp || 0}</span></span>`;
+            const defenderLine = card.defender ? `<span class="card-keyword defender-keyword">Defender</span>` : "";
+            return `<span class="card-stats-stack"><span class="card-stats-line">${iconHtml("sword")}<span>${attackText}</span>${iconHtml("heart")}<span>${card.hp || 0}</span></span>${defenderLine}</span>`;
         }
 
         if (card.effect === "heal") {
@@ -3000,11 +3031,11 @@
             return `<span class="card-stats-line">${iconHtml("sword")}<span>${card.damage || 0}×2</span></span>`;
         }
 
-        if (card.effect === "cloak") return `<span class="card-stats-line">✨ Cloak</span>`;
+        if (card.effect === "cloak") return `<span class="card-stats-line">${iconHtml("cloak")}<span>Cloak</span></span>`;
         if (card.effect === "drawCards") return `<span class="card-stats-line">${iconHtml("deck")}<span>Draw ${card.draw || 2}</span></span>`;
-        if (card.effect === "mindControl") return `<span class="card-stats-line">🧠 Steal</span>`;
-        if (card.effect === "stealDeckRandom") return `<span class="card-stats-line">🃏 Steal deck</span>`;
-        if (card.effect === "revive") return `<span class="card-stats-line">🔥 Revive</span>`;
+        if (card.effect === "mindControl") return `<span class="card-stats-line">${iconHtml("mind")}<span>Steal</span></span>`;
+        if (card.effect === "stealDeckRandom") return `<span class="card-stats-line">${iconHtml("mind")}<span>Steal deck</span></span>`;
+        if (card.effect === "revive") return `<span class="card-stats-line">${iconHtml("phoenix")}<span>Revive</span></span>`;
         return `<span class="card-stats-line">${escapeHtml(card.desc || "Spell")}</span>`;
     }
 
@@ -3064,7 +3095,7 @@
         }
 
         els.opponentZoneName.innerHTML = ownerNameHtml(topOwner, opponentIconHtml(topOwner));
-        els.playerZoneName.textContent = `✨ ${labelFor(bottomOwner)}`;
+        els.playerZoneName.innerHTML = ownerNameHtml(bottomOwner, '<img class="ai-avatar-icon" src="assets/ui/icon_player_wizard.webp" alt="" />');
         els.opponentFieldLabel.textContent = `${labelFor(topOwner)} Battlefield`;
         els.opponentHandLabel.textContent = `${labelFor(topOwner)} Hand`;
         els.playerHandLabel.textContent = `${labelFor(bottomOwner)} Hand`;
@@ -3238,7 +3269,7 @@
 
     function renderLogs() {
         els.gameLog.innerHTML = state.logs.length
-            ? state.logs.map(message => `✨ ${escapeHtml(message)}`).join("<br>")
+            ? state.logs.map(message => `${iconHtml("arcaneSpark")} ${escapeHtml(message)}`).join("<br>")
             : "No events yet.";
         els.debugLog.value = state.debugLines.join("\n");
     }
