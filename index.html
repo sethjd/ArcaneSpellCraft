@@ -1591,6 +1591,96 @@
         }
 
 
+        .card-info-card {
+            text-align: left;
+            width: min(94vw, 460px);
+        }
+
+        .card-info-layout {
+            display: grid;
+            grid-template-columns: 116px 1fr;
+            gap: 12px;
+            align-items: start;
+            margin: 12px 0;
+        }
+
+        .card-info-art {
+            width: 116px;
+            height: 150px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 215, 106, 0.34);
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.35), inset 0 1px rgba(255,255,255,0.12);
+        }
+
+        .card-info-meta {
+            display: grid;
+            gap: 7px;
+        }
+
+        .card-info-row {
+            display: grid;
+            gap: 2px;
+            padding: 7px 9px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.22);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .card-info-label {
+            color: var(--muted);
+            font-size: 0.66rem;
+            font-weight: 950;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .card-info-value {
+            color: #f7f1ff;
+            font-weight: 850;
+            line-height: 1.25;
+        }
+
+        .card-info-rules {
+            margin: 10px 0 14px;
+            padding: 11px 12px;
+            border-radius: 16px;
+            background: rgba(4, 6, 13, 0.66);
+            border: 1px solid rgba(124, 92, 255, 0.22);
+            color: #e9ddff;
+            line-height: 1.38;
+            font-size: 0.9rem;
+        }
+
+        .card-info-tip {
+            color: var(--muted);
+            font-size: 0.72rem;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 430px) {
+            .card-info-layout {
+                grid-template-columns: 96px 1fr;
+                gap: 10px;
+            }
+
+            .card-info-art {
+                width: 96px;
+                height: 126px;
+            }
+
+            .card-info-value {
+                font-size: 0.82rem;
+            }
+
+            .card-info-rules {
+                font-size: 0.82rem;
+            }
+        }
+
+
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
                 animation-duration: 0.01ms !important;
@@ -1721,6 +1811,181 @@
 
     const ARCANE_CLUSTER_CARD = Object.freeze({ id: "cluster", image: "assets/cards/arcane_cluster.webp", name: "Arcane Cluster", type: "economy", shopCost: 3, shardGain: 3, desc: "+3 shards" });
     const SHARD_CARD_TEMPLATE = Object.freeze({ id: "shard", image: "assets/cards/shard_card.webp", name: "Shard Card", type: "economy", shardGain: 1, desc: "+1 shard" });
+
+    const CARD_RULES = Object.freeze({
+        shard: {
+            type: "Resource",
+            effect: "Gain 1 Shard this turn.",
+            full: "When you play Shard Card, gain 1 Shard. Shards can be spent in the Market during the current turn. Any unspent Shards are lost when your turn ends."
+        },
+        cluster: {
+            type: "Resource",
+            cost: "3 Shards",
+            effect: "Gain 3 Shards this turn.",
+            full: "When you play Arcane Cluster, gain 3 Shards. Shards can be spent in the Market during the current turn. Any unspent Shards are lost when your turn ends."
+        },
+        inferno: {
+            type: "Spell",
+            cost: "3 Shards",
+            effect: "Deal 4 damage to a target.",
+            full: "Choose an enemy creature or the enemy hero and deal 4 damage to it. If the enemy has a Defender creature, you must target a Defender before you can target the enemy hero or other creatures."
+        },
+        surge: {
+            type: "Spell",
+            cost: "2 Shards",
+            effect: "Deal 2 damage to a target.",
+            full: "Choose an enemy creature or the enemy hero and deal 2 damage to it. If the enemy has a Defender creature, you must target a Defender before you can target the enemy hero or other creatures."
+        },
+        arcanestudy: {
+            type: "Spell",
+            cost: "3 Shards",
+            effect: "Draw 2 cards.",
+            full: "Draw 2 cards from your deck. If your deck is empty, shuffle your discard pile to form a new deck, then continue drawing."
+        },
+        healwave: {
+            type: "Spell",
+            cost: "3 Shards",
+            effect: "Restore 5 Life.",
+            full: "Your hero gains 5 Life, up to the maximum Life limit."
+        },
+        frostshield_spell: {
+            type: "Spell",
+            cost: "2 Shards",
+            effect: "Summon a Frost Shield.",
+            full: "Summon a 0 Attack / 4 Health Frost Shield creature with Defender. Defender creatures must be attacked or targeted before your hero can be damaged by enemy attacks or damage spells."
+        },
+        frostshield_token: {
+            type: "Creature",
+            effect: "Defender creature.",
+            full: "Frost Shield is a 0 Attack / 4 Health Defender. Enemies must attack or target it before they can damage your hero."
+        },
+        cloak: {
+            type: "Spell",
+            cost: "3 Shards",
+            effect: "Protect your hero from damage.",
+            full: "Until the start of your next turn, damage dealt directly to your hero is blocked. This does not prevent damage dealt to your creatures."
+        },
+        mindcontrol: {
+            type: "Spell",
+            cost: "5 Shards",
+            effect: "Steal an enemy creature.",
+            full: "Take control of one enemy creature and move it to your battlefield. The stolen creature becomes yours and can be used on your future turns."
+        },
+        thunderstrike: {
+            type: "Spell",
+            cost: "4 Shards",
+            effect: "Deal 4 damage to up to 2 targets.",
+            full: "Choose up to 2 legal enemy targets. Deal 4 damage to each chosen target. If you control any Thunderbirds, each Thunderbird gains +1 Attack after Thunderstrike resolves."
+        },
+        fire_ele: {
+            type: "Creature",
+            cost: "4 Shards",
+            stats: "4 Attack / 6 Health",
+            effect: "Fire Link.",
+            full: "If you control 2 or more Fire Elementals, each Fire Elemental deals double attack damage when attacking."
+        },
+        earth_ele: {
+            type: "Creature",
+            cost: "4 Shards",
+            stats: "4 Attack / 6 Health",
+            effect: "Earth Link.",
+            full: "If you control 2 or more Earth Elementals, each Earth Elemental deals double attack damage when attacking."
+        },
+        water_ele: {
+            type: "Creature",
+            cost: "4 Shards",
+            stats: "4 Attack / 6 Health",
+            effect: "Water Link.",
+            full: "If you control 2 or more Water Elementals, each Water Elemental deals double attack damage when attacking."
+        },
+        storm_ele: {
+            type: "Creature",
+            cost: "4 Shards",
+            stats: "4 Attack / 6 Health",
+            effect: "Storm Link.",
+            full: "If you control 2 or more Storm Elementals, each Storm Elemental deals double attack damage when attacking."
+        },
+        frostwolf: {
+            type: "Creature",
+            cost: "3 Shards",
+            stats: "2 Attack / 4 Health",
+            effect: "Fast attacker.",
+            full: "A reliable low-cost creature used to pressure the enemy hero or trade into enemy creatures."
+        },
+        panther: {
+            type: "Creature",
+            cost: "3 Shards",
+            stats: "2 Attack / 4 Health",
+            effect: "Quick threat.",
+            full: "A low-cost creature that can build early battlefield pressure and attack enemy creatures or the enemy hero."
+        },
+        hydra: {
+            type: "Creature",
+            cost: "2 Shards",
+            stats: "2 Attack / 2 Health",
+            effect: "Cheap attacker.",
+            full: "A cheap creature that can be played early and used to attack, trade, or pressure the enemy hero."
+        },
+        unicorn: {
+            type: "Creature",
+            cost: "3 Shards",
+            stats: "0 Attack / 4 Health",
+            effect: "End turn heal.",
+            full: "At the end of your turn, your hero restores 2 Life for each Celestial Unicorn you control."
+        },
+        golem: {
+            type: "Creature",
+            cost: "6 Shards",
+            stats: "0 Attack / 6 Health",
+            effect: "Defender. Discard pressure.",
+            full: "When Earth Golem is summoned, the enemy discards 1 card from their hand if they have any cards. Earth Golem has Defender, meaning enemies must attack or target it before they can damage your hero."
+        },
+        treant: {
+            type: "Creature",
+            cost: "2 Shards",
+            stats: "0 Attack / 10 Health",
+            effect: "Defender.",
+            full: "Ancient Treant has Defender. Enemies must attack or target it before they can damage your hero. It has no Attack, but very high Health."
+        },
+        thunderbird: {
+            type: "Creature",
+            cost: "4 Shards",
+            stats: "4 Attack / 5 Health",
+            effect: "Thunder synergy.",
+            full: "Whenever you cast Thunderstrike, Thunderbird gains +1 Attack."
+        },
+        behemoth: {
+            type: "Creature",
+            cost: "7 Shards",
+            stats: "5 Attack / 10 Health",
+            effect: "Heavy creature.",
+            full: "A powerful late-game creature with high Attack and high Health. It is difficult to remove and can deal heavy damage each turn."
+        },
+        wraith: {
+            type: "One-Shot",
+            cost: "4 Shards",
+            effect: "Deal 4 damage to a target.",
+            full: "Choose an enemy creature or the enemy hero and deal 4 damage to it. After resolving, Spectral Wraith goes to your discard pile."
+        },
+        lavadrake: {
+            type: "One-Shot",
+            cost: "5 Shards",
+            effect: "Deal 10 damage to a target.",
+            full: "Choose an enemy creature or the enemy hero and deal 10 damage to it. This is a powerful burst damage card. If the enemy has a Defender creature, you must target a Defender first."
+        },
+        souleater: {
+            type: "One-Shot",
+            cost: "6 Shards",
+            effect: "Steal a random card from the enemy deck.",
+            full: "Take 1 random card from the enemy deck and add it to your discard pile. The stolen card can be drawn and used later."
+        },
+        phoenix: {
+            type: "One-Shot",
+            cost: "7 Shards",
+            effect: "Revive a creature.",
+            full: "Return a creature from your graveyard to your battlefield at full Health. If you have no creatures in your graveyard, Phoenix Reborn has no effect."
+        }
+    });
     const STARTING_HP = 80;
     const MAX_HP = 99;
     const HAND_DRAW = 5;
@@ -1775,6 +2040,10 @@
     let pointerStart = null;
     let renderQueued = false;
     let tapLocked = false;
+    let longPressTimer = null;
+    let longPressTriggered = false;
+    const LONG_PRESS_MS = 560;
+    const LONG_PRESS_MOVE_LIMIT = 14;
 
     const state = {
         active: false,
@@ -3060,7 +3329,7 @@
         const art = card.image ? `<div class="card-art" style="background-image:url('${escapeAttr(card.image)}')"></div>` : "";
         const desc = card.type === "economy" ? "" : escapeHtml(card.desc || "");
         return `
-            <div class="${classes.join(" ")}" ${data}>
+            <div class="${classes.join(" ")}" data-card-id="${escapeAttr(card.id)}" ${data}>
                 ${art}
                 <div class="card-name">${escapeHtml(card.name)}</div>
                 <div class="card-body">${cardStats(card, opts.ownerId || null)}</div>
@@ -3246,7 +3515,7 @@
             const buyerId = currentHumanOwner();
             const canBuy = isHumanOwner(state.turn) && !state.awaitingPass && state.active && !state.pendingSpell && !state.selectedAttackerUid && actor(buyerId).shards >= card.shopCost;
             return `
-                <div class="shop-pill ${canBuy ? "targetable affordable" : "unaffordable"}" data-action="buy-shop" data-index="${index}">
+                <div class="shop-pill ${canBuy ? "targetable affordable" : "unaffordable"}" data-action="buy-shop" data-index="${index}" data-card-id="${escapeAttr(card.id)}">
                     ${card.image ? `<div class="shop-thumb" style="background-image:url('${escapeAttr(card.image)}')"></div>` : ""}
                     <div class="shop-title">${escapeHtml(card.name)}</div>
                     <div class="shop-meta"><span class="card-stats-line">${iconHtml("crystal")}<span>${card.shopCost}</span></span></div>
@@ -3257,7 +3526,7 @@
         const buyerId = currentHumanOwner();
         const clusterBuyable = isHumanOwner(state.turn) && !state.awaitingPass && state.active && !state.pendingSpell && !state.selectedAttackerUid && state.arcaneClustersRemaining > 0 && actor(buyerId).shards >= ARCANE_CLUSTER_CARD.shopCost;
         cards.push(`
-            <div class="shop-pill ${state.arcaneClustersRemaining > 0 ? "" : "disabled"} ${clusterBuyable ? "targetable affordable" : "unaffordable"}" data-action="buy-cluster">
+            <div class="shop-pill ${state.arcaneClustersRemaining > 0 ? "" : "disabled"} ${clusterBuyable ? "targetable affordable" : "unaffordable"}" data-action="buy-cluster" data-card-id="cluster">
                 <div class="shop-thumb" style="background-image:url('assets/cards/arcane_cluster.webp')"></div>
                 <div class="shop-title">Arcane Cluster</div>
                 <div class="shop-meta"><span class="card-stats-line">${iconHtml("crystal")}<span>3</span></span></div>
@@ -3311,15 +3580,26 @@
     }
 
     function handlePointerDown(event) {
+        clearLongPressTimer();
+        longPressTriggered = false;
         const actionTarget = event.target.closest("[data-action]");
+        const infoTarget = event.target.closest("[data-card-id]");
         pointerStart = {
             id: event.pointerId,
             x: event.clientX,
             y: event.clientY,
             time: performance.now(),
             action: actionTarget ? actionTarget.dataset.action : "",
-            inShop: Boolean(event.target.closest(".scroll-lane.shop"))
+            inShop: Boolean(event.target.closest(".scroll-lane.shop")),
+            cardId: infoTarget ? infoTarget.dataset.cardId : ""
         };
+
+        if (pointerStart.cardId && !event.target.closest(".face-down")) {
+            longPressTimer = window.setTimeout(() => {
+                longPressTriggered = true;
+                showCardInfo(pointerStart.cardId);
+            }, LONG_PRESS_MS);
+        }
     }
 
     function isSwipeLikeShopGesture(event, action) {
@@ -3334,6 +3614,13 @@
     }
 
     function handleTap(event) {
+        clearLongPressTimer();
+        if (longPressTriggered) {
+            event.preventDefault();
+            longPressTriggered = false;
+            pointerStart = null;
+            return;
+        }
         unlockAudioFromGesture();
         const target = event.target.closest("[data-action]");
         if (!target) return;
@@ -3419,6 +3706,105 @@
         }
     }
 
+
+
+    function lookupInfoCard(cardId) {
+        if (!cardId) return null;
+        if (cardId === "shard") return SHARD_CARD_TEMPLATE;
+        if (cardId === "cluster") return ARCANE_CLUSTER_CARD;
+        if (cardId === "frostshield_token") return { id: "frostshield_token", image: "assets/cards/frost_shield.webp", name: "Frost Shield", type: "creature", atk: 0, hp: 4, defender: true, desc: "Defender" };
+        return cardById(cardId) || null;
+    }
+
+    function typeLabel(card) {
+        const rules = CARD_RULES[card.id];
+        if (rules?.type) return rules.type;
+        if (card.type === "economy") return "Resource";
+        if (card.type === "oneshot") return "One-Shot";
+        return card.type ? `${card.type.charAt(0).toUpperCase()}${card.type.slice(1)}` : "Card";
+    }
+
+    function costLabel(card) {
+        const rules = CARD_RULES[card.id];
+        if (rules?.cost) return rules.cost;
+        if (card.shopCost) return `${card.shopCost} Shard${card.shopCost === 1 ? "" : "s"}`;
+        return "Starter card";
+    }
+
+    function statsLabel(card) {
+        const rules = CARD_RULES[card.id];
+        if (rules?.stats) return rules.stats;
+        if (card.type === "creature") return `${card.atk || 0} Attack / ${card.hp || 0} Health${card.defender ? " / Defender" : ""}`;
+        if (card.type === "economy") return `Gain ${card.shardGain || 0} Shard${(card.shardGain || 0) === 1 ? "" : "s"}`;
+        if (card.effect === "damage") return `${card.damage || 0} damage`;
+        if (card.effect === "heal") return `${card.heal || 0} healing`;
+        if (card.effect === "thunderstrike") return `${card.damage || 0} damage to up to 2 targets`;
+        return cardStats(card).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    }
+
+    function showCardInfo(cardId) {
+        const card = lookupInfoCard(cardId);
+        if (!card) return;
+        const rules = CARD_RULES[card.id] || {};
+        playSfx("uiTap");
+        tapFeedback(18);
+        const image = card.image || "assets/ui/card_back.webp";
+        const effect = rules.effect || card.desc || "No special effect.";
+        const full = rules.full || "This card follows its listed stats and effect.";
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card card-info-card">
+                    <h2>${escapeHtml(card.name)}</h2>
+                    <div class="card-info-layout">
+                        <div class="card-info-art" style="background-image:url('${escapeAttr(image)}')"></div>
+                        <div class="card-info-meta">
+                            <div class="card-info-row">
+                                <span class="card-info-label">Type</span>
+                                <span class="card-info-value">${escapeHtml(typeLabel(card))}</span>
+                            </div>
+                            <div class="card-info-row">
+                                <span class="card-info-label">Cost</span>
+                                <span class="card-info-value">${escapeHtml(costLabel(card))}</span>
+                            </div>
+                            <div class="card-info-row">
+                                <span class="card-info-label">Stats</span>
+                                <span class="card-info-value">${escapeHtml(statsLabel(card))}</span>
+                            </div>
+                            <div class="card-info-row">
+                                <span class="card-info-label">Effect</span>
+                                <span class="card-info-value">${escapeHtml(effect)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-info-rules">${escapeHtml(full)}</div>
+                    <button type="button" class="btn-wide" data-modal="close-card-info"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Close</span></button>
+                    <div class="card-info-tip">Press and hold any card to view this full info.</div>
+                </div>
+            </div>`;
+        const close = els.modalRoot.querySelector('[data-modal="close-card-info"]');
+        if (close) close.addEventListener("pointerup", () => { els.modalRoot.innerHTML = ""; }, { once: true });
+    }
+
+    function clearLongPressTimer() {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }
+
+    function handlePointerMove(event) {
+        if (!pointerStart) return;
+        const dx = Math.abs(event.clientX - pointerStart.x);
+        const dy = Math.abs(event.clientY - pointerStart.y);
+        if (dx > LONG_PRESS_MOVE_LIMIT || dy > LONG_PRESS_MOVE_LIMIT) {
+            clearLongPressTimer();
+        }
+    }
+
+    function handlePointerCancel() {
+        clearLongPressTimer();
+        pointerStart = null;
+    }
 
     function showMainMenu() {
         updateAudioButtons();
@@ -3647,6 +4033,8 @@
     }
 
     document.addEventListener("pointerdown", handlePointerDown, { passive: true });
+    document.addEventListener("pointermove", handlePointerMove, { passive: true });
+    document.addEventListener("pointercancel", handlePointerCancel, { passive: true });
     document.addEventListener("pointerup", handleTap, { passive: false });
     window.addEventListener("resize", queueRender, { passive: true });
     showStartModal();
