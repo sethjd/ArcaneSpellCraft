@@ -537,12 +537,6 @@
             height: 0.96em;
         }
 
-        .card-stat-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.12rem;
-        }
-
         .card-keyword {
             display: inline-flex;
             align-items: center;
@@ -2959,21 +2953,34 @@
     }
 
     function cardStats(card, ownerId = null) {
-        if (card.type === "economy") return `<span class="card-stats-line">${iconHtml("crystal")}<span>+${card.shardGain || 0}</span></span>`;
+        if (card.type === "economy") {
+            return `<span class="card-stats-line">${iconHtml("crystal")}<span>+${card.shardGain || 0}</span></span>`;
+        }
+
         if (card.type === "creature") {
             const attack = ownerId ? effectiveCreatureAttack(ownerId, card) : (card.atk || 0);
             const attackText = ownerId && attack !== (card.atk || 0) ? `${attack} (${card.atk})` : `${attack}`;
             const guard = card.defender ? `<span class="card-keyword">Guard</span>` : "";
             return `<span class="card-stats-line">${guard}${iconHtml("sword")}<span>${attackText}</span>${iconHtml("heart")}<span>${card.hp || 0}</span></span>`;
         }
-        if (card.effect === "heal") return `<span class="card-stats-line">${iconHtml("heart")}<span>+${card.heal || 0}</span></span>`;
-        if (card.effect === "damage") return `<span class="card-stats-line">${iconHtml("sword")}<span>${card.damage || 0}</span></span>`;
-        if (card.effect === "thunderstrike") return `<span class="card-stats-line">${iconHtml("sword")}<span>${card.damage || 0}×2</span></span>`;
-        if (card.effect === "cloak") return "<span class="card-stats-line">✨ Cloak</span>";
+
+        if (card.effect === "heal") {
+            return `<span class="card-stats-line">${iconHtml("heart")}<span>+${card.heal || 0}</span></span>`;
+        }
+
+        if (card.effect === "damage") {
+            return `<span class="card-stats-line">${iconHtml("sword")}<span>${card.damage || 0}</span></span>`;
+        }
+
+        if (card.effect === "thunderstrike") {
+            return `<span class="card-stats-line">${iconHtml("sword")}<span>${card.damage || 0}×2</span></span>`;
+        }
+
+        if (card.effect === "cloak") return `<span class="card-stats-line">✨ Cloak</span>`;
         if (card.effect === "drawCards") return `<span class="card-stats-line">📚 Draw ${card.draw || 2}</span>`;
-        if (card.effect === "mindControl") return "<span class="card-stats-line">🧠 Steal</span>";
-        if (card.effect === "stealDeckRandom") return "<span class="card-stats-line">🃏 Steal deck</span>";
-        if (card.effect === "revive") return "<span class="card-stats-line">🔥 Revive</span>";
+        if (card.effect === "mindControl") return `<span class="card-stats-line">🧠 Steal</span>`;
+        if (card.effect === "stealDeckRandom") return `<span class="card-stats-line">🃏 Steal deck</span>`;
+        if (card.effect === "revive") return `<span class="card-stats-line">🔥 Revive</span>`;
         return `<span class="card-stats-line">${escapeHtml(card.desc || "Spell")}</span>`;
     }
 
