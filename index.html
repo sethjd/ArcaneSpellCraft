@@ -377,8 +377,7 @@
         }
 
         .card.has-art .card-name,
-        .card.has-art .card-body,
-        .card.has-art .card-desc {
+        .card.has-art .card-body {
             background: rgba(4, 6, 13, 0.66);
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 10px;
@@ -390,11 +389,9 @@
         .card.has-art .card-body {
             align-self: end;
             min-height: 32px;
-        }
-
-        .card.has-art .card-desc {
-            color: #efe8ff;
-            background: rgba(4, 6, 13, 0.74);
+            margin-top: auto;
+            margin-bottom: 2px;
+            background: rgba(4, 6, 13, 0.72);
         }
 
         .card.face-down .card-art {
@@ -3036,7 +3033,6 @@
                 ${art}
                 <div class="card-name">${escapeHtml(card.name)}</div>
                 <div class="card-body">${cardStats(card, opts.ownerId || null)}</div>
-                ${desc ? `<div class="card-desc">${desc}</div>` : ""}
                 ${cost}
             </div>`;
     }
@@ -3224,7 +3220,6 @@
                     <div class="shop-title">${escapeHtml(card.name)}</div>
                     <div class="shop-meta"><span class="card-stats-line">${iconHtml("crystal")}<span>${card.shopCost}</span></span></div>
                     <div class="card-body">${cardStats(card)}</div>
-                    <div class="card-desc">${escapeHtml(card.desc || "")}</div>
                 </div>`;
         });
 
@@ -3236,7 +3231,6 @@
                 <div class="shop-title">Arcane Cluster</div>
                 <div class="shop-meta"><span class="card-stats-line">${iconHtml("crystal")}<span>3</span></span></div>
                 <div class="card-body"><span class="card-stats-line">${iconHtml("crystal")}<span>+3</span></span></div>
-                <div class="card-desc">${state.arcaneClustersRemaining > 0 ? `${state.arcaneClustersRemaining} left` : "Sold out"}</div>
             </div>`);
 
         els.shop.innerHTML = cards.join("");
