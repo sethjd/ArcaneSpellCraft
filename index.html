@@ -653,15 +653,24 @@
         }
 
         .utility-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            justify-content: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .utility-row button {
             --btn-bg: url('assets/ui/button_small_dark.webp');
+            width: auto;
+            min-width: 104px;
+            max-width: 150px;
+            padding: 8px 14px;
             box-shadow: none;
             border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .utility-row button[hidden] {
+            display: none;
         }
 
 
@@ -1481,10 +1490,8 @@
 
         <div class="utility-row">
             <button type="button" data-action="main-menu"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Menu</span></button>
-            <button type="button" data-action="toggle-music" id="musicToggleBtn"><span class="button-inline">Music On</span></button>
-            <button type="button" data-action="toggle-sfx" id="sfxToggleBtn"><span class="button-inline">SFX On</span></button>
             <button type="button" data-action="restart"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Restart</span></button>
-            <button type="button" data-action="cancel-action"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Cancel</span></button>
+            <button type="button" data-action="cancel-action" id="cancelActionBtn" hidden><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Cancel</span></button>
         </div>
 
         <section class="log-panel">
@@ -1595,7 +1602,8 @@
         debugLog: document.getElementById("debugLog"),
         modalRoot: document.getElementById("modalRoot"),
         musicToggleBtn: document.getElementById("musicToggleBtn"),
-        sfxToggleBtn: document.getElementById("sfxToggleBtn")
+        sfxToggleBtn: document.getElementById("sfxToggleBtn"),
+        cancelActionBtn: document.getElementById("cancelActionBtn")
     };
 
     let uidCounter = 1;
@@ -2568,16 +2576,26 @@
     function handlePlayerHand(cardUid) {
         const ownerId = currentHumanOwner();
         if (state.turn !== ownerId || !state.active || tapLocked || state.awaitingPass) return;
+        const card = findHandCard(ownerId, cardUid);
+        if (!card) return;
+
         if (state.pendingSpell) {
+            if (state.pendingSpell.cardUid === card.uid) {
+                state.pendingSpell = null;
+                tapFeedback();
+                addLog(`${card.name} cancelled.`);
+                queueRender();
+                return;
+            }
             addLog("Finish or cancel your current spell first.");
             return;
         }
+
         if (state.selectedAttackerUid) {
             addLog("Finish or cancel your attack first.");
             return;
         }
-        const card = findHandCard(ownerId, cardUid);
-        if (!card) return;
+
         tapFeedback();
 
         if (card.type === "economy" || card.type === "creature") {
@@ -2604,7 +2622,7 @@
         }
         state.selectedAttackerUid = state.selectedAttackerUid === cardUid ? null : cardUid;
         tapFeedback();
-        addLog(state.selectedAttackerUid ? `${creature.name} selected. Tap an enemy target.` : "Attack cancelled.");
+        addLog(state.selectedAttackerUid ? `${creature.name} selected. Tap an enemy target.` : `${creature.name} attack cancelled.`);
         queueRender();
     }
 
@@ -2863,6 +2881,11 @@
         els.statusMini.textContent = activeLabel;
         els.endTurnBtn.disabled = !state.active || !isHumanOwner(state.turn) || tapLocked || state.awaitingPass;
 
+        if (els.cancelActionBtn) {
+            const showCancel = Boolean(state.active && isHumanOwner(state.turn) && !state.awaitingPass && (state.pendingSpell || state.selectedAttackerUid));
+            els.cancelActionBtn.hidden = !showCancel;
+        }
+
         els.opponentZoneName.textContent = `${topOwner === "ai" && state.mode === "ai" ? "🤖" : "🧙"} ${labelFor(topOwner)}`;
         els.playerZoneName.textContent = `✨ ${labelFor(bottomOwner)}`;
         els.opponentFieldLabel.textContent = `${labelFor(topOwner)} Battlefield`;
@@ -2965,7 +2988,8 @@
 
         els.playerHand.innerHTML = p.hand.map(card => cardHtml(card, {
             data: `data-action="hand-card" data-owner="${ownerId}" data-uid="${card.uid}"`,
-            disabled: Boolean(state.pendingSpell || state.selectedAttackerUid)
+            selected: Boolean(state.pendingSpell && state.pendingSpell.cardUid === card.uid),
+            disabled: Boolean(state.selectedAttackerUid || (state.pendingSpell && state.pendingSpell.cardUid !== card.uid))
         })).join("");
     }
 
