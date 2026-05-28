@@ -838,6 +838,44 @@
             height: 18px;
         }
 
+        .settings-row.menu-compact {
+            grid-template-columns: 1fr 1fr;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .settings-row.menu-compact button {
+            min-height: 38px;
+            padding: 7px 10px;
+            font-size: 0.76rem;
+            width: auto;
+        }
+
+        .settings-row.menu-compact .audio-control {
+            padding: 6px 8px;
+            gap: 3px 8px;
+            min-width: 0;
+        }
+
+        .settings-row.menu-compact .audio-control label {
+            font-size: 0.7rem;
+        }
+
+        .settings-row.menu-compact .audio-control output {
+            font-size: 0.68rem;
+            min-width: 30px;
+        }
+
+        .settings-row.menu-compact .audio-control input[type="range"] {
+            height: 18px;
+        }
+
+        .settings-row.menu-compact .menu-primary,
+        .settings-row.menu-compact .menu-half {
+            width: auto;
+            justify-self: stretch;
+        }
+
         .player-zone .stat,
         .player-zone .hp-target,
         .ai-zone .stat,
@@ -3135,13 +3173,13 @@
                 <div class="modal-card">
                     <h2>Arcane Spell Craft</h2>
                     <p>Pause, audio settings, or start a new match.</p>
-                    <div class="settings-row">
-                        <button type="button" data-modal="resume-game"><span class="button-inline">Resume Game</span></button>
-                        <button type="button" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
+                    <div class="settings-row menu-compact">
+                        <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline">Resume Game</span></button>
+                        <button type="button" class="btn-orange menu-primary" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> New Game</span></button>
+                        <button type="button" class="menu-half" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
+                        <button type="button" class="menu-half" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
                         ${audioControlHtml("music")}
-                        <button type="button" data-modal="toggle-sfx"><span class="button-inline">Game Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
                         ${audioControlHtml("sfx")}
-                        <button type="button" class="btn-orange" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> New Game</span></button>
                     </div>
                     <p class="menu-note">Music starts after a tap because mobile browsers block autoplay.</p>
                 </div>
