@@ -1799,7 +1799,7 @@
         { id: "panther", image: "assets/cards/shadow_panther.webp", name: "Shadow Panther", type: "creature", shopCost: 3, atk: 2, hp: 4, desc: "Quick threat" },
         { id: "hydra", image: "assets/cards/venomous_hydra.webp", name: "Venomous Hydra", type: "creature", shopCost: 2, atk: 2, hp: 2, desc: "Cheap attacker" },
         { id: "unicorn", image: "assets/cards/celestial_unicorn.webp", name: "Celestial Unicorn", type: "creature", shopCost: 3, atk: 0, hp: 4, startHeal: 2, desc: "End heal 2" },
-        { id: "golem", image: "assets/cards/earth_golem.webp", name: "Earth Golem", type: "creature", shopCost: 6, atk: 0, hp: 6, defender: true, onSummonDiscard: true, desc: "Defender" },
+        { id: "golem", image: "assets/cards/earth_golem.webp", name: "Earth Golem", type: "creature", shopCost: 6, atk: 0, hp: 6, defender: true, drawTax: true, desc: "Draw Lock" },
         { id: "treant", image: "assets/cards/ancient_treant.webp", name: "Ancient Treant", type: "creature", shopCost: 2, atk: 0, hp: 10, defender: true, desc: "Wall" },
         { id: "thunderbird", image: "assets/cards/thunderbird.webp", name: "Thunderbird", type: "creature", shopCost: 4, atk: 4, hp: 5, thunderSynergy: true, desc: "+1 on thunder" },
         { id: "behemoth", image: "assets/cards/ironclad_behemoth.webp", name: "Ironclad Behemoth", type: "creature", shopCost: 7, atk: 5, hp: 10, desc: "Huge body" },
@@ -1944,8 +1944,8 @@
             type: "Creature",
             cost: "6 Shards",
             stats: "0 Attack / 6 Health",
-            effect: "Defender. Discard pressure.",
-            full: "When Earth Golem is summoned, the enemy discards 1 card from their hand if they have any cards. Earth Golem has Defender, meaning enemies must attack or target it before they can damage your hero."
+            effect: "Defender. Enemy draws 1 fewer card.",
+            full: "While Earth Golem remains on your battlefield, the enemy draws 4 cards at the start of their turn instead of 5. If Earth Golem is destroyed before the enemy turn starts, this effect does not apply. Earth Golem has Defender, meaning enemies must attack or target it before they can damage your hero."
         },
         treant: {
             type: "Creature",
@@ -2628,6 +2628,12 @@
         return card;
     }
 
+    function startingDrawCount(ownerId) {
+        const opponentId = other(ownerId);
+        const opponentHasEarthGolem = actor(opponentId).field.some(card => card.drawTax);
+        return opponentHasEarthGolem ? Math.max(0, HAND_DRAW - 1) : HAND_DRAW;
+    }
+
     function startTurn(ownerId) {
         if (!state.active) return;
         state.turn = ownerId;
@@ -2637,7 +2643,9 @@
         p.attackedThisTurn.clear();
         state.selectedAttackerUid = null;
         state.pendingSpell = null;
-        for (let i = 0; i < HAND_DRAW; i++) drawCard(ownerId);
+        const cardsToDraw = startingDrawCount(ownerId);
+        for (let i = 0; i < cardsToDraw; i++) drawCard(ownerId);
+        if (cardsToDraw < HAND_DRAW) addLog(`Earth Golem slows ${labelFor(ownerId)}: draw ${cardsToDraw} cards instead of ${HAND_DRAW}.`);
         addLog(`${labelFor(ownerId)} turn.`);
         if (state.mode === "pass") {
             state.awaitingPass = true;
@@ -2724,18 +2732,13 @@
             maxHp: card.hp || 1,
             atk: card.atk || 0,
             defender: Boolean(card.defender),
+            drawTax: Boolean(card.drawTax),
             elemental: Boolean(card.elemental),
             element: card.element || "",
             thunderSynergy: Boolean(card.thunderSynergy),
             startHeal: card.startHeal || 0,
             originalHp: card.hp || 1
         };
-
-        if (card.onSummonDiscard && opponent.hand.length > 0) {
-            const discarded = opponent.hand.pop();
-            opponent.discard.push(discarded);
-            addLog(`${card.name} forces ${labelFor(opponentId).toLowerCase()} to discard ${discarded.name}.`);
-        }
 
         owner.field.push(creature);
         if (owner.stats) owner.stats.creaturesSummoned += 1;
