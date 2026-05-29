@@ -4210,6 +4210,7 @@
 
     function applyRemoteGameState(gameState, version = 0) {
         if (!gameState) return;
+        if (state.active && version <= state.online.version) return;
         const online = { ...state.online };
         state.online.applyingRemote = true;
         uidCounter = Number(gameState.uidCounter || uidCounter || 1);
@@ -4413,7 +4414,7 @@
             }
 
             if (room.gameState) {
-                if (version >= state.online.version || !state.active) {
+                if (!state.active || version > state.online.version) {
                     applyRemoteGameState(room.gameState, version);
                 }
             }
