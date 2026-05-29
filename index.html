@@ -1808,7 +1808,7 @@
 
         <div class="utility-row">
             <button type="button" data-action="main-menu"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Menu</span></button>
-            <button type="button" data-action="restart"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Restart</span></button>
+            <button type="button" data-action="restart" id="restartForfeitBtn"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Restart</span></button>
             <button type="button" data-action="cancel-action" id="cancelActionBtn" hidden><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Cancel</span></button>
         </div>
 
@@ -2118,7 +2118,8 @@
         modalRoot: document.getElementById("modalRoot"),
         musicToggleBtn: document.getElementById("musicToggleBtn"),
         sfxToggleBtn: document.getElementById("sfxToggleBtn"),
-        cancelActionBtn: document.getElementById("cancelActionBtn")
+        cancelActionBtn: document.getElementById("cancelActionBtn"),
+        restartForfeitBtn: document.getElementById("restartForfeitBtn")
     };
 
     let uidCounter = 1;
@@ -3479,6 +3480,16 @@
         els.statusMini.textContent = state.mode === "online" ? `Room ${state.online.roomCode}` : activeLabel;
         els.endTurnBtn.disabled = !state.active || !isHumanOwner(state.turn) || tapLocked || state.awaitingPass;
 
+        if (els.restartForfeitBtn) {
+            if (state.online.enabled && state.active) {
+                els.restartForfeitBtn.dataset.action = "forfeit-online-action";
+                els.restartForfeitBtn.innerHTML = `<span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Forfeit</span>`;
+            } else {
+                els.restartForfeitBtn.dataset.action = "restart";
+                els.restartForfeitBtn.innerHTML = `<span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Restart</span>`;
+            }
+        }
+
         if (els.cancelActionBtn) {
             const showCancel = Boolean(state.active && isHumanOwner(state.turn) && !state.awaitingPass && (state.pendingSpell || state.selectedAttackerUid));
             els.cancelActionBtn.hidden = !showCancel;
@@ -3814,11 +3825,18 @@
                 tapFeedback();
                 if (state.online.enabled) {
                     showConfirm("Leave this online match and return to the menu?", () => {
-                        leaveOnlineRoom();
-                        showStartModal();
+                        void exitOnlineToMenu();
                     });
                 } else {
                     showConfirm("Restart the match?", initGame);
+                }
+                break;
+            case "forfeit-online-action":
+                tapFeedback();
+                if (state.online.enabled && state.active) {
+                    showConfirm("Forfeit this online match? This will count as a loss and your opponent will win.", () => {
+                        void forfeitOnlineMatch();
+                    });
                 }
                 break;
             case "cancel-action":
@@ -3949,7 +3967,7 @@
             : "";
         const matchButton = state.online.enabled
             ? (state.active
-                ? `<button type="button" class="btn-orange menu-primary" data-modal="forfeit-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Forfeit Match</span></button>`
+                ? `<button type="button" class="btn-dark menu-primary" data-modal="copy-online-code"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Copy Code</span></button>`
                 : `<button type="button" class="btn-orange menu-primary" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Main Menu</span></button>`)
             : `<button type="button" class="btn-orange menu-primary" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> New Game</span></button>`;
 
@@ -3967,7 +3985,7 @@
                         ${audioControlHtml("music")}
                         ${audioControlHtml("sfx")}
                     </div>
-                    <p class="menu-note">${state.online.enabled && state.active ? "Forfeit Match ends the online game and gives your opponent the win." : "Music starts after a tap because mobile browsers block autoplay."}</p>
+                    <p class="menu-note">${state.online.enabled && state.active ? "Use the Forfeit button on the board if you need to concede the online match." : "Music starts after a tap because mobile browsers block autoplay."}</p>
                 </div>
             </div>`;
         updateAudioButtons();
@@ -3994,13 +4012,16 @@
             }, { once: true });
         }
 
-        const forfeitBtn = els.modalRoot.querySelector('[data-modal="forfeit-online"]');
-        if (forfeitBtn) {
-            forfeitBtn.addEventListener("pointerup", () => {
-                showConfirm("Forfeit this online match? This will count as a loss and your opponent will win.", () => {
-                    void forfeitOnlineMatch();
-                });
-            }, { once: true });
+        const copyOnlineCodeBtn = els.modalRoot.querySelector('[data-modal="copy-online-code"]');
+        if (copyOnlineCodeBtn) {
+            copyOnlineCodeBtn.addEventListener("pointerup", async () => {
+                try {
+                    await navigator.clipboard.writeText(state.online.roomCode);
+                    addLog("Room code copied.");
+                } catch {
+                    addLog(`Room code: ${state.online.roomCode}`);
+                }
+            });
         }
     }
 
