@@ -1751,7 +1751,21 @@
             }
         }
 
+
+        html.standalone-pwa body {
+            overscroll-behavior: none;
+        }
+
     </style>
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#12091f">
+    <meta name="application-name" content="Arcane Spell Craft">
+    <meta name="apple-mobile-web-app-title" content="Arcane Craft">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="assets/icons/app-icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/app-icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/app-icon-512.png">
 </head>
 <body>
     <main class="app" id="app">
@@ -4727,6 +4741,21 @@
     document.addEventListener("pointerup", handleTap, { passive: false });
     window.addEventListener("resize", queueRender, { passive: true });
     showStartModal();
+})();
+</script>
+
+<script>
+(() => {
+    if (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) {
+        document.documentElement.classList.add("standalone-pwa");
+    }
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+            navigator.serviceWorker.register("./service-worker.js").catch(error => {
+                console.warn("Service worker registration failed:", error);
+            });
+        });
+    }
 })();
 </script>
 </body>
