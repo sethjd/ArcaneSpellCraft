@@ -3669,7 +3669,7 @@
         let small = "Swipe lanes sideways to view more cards.";
         if (!state.active) {
             main = "Game over.";
-            small = "Restart to play again.";
+            small = "Use Main Menu to start another match.";
         } else if (state.mode === "online" && !isHumanOwner(state.turn)) {
             main = `${labelFor(state.turn)} is taking their online turn.`;
             small = `Room ${state.online.roomCode}. Your cards are shown at the bottom.`;
@@ -3943,20 +3943,31 @@
 
     function showMainMenu() {
         updateAudioButtons();
+
+        const onlineStatus = state.online.enabled
+            ? `<p class="menu-note"><strong>Online Room:</strong> ${escapeHtml(state.online.roomCode)} · You are ${escapeHtml(labelFor(state.online.localOwner))}${state.active ? ` · ${escapeHtml(labelFor(state.turn))}'s turn` : " · Match ended"}</p>`
+            : "";
+        const matchButton = state.online.enabled
+            ? (state.active
+                ? `<button type="button" class="btn-orange menu-primary" data-modal="forfeit-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Forfeit Match</span></button>`
+                : `<button type="button" class="btn-orange menu-primary" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Main Menu</span></button>`)
+            : `<button type="button" class="btn-orange menu-primary" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> New Game</span></button>`;
+
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
                     <h2>Arcane Spell Craft</h2>
-                    <p>Pause, audio settings, or start a new match.</p>
+                    <p>${state.online.enabled ? "Online match options and audio settings." : "Pause, audio settings, or start a new match."}</p>
+                    ${onlineStatus}
                     <div class="settings-row menu-compact">
                         <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline">Resume Game</span></button>
-                        <button type="button" class="btn-orange menu-primary" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> New Game</span></button>
+                        ${matchButton}
                         <button type="button" class="menu-half" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
                         <button type="button" class="menu-half" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
                         ${audioControlHtml("music")}
                         ${audioControlHtml("sfx")}
                     </div>
-                    <p class="menu-note">Music starts after a tap because mobile browsers block autoplay.</p>
+                    <p class="menu-note">${state.online.enabled && state.active ? "Forfeit Match ends the online game and gives your opponent the win." : "Music starts after a tap because mobile browsers block autoplay."}</p>
                 </div>
             </div>`;
         updateAudioButtons();
@@ -3966,14 +3977,31 @@
             els.modalRoot.innerHTML = "";
             if (audioState.musicEnabled) startMusic();
         }, { once: true });
+
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
-        els.modalRoot.querySelector('[data-modal="main-menu-new-game"]').addEventListener("pointerup", () => {
-            stopMusic();
-            if (state.online.enabled) leaveOnlineRoom(false);
-            state.active = false;
-            showStartModal();
-        }, { once: true });
+
+        const mainMenuBtn = els.modalRoot.querySelector('[data-modal="main-menu-new-game"]');
+        if (mainMenuBtn) {
+            mainMenuBtn.addEventListener("pointerup", () => {
+                if (state.online.enabled) {
+                    void exitOnlineToMenu();
+                } else {
+                    stopMusic();
+                    state.active = false;
+                    showStartModal();
+                }
+            }, { once: true });
+        }
+
+        const forfeitBtn = els.modalRoot.querySelector('[data-modal="forfeit-online"]');
+        if (forfeitBtn) {
+            forfeitBtn.addEventListener("pointerup", () => {
+                showConfirm("Forfeit this online match? This will count as a loss and your opponent will win.", () => {
+                    void forfeitOnlineMatch();
+                });
+            }, { once: true });
+        }
     }
 
     function showConfirm(message, onConfirm) {
@@ -4057,10 +4085,13 @@
             </div>`;
         const mainMenu = els.modalRoot.querySelector('[data-modal="main-menu-after-game"]');
         mainMenu.addEventListener("pointerup", () => {
-            if (state.online.enabled) leaveOnlineRoom(false);
-            stopMusic();
-            state.active = false;
-            showStartModal();
+            if (state.online.enabled) {
+                void exitOnlineToMenu();
+            } else {
+                stopMusic();
+                state.active = false;
+                showStartModal();
+            }
         }, { once: true });
         queueRender();
     }
@@ -4183,6 +4214,65 @@
         state.online.applyingRemote = false;
         state.online.version = 0;
         if (clearModal) els.modalRoot.innerHTML = "";
+    }
+
+    async function markOnlinePlayerLeftAndCleanup() {
+        if (!state.online.enabled || !firebaseClient.loaded || !state.online.roomCode) return;
+
+        const roomCode = state.online.roomCode;
+        const localOwner = state.online.localOwner;
+        const roomRef = onlineRoomRef(roomCode);
+        const update = {
+            updatedAt: Date.now()
+        };
+        update[`left/${localOwner}`] = true;
+
+        try {
+            await firebaseClient.fns.update(roomRef, update);
+            const snap = await firebaseClient.fns.get(roomRef);
+            if (!snap.exists()) return;
+            const room = snap.val();
+            const left = room.left || {};
+            if ((room.status === "finished" || room.gameState?.active === false) && left.player && left.ai) {
+                await firebaseClient.fns.remove(roomRef);
+            }
+        } catch (error) {
+            console.warn("Online cleanup failed", error);
+        }
+    }
+
+    async function exitOnlineToMenu() {
+        const wasOnline = state.online.enabled;
+        if (wasOnline) {
+            await markOnlinePlayerLeftAndCleanup();
+            leaveOnlineRoom(false);
+        }
+        stopMusic();
+        state.active = false;
+        tapLocked = false;
+        state.pendingSpell = null;
+        state.selectedAttackerUid = null;
+        showStartModal();
+    }
+
+    async function forfeitOnlineMatch() {
+        if (!state.online.enabled || !state.active) {
+            await exitOnlineToMenu();
+            return;
+        }
+
+        const loser = state.online.localOwner;
+        const winner = other(loser);
+        actor(loser).hp = 0;
+        state.active = false;
+        tapLocked = false;
+        state.pendingSpell = null;
+        state.selectedAttackerUid = null;
+        addLog(`${labelFor(loser)} forfeits. ${labelFor(winner)} wins!`);
+        playSfx("defeat");
+        stopMusic();
+        showGameOver(`${labelFor(winner)} wins!`, false);
+        await pushOnlineStateNow();
     }
 
     function serializePlayer(player) {
@@ -4322,7 +4412,8 @@
                 guestName: "",
                 createdAt: Date.now(),
                 updatedAt: Date.now(),
-                version: 0
+                version: 0,
+                left: { player: false, ai: false }
             });
             listenToOnlineRoom(roomCode);
             showHostWaiting(roomCode);
@@ -4436,8 +4527,11 @@
         firebaseClient.roomUnsubscribe = firebaseClient.fns.onValue(onlineRoomRef(roomCode), snap => {
             if (!snap.exists()) {
                 if (state.online.enabled) {
+                    const wasActive = state.active;
                     leaveOnlineRoom();
-                    showOnlineError("The online room was closed.");
+                    if (wasActive) {
+                        showOnlineError("The online room was closed.");
+                    }
                 }
                 return;
             }
