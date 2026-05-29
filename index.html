@@ -1136,9 +1136,35 @@
             --btn-bg: url('assets/ui/button_small_dark.webp');
         }
 
-        .mode-choice.selected {
+        .mode-choice.selected,
+        .audio-toggle.selected {
             --btn-bg: url('assets/ui/button_small_blue.webp');
             box-shadow: 0 0 0 2px rgba(90, 183, 255, 0.14), 0 10px 22px rgba(0,0,0,0.3);
+            filter: saturate(1.08);
+        }
+
+        .audio-toggle {
+            --btn-bg: url('assets/ui/button_small_dark.webp');
+        }
+
+        button.btn-red {
+            --btn-bg: linear-gradient(180deg, #ff5d68 0%, #b81736 48%, #651126 100%);
+            border: 1px solid rgba(255, 157, 157, 0.48);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.28), 0 0 0 1px rgba(255, 80, 116, 0.16), inset 0 1px rgba(255,255,255,0.22);
+        }
+
+        .start-action-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .start-action-row button {
+            width: 100%;
+            min-height: 46px;
+            padding-left: 10px;
+            padding-right: 10px;
         }
 
         .name-grid {
@@ -1775,7 +1801,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
     <meta name="application-name" content="Arcane Spell Craft">
-    <meta name="apple-mobile-web-app-title" content="Arcane Spell Craft">
+    <meta name="apple-mobile-web-app-title" content="Arcane Craft">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="assets/icons/app-icon-192.png">
@@ -2478,8 +2504,17 @@
     function updateAudioButtons() {
         if (els.musicToggleBtn) els.musicToggleBtn.innerHTML = `<span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span>`;
         if (els.sfxToggleBtn) els.sfxToggleBtn.innerHTML = `<span class="button-inline">SFX ${audioState.sfxEnabled ? "On" : "Off"}</span>`;
-        document.querySelectorAll("[data-modal='toggle-music']").forEach(btn => btn.innerHTML = `<span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span>`);
-        document.querySelectorAll("[data-modal='toggle-sfx']").forEach(btn => btn.innerHTML = `<span class="button-inline">Game Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span>`);
+
+        document.querySelectorAll("[data-modal='toggle-music']").forEach(btn => {
+            btn.innerHTML = `<span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span>`;
+            btn.classList.toggle("selected", audioState.musicEnabled);
+        });
+
+        document.querySelectorAll("[data-modal='toggle-sfx']").forEach(btn => {
+            btn.innerHTML = `<span class="button-inline">Game Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span>`;
+            btn.classList.toggle("selected", audioState.sfxEnabled);
+        });
+
         document.querySelectorAll("[data-volume-control='music-volume']").forEach(input => {
             const value = Math.round(audioState.musicVolume * 100);
             input.value = String(value);
@@ -4017,8 +4052,8 @@
                         <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline">Resume Game</span></button>
                         ${matchButton}
                         ${installButtonHtml()}
-                        <button type="button" class="menu-half" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
-                        <button type="button" class="menu-half" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
+                        <button type="button" class="menu-half audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
+                        <button type="button" class="menu-half audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
                         ${audioControlHtml("music")}
                         ${audioControlHtml("sfx")}
                     </div>
@@ -4665,11 +4700,9 @@
         return /iphone|ipad|ipod/i.test(window.navigator.userAgent || "");
     }
 
-    function installButtonHtml() {
-        if (isStandalonePwa()) {
-            return `<button type="button" class="menu-primary" data-modal="install-app"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> App Installed</span></button>`;
-        }
-        return `<button type="button" class="menu-primary" data-modal="install-app"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Install App</span></button>`;
+    function installButtonHtml(extraClass = "menu-primary") {
+        const label = isStandalonePwa() ? "App Installed" : "Install App";
+        return `<button type="button" class="${extraClass} btn-red install-app-button" data-modal="install-app"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> ${label}</span></button>`;
     }
 
     function showInstallHelp(message = "") {
@@ -4746,13 +4779,15 @@
                         <li>Press and hold any card to view full card info.</li>
                     </ul>
                     <div class="settings-row audio-compact">
-                        <button type="button" data-modal="toggle-music"><span class="button-inline">Music On</span></button>
-                        <button type="button" data-modal="toggle-sfx"><span class="button-inline">Game Sounds On</span></button>
-                        ${installButtonHtml()}
+                        <button type="button" class="audio-toggle" data-modal="toggle-music"><span class="button-inline">Music On</span></button>
+                        <button type="button" class="audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Game Sounds On</span></button>
                         ${audioControlHtml("music")}
                         ${audioControlHtml("sfx")}
                     </div>
-                    <button type="button" class="btn-wide" data-modal="start-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Game</span></button>
+                    <div class="start-action-row">
+                        <button type="button" class="btn-wide" data-modal="start-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Game</span></button>
+                        ${installButtonHtml("btn-wide")}
+                    </div>
                 </div>
             </div>`;
 
