@@ -4871,32 +4871,26 @@
 })();
 </script>
 
+
 <script>
 (() => {
-    if (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) {
-        document.documentElement.classList.add("standalone-pwa");
-    }
-
-    window.addEventListener("beforeinstallprompt", event => {
-        event.preventDefault();
-        if (window.pwaInstall) {
-            window.pwaInstall.deferredPrompt = event;
-        }
-    });
-
-    window.addEventListener("appinstalled", () => {
-        if (window.pwaInstall) {
-            window.pwaInstall.installed = true;
-            window.pwaInstall.deferredPrompt = null;
-        }
-    });
-
+    // Temporary stability fix: remove the service worker cache layer.
+    // This stops old cached CSS/HTML/assets from causing visual flashes after gameplay clicks.
     if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
-            navigator.serviceWorker.register("./service-worker.js").catch(error => {
-                console.warn("Service worker registration failed:", error);
-            });
+            navigator.serviceWorker.getRegistrations()
+                .then(registrations => Promise.all(registrations.map(reg => reg.unregister())))
+                .catch(error => console.warn("Service worker unregister failed:", error));
         });
+    }
+
+    if ("caches" in window) {
+        caches.keys()
+            .then(keys => Promise.all(keys
+                .filter(key => key.includes("arcane-spell-craft"))
+                .map(key => caches.delete(key))
+            ))
+            .catch(error => console.warn("Cache cleanup failed:", error));
     }
 })();
 </script>
