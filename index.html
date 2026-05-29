@@ -1148,7 +1148,7 @@
         }
 
         .install-app-button {
-            --btn-bg: url('assets/ui/button_small_orange.webp');
+            --btn-bg: url('assets/ui/button_orange.webp');
             color: #fff6e8;
             background-size: 100% 100%;
         }
@@ -4051,7 +4051,6 @@
                     <div class="settings-row menu-compact">
                         <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline">Resume Game</span></button>
                         ${matchButton}
-                        ${installButtonHtml()}
                         <button type="button" class="menu-half audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
                         <button type="button" class="menu-half audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
                         ${audioControlHtml("music")}
