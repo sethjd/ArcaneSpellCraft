@@ -1147,10 +1147,10 @@
             --btn-bg: url('assets/ui/button_small_dark.webp');
         }
 
-        button.btn-red {
-            --btn-bg: linear-gradient(180deg, #ff5d68 0%, #b81736 48%, #651126 100%);
-            border: 1px solid rgba(255, 157, 157, 0.48);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.28), 0 0 0 1px rgba(255, 80, 116, 0.16), inset 0 1px rgba(255,255,255,0.22);
+        .install-app-button {
+            --btn-bg: url('assets/ui/button_small_orange.webp');
+            color: #fff6e8;
+            background-size: 100% 100%;
         }
 
         .start-action-row {
@@ -1801,7 +1801,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
     <meta name="application-name" content="Arcane Spell Craft">
-    <meta name="apple-mobile-web-app-title" content="Arcane Craft">
+    <meta name="apple-mobile-web-app-title" content="Arcane Spell Craft">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="assets/icons/app-icon-192.png">
@@ -4702,7 +4702,7 @@
 
     function installButtonHtml(extraClass = "menu-primary") {
         const label = isStandalonePwa() ? "App Installed" : "Install App";
-        return `<button type="button" class="${extraClass} btn-red install-app-button" data-modal="install-app"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> ${label}</span></button>`;
+        return `<button type="button" class="${extraClass} install-app-button" data-modal="install-app"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> ${label}</span></button>`;
     }
 
     function showInstallHelp(message = "") {
@@ -4785,8 +4785,8 @@
                         ${audioControlHtml("sfx")}
                     </div>
                     <div class="start-action-row">
-                        <button type="button" class="btn-wide" data-modal="start-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Game</span></button>
                         ${installButtonHtml("btn-wide")}
+                        <button type="button" class="btn-wide" data-modal="start-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Game</span></button>
                     </div>
                 </div>
             </div>`;
