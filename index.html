@@ -1167,6 +1167,159 @@
             padding-right: 10px;
         }
 
+
+        .story-entry {
+            --btn-bg: url('assets/ui/button_orange.webp');
+            grid-column: 1 / -1;
+            min-height: 50px;
+        }
+
+        .story-map-preview {
+            position: relative;
+            min-height: 210px;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 215, 106, 0.24);
+            background:
+                linear-gradient(180deg, rgba(4, 7, 15, 0.08), rgba(4, 7, 15, 0.54)),
+                url('assets/story/story_map.webp') center / cover no-repeat;
+            box-shadow: inset 0 0 36px rgba(0,0,0,0.55), 0 12px 24px rgba(0,0,0,0.24);
+            margin-bottom: 10px;
+        }
+
+        .story-map-preview::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 70%, transparent 0 46%, rgba(0,0,0,0.34) 100%);
+            pointer-events: none;
+        }
+
+        .chapter-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .chapter-button {
+            display: grid;
+            grid-template-columns: 74px minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: center;
+            min-height: 78px;
+            padding: 8px;
+            border-radius: 18px;
+            text-align: left;
+            --btn-bg: url('assets/ui/button_small_dark.webp');
+            background-image:
+                linear-gradient(90deg, rgba(5,7,14,0.72), rgba(5,7,14,0.36)),
+                var(--btn-bg);
+            border: 1px solid rgba(255,255,255,0.10);
+        }
+
+        .chapter-button.available {
+            --btn-bg: url('assets/ui/button_small_blue.webp');
+            border-color: rgba(90, 183, 255, 0.20);
+        }
+
+        .chapter-button.completed {
+            --btn-bg: url('assets/ui/button_small_orange.webp');
+            border-color: rgba(255, 215, 106, 0.28);
+        }
+
+        .chapter-button.locked {
+            filter: grayscale(0.7);
+            opacity: 0.58;
+        }
+
+        .chapter-thumb {
+            width: 74px;
+            height: 58px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 215, 106, 0.26);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.34);
+        }
+
+        .chapter-title {
+            display: block;
+            color: #fff7e6;
+            font-weight: 1000;
+            font-size: 0.92rem;
+            line-height: 1.1;
+        }
+
+        .chapter-sub {
+            display: block;
+            color: var(--muted);
+            font-weight: 760;
+            font-size: 0.72rem;
+            line-height: 1.18;
+            margin-top: 4px;
+        }
+
+        .chapter-badge {
+            justify-self: end;
+            color: #ffeaa6;
+            font-size: 0.78rem;
+            font-weight: 1000;
+            padding: 6px 8px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.34);
+            border: 1px solid rgba(255, 215, 106, 0.18);
+            white-space: nowrap;
+        }
+
+        .chapter-hero {
+            min-height: 230px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 215, 106, 0.24);
+            background-position: center;
+            background-size: cover;
+            box-shadow: inset 0 -80px 80px rgba(0,0,0,0.68), inset 0 0 40px rgba(0,0,0,0.42);
+            margin-bottom: 10px;
+        }
+
+        .story-detail-grid {
+            display: grid;
+            gap: 8px;
+            text-align: left;
+            color: #d8cdff;
+            font-size: 0.78rem;
+            line-height: 1.24;
+        }
+
+        .story-detail-grid strong {
+            color: #fff4d2;
+        }
+
+        .story-unlocks {
+            color: #ffeaa6;
+            font-weight: 900;
+        }
+
+        @media (max-height: 760px) {
+            .story-map-preview {
+                min-height: 150px;
+            }
+
+            .chapter-hero {
+                min-height: 160px;
+            }
+
+            .chapter-button {
+                min-height: 64px;
+                grid-template-columns: 58px minmax(0, 1fr) auto;
+            }
+
+            .chapter-thumb {
+                width: 58px;
+                height: 48px;
+            }
+        }
+
+
         .name-grid {
             display: grid;
             gap: 7px;
@@ -1921,6 +2074,7 @@
         pushTimer: null,
         waitingDisconnect: null,
         activeDisconnect: null,
+        lastStateJson: "",
         fns: null
     };
 
@@ -2140,6 +2294,87 @@
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
 
+    const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
+
+    const STORY_CHAPTERS = Object.freeze([
+        {
+            id: "moonlit_market",
+            title: "Chapter 1: Moonlit Market",
+            shortTitle: "Moonlit Market",
+            locationImage: "assets/story/moonlit_market.webp",
+            enemyName: "Apprentice Shade",
+            theme: "Basics, shards, market buying, simple attacks.",
+            intro: "The first page of the Grimoire is hidden in the Moonlit Market, where enchanted cards trade themselves after midnight. A shadow apprentice guards the page and tests your first spell duel.",
+            victory: "The market lanterns flare purple as the first page returns to the Grimoire.",
+            playerDeck: ["shard","shard","shard","shard","shard","surge","surge","inferno","panther","frostwolf"],
+            enemyDeck: ["shard","shard","shard","shard","shard","surge","surge","inferno","panther","panther","frostwolf"],
+            marketPool: ["surge","surge","surge","inferno","inferno","panther","panther","frostwolf","frostwolf","healwave"],
+            clusters: 4,
+            unlocks: ["Arcane Cluster", "Healing Wave", "Chapter 2"]
+        },
+        {
+            id: "tidal_sanctum",
+            title: "Chapter 2: Tidal Sanctum",
+            shortTitle: "Tidal Sanctum",
+            locationImage: "assets/story/tidal_sanctum.webp",
+            enemyName: "Tidal Oracle",
+            theme: "Healing, sustain, Water Elemental, longer fights.",
+            intro: "The second page drifted into the Tidal Sanctum. Moonlit water now guards it, teaching patience, healing, and careful target choices.",
+            victory: "The tide calms. The second page rises from the waves and binds itself to your deck.",
+            playerDeck: ["shard","shard","shard","shard","shard","cluster","surge","surge","inferno","panther","frostwolf","healwave","water_ele"],
+            enemyDeck: ["shard","shard","shard","shard","shard","healwave","healwave","water_ele","water_ele","unicorn","surge","surge","frostwolf"],
+            marketPool: ["surge","surge","inferno","healwave","healwave","panther","frostwolf","water_ele","water_ele","unicorn","arcanestudy","cluster"],
+            clusters: 5,
+            unlocks: ["Water Elemental", "Celestial Unicorn", "Arcane Study", "Chapter 3"]
+        },
+        {
+            id: "venomfen_marsh",
+            title: "Chapter 3: Venomfen Marsh",
+            shortTitle: "Venomfen Marsh",
+            locationImage: "assets/story/venomfen_marsh.webp",
+            enemyName: "Venomous Hydra",
+            theme: "Fast enemy pressure, cheap creatures, creature removal.",
+            intro: "The third page has sunk into a toxic marsh. A many-headed hydra has swallowed it, and every turn it threatens to flood the board.",
+            victory: "The hydra sinks beneath the green water. The third page breaks free from its jaws.",
+            playerDeck: ["shard","shard","shard","shard","shard","cluster","surge","surge","inferno","healwave","arcanestudy","water_ele","panther","frostwolf"],
+            enemyDeck: ["shard","shard","shard","shard","shard","hydra","hydra","hydra","panther","panther","frostwolf","frostwolf","surge","surge","inferno","cloak"],
+            marketPool: ["surge","surge","inferno","inferno","healwave","arcanestudy","panther","frostwolf","water_ele","unicorn","hydra","hydra","cloak","cluster"],
+            clusters: 5,
+            unlocks: ["Venomous Hydra", "Ethereal Cloak", "Chapter 4"]
+        },
+        {
+            id: "rootbound_vale",
+            title: "Chapter 4: Rootbound Vale",
+            shortTitle: "Rootbound Vale",
+            locationImage: "assets/story/rootbound_vale.webp",
+            enemyName: "Rootbound Guardian",
+            theme: "Defenders, high-health walls, Earth Golem draw pressure.",
+            intro: "The fourth page is sealed beneath a living valley. The forest does not rush; it roots, waits, and forces you to break through its defenses.",
+            victory: "The great guardian lowers its head. The fourth page opens like a leaf of blue fire.",
+            playerDeck: ["shard","shard","shard","shard","shard","cluster","cluster","surge","surge","inferno","healwave","arcanestudy","water_ele","unicorn","hydra","cloak","frostshield_spell"],
+            enemyDeck: ["shard","shard","shard","shard","shard","cluster","cluster","frostshield_spell","frostshield_spell","treant","treant","golem","golem","earth_ele","earth_ele","healwave","unicorn","arcanestudy"],
+            marketPool: ["surge","inferno","healwave","arcanestudy","cloak","frostshield_spell","frostshield_spell","water_ele","unicorn","hydra","panther","frostwolf","earth_ele","earth_ele","golem","treant","cluster"],
+            clusters: 6,
+            unlocks: ["Frost Shield", "Earth Elemental", "Earth Golem", "Ancient Treant", "Chapter 5"]
+        },
+        {
+            id: "umbral_citadel",
+            title: "Chapter 5: Umbral Citadel",
+            shortTitle: "Umbral Citadel",
+            locationImage: "assets/story/umbral_citadel.webp",
+            enemyName: "The Grimoire Horror",
+            theme: "Final boss using control, burst damage, resurrection, and big threats.",
+            intro: "The final page did not hide. It became something terrible. At the top of the Umbral Citadel, the last page feeds on every spell cast before it.",
+            victory: "The Horror collapses into ink and starlight. The Shattered Grimoire is whole again.",
+            playerDeck: ["shard","shard","shard","shard","shard","cluster","cluster","surge","surge","inferno","healwave","arcanestudy","cloak","frostshield_spell","water_ele","earth_ele","hydra","unicorn","treant","thunderstrike"],
+            enemyDeck: ["shard","shard","shard","shard","shard","cluster","cluster","cluster","wraith","wraith","hydra","hydra","storm_ele","storm_ele","thunderstrike","thunderstrike","mindcontrol","souleater","behemoth","lavadrake","phoenix","cloak"],
+            marketPool: ["surge","surge","inferno","inferno","healwave","arcanestudy","frostshield_spell","cloak","mindcontrol","thunderstrike","fire_ele","earth_ele","water_ele","storm_ele","frostwolf","panther","hydra","unicorn","golem","treant","thunderbird","behemoth","wraith","lavadrake","souleater","phoenix","cluster"],
+            clusters: 7,
+            unlocks: ["Story Complete", "Full card pool for solo practice"]
+        }
+    ]);
+
+
     const els = {
         app: document.getElementById("app"),
         subtitle: document.getElementById("subtitle"),
@@ -2206,6 +2441,11 @@
             host: false,
             applyingRemote: false,
             version: 0
+        },
+        story: {
+            enabled: false,
+            chapterId: "",
+            chapterIndex: 0
         },
         awaitingPass: false,
         turn: "player",
@@ -2606,6 +2846,48 @@
         return shuffleArray(deck);
     }
 
+    function cardTemplateByStoryId(id) {
+        if (id === "shard") return SHARD_CARD_TEMPLATE;
+        if (id === "cluster") return ARCANE_CLUSTER_CARD;
+        return cardById(id);
+    }
+
+    function buildDeckFromIds(ids = []) {
+        return shuffleArray(ids.map(id => {
+            const template = cardTemplateByStoryId(id);
+            if (!template) {
+                console.warn("Missing story card id:", id);
+                return null;
+            }
+            return cloneCard(template);
+        }).filter(Boolean));
+    }
+
+    function buildStoryMarketDeck(chapter) {
+        return shuffleArray((chapter.marketPool || []).map(id => {
+            const template = cardTemplateByStoryId(id);
+            if (!template) {
+                console.warn("Missing story market card id:", id);
+                return null;
+            }
+            return cloneCard(template);
+        }).filter(Boolean));
+    }
+
+    function getStoryProgress() {
+        const value = Number(localStorage.getItem(STORY_PROGRESS_KEY) || "1");
+        return Math.max(1, Math.min(STORY_CHAPTERS.length, value || 1));
+    }
+
+    function setStoryProgress(chapterNumber) {
+        const next = Math.max(getStoryProgress(), Math.min(STORY_CHAPTERS.length, chapterNumber));
+        localStorage.setItem(STORY_PROGRESS_KEY, String(next));
+    }
+
+    function storyChapterById(id) {
+        return STORY_CHAPTERS.find(chapter => chapter.id === id) || STORY_CHAPTERS[0];
+    }
+
     function other(ownerId) {
         return ownerId === "player" ? "ai" : "player";
     }
@@ -2756,16 +3038,32 @@
         uidCounter = 1;
         state.online.enabled = options.mode === "online";
         state.mode = options.mode || state.mode || "ai";
+        state.story.enabled = state.mode === "story";
+        state.story.chapterId = options.chapterId || "";
+        state.story.chapterIndex = 0;
+
+        const chapter = state.story.enabled ? storyChapterById(options.chapterId) : null;
+        if (chapter) {
+            state.story.chapterId = chapter.id;
+            state.story.chapterIndex = STORY_CHAPTERS.findIndex(item => item.id === chapter.id);
+        }
+
         const p1 = (options.playerName ?? state.names?.player ?? "Player 1").trim() || "Player 1";
-        const p2 = (options.playerTwoName ?? state.names?.ai ?? (state.mode === "ai" ? "AI" : "Player 2")).trim() || (state.mode === "ai" ? "AI" : "Player 2");
+        const p2 = chapter
+            ? chapter.enemyName
+            : (options.playerTwoName ?? state.names?.ai ?? (state.mode === "ai" ? "AI" : "Player 2")).trim() || (state.mode === "ai" ? "AI" : "Player 2");
         state.names = { player: p1, ai: state.mode === "ai" ? "AI" : p2 };
         state.awaitingPass = false;
-        state.centralDeck = buildCentralDeck();
+        state.centralDeck = chapter ? buildStoryMarketDeck(chapter) : buildCentralDeck();
         state.shopCards = [];
         for (let i = 0; i < 4 && state.centralDeck.length; i++) state.shopCards.push(state.centralDeck.shift());
-        state.arcaneClustersRemaining = 6;
+        state.arcaneClustersRemaining = chapter ? chapter.clusters : 6;
         state.player = makePlayer();
         state.ai = makePlayer();
+        if (chapter) {
+            state.player.deck = buildDeckFromIds(chapter.playerDeck);
+            state.ai.deck = buildDeckFromIds(chapter.enemyDeck);
+        }
         state.active = true;
         state.turn = "player";
         state.selectedAttackerUid = null;
@@ -2776,7 +3074,7 @@
         unlockAudioFromGesture();
         if (audioState.musicEnabled) startMusic();
         updateAudioButtons();
-        addLog(`${labelFor("player")} starts. Tap cards to play, then attack with your creatures.`);
+        addLog(chapter ? `${chapter.title}: ${chapter.enemyName} challenges you.` : `${labelFor("player")} starts. Tap cards to play, then attack with your creatures.`);
         startTurn("player");
     }
 
@@ -2819,7 +3117,7 @@
             return;
         }
         queueRender();
-        if (ownerId === "ai" && state.mode === "ai") void aiTurnLogic();
+        if (ownerId === "ai" && (state.mode === "ai" || state.mode === "story")) void aiTurnLogic();
     }
 
     function endTurn(ownerId) {
@@ -3549,7 +3847,7 @@
             ? `${state.pendingSpell.cardName}: choose ${state.pendingSpell.maxTargets - state.pendingSpell.targets.length} target${state.pendingSpell.maxTargets - state.pendingSpell.targets.length === 1 ? "" : "s"}`
             : state.selectedAttackerUid
                 ? "Attack mode: tap an enemy target"
-                : `${state.mode === "online" ? `Online room ${state.online.roomCode}` : (state.mode === "pass" ? "Pass & Play" : "Solo vs AI")} · full art build`;
+                : `${state.mode === "story" ? storyChapterById(state.story.chapterId).shortTitle : (state.mode === "online" ? `Online room ${state.online.roomCode}` : (state.mode === "pass" ? "Pass & Play" : "Solo vs AI"))} · full art build`;
         els.statusMini.textContent = state.mode === "online" ? `Room ${state.online.roomCode}` : activeLabel;
         els.endTurnBtn.disabled = !state.active || !isHumanOwner(state.turn) || tapLocked || state.awaitingPass;
 
@@ -4163,11 +4461,23 @@
     }
 
     function showGameOver(message, isVictory) {
-        const detail = state.mode === "online"
+        let detail = state.mode === "online"
             ? (isVictory ? "You won the online duel." : "You lost the online duel.")
-            : state.mode === "ai"
-                ? (isVictory ? "Nice run. The shards are yours." : "The AI claimed the shards this time.")
-                : "Great duel. Return to the menu to set up another match.";
+            : state.mode === "story"
+                ? (isVictory ? (storyChapterById(state.story.chapterId).victory || "Chapter complete.") : "The guardian holds the page. Try the chapter again.")
+                : state.mode === "ai"
+                    ? (isVictory ? "Nice run. The shards are yours." : "The AI claimed the shards this time.")
+                    : "Great duel. Return to the menu to set up another match.";
+
+        let extraButton = "";
+        if (state.mode === "story" && isVictory) {
+            const chapterNumber = (state.story.chapterIndex || 0) + 1;
+            setStoryProgress(Math.min(STORY_CHAPTERS.length, chapterNumber + 1));
+            const nextChapter = STORY_CHAPTERS[chapterNumber];
+            if (nextChapter) {
+                extraButton = `<button type="button" class="btn-orange" data-modal="next-story-chapter"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Next Chapter</span></button>`;
+            }
+        }
 
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
@@ -4175,9 +4485,19 @@
                     <h2 class="${isVictory ? "victory" : "defeat"}">${escapeHtml(message)}</h2>
                     <p>${escapeHtml(detail)}</p>
                     ${gameOverStatsHtml()}
-                    <button type="button" class="btn-wide" data-modal="main-menu-after-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Main Menu</span></button>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-wide" data-modal="main-menu-after-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Main Menu</span></button>
+                        ${extraButton}
+                    </div>
                 </div>
             </div>`;
+        const nextStory = els.modalRoot.querySelector('[data-modal="next-story-chapter"]');
+        if (nextStory) {
+            nextStory.addEventListener("pointerup", () => {
+                const nextChapter = STORY_CHAPTERS[(state.story.chapterIndex || 0) + 1];
+                if (nextChapter) showStoryChapterDetail(nextChapter.id);
+            }, { once: true });
+        }
         const mainMenu = els.modalRoot.querySelector('[data-modal="main-menu-after-game"]');
         mainMenu.addEventListener("pointerup", () => {
             if (state.online.enabled) {
@@ -4343,6 +4663,7 @@
         state.online.host = false;
         state.online.applyingRemote = false;
         state.online.version = 0;
+        firebaseClient.lastStateJson = "";
         if (clearModal) els.modalRoot.innerHTML = "";
     }
 
@@ -4405,53 +4726,145 @@
         await pushOnlineStateNow();
     }
 
+    function onlineBaseCard(id) {
+        if (!id) return null;
+        if (id === "shard") return SHARD_CARD_TEMPLATE;
+        if (id === "cluster") return ARCANE_CLUSTER_CARD;
+        if (id === "frostshield_token") {
+            return { id: "frostshield_token", image: "assets/cards/frost_shield.webp", name: "Frost Shield", type: "creature", atk: 0, hp: 4, defender: true, desc: "Defender" };
+        }
+        return cardById(id) || null;
+    }
+
+    function serializeCardCompact(card, zone = "stack") {
+        if (!card) return null;
+        const id = card.id || card.i;
+        if (!id) return null;
+
+        const compact = {
+            i: id,
+            u: card.uid || card.u || ""
+        };
+
+        if (zone === "field" || zone === "graveyard") {
+            compact.h = Number(card.hp ?? card.h ?? 0);
+            compact.m = Number(card.maxHp ?? card.m ?? card.hp ?? 0);
+            compact.a = Number(card.atk ?? card.a ?? 0);
+            compact.o = Number(card.originalHp ?? card.o ?? card.maxHp ?? card.hp ?? 0);
+        }
+
+        return compact;
+    }
+
+    function hydrateCardCompact(data, ownerId = "", zone = "stack") {
+        if (!data) return null;
+
+        // Backwards compatible with old full-card synced rooms.
+        if (data.name && data.image && data.id && !data.i) {
+            const existing = { ...data };
+            if ((zone === "field" || zone === "graveyard") && ownerId) existing.ownerId = ownerId;
+            return existing;
+        }
+
+        const id = typeof data === "string" ? data : (data.i || data.id);
+        const base = onlineBaseCard(id);
+        if (!base) return null;
+
+        const uid = typeof data === "string" ? nextUid() : (data.u || data.uid || nextUid());
+        const card = {
+            ...base,
+            uid
+        };
+
+        if (zone === "field" || zone === "graveyard") {
+            card.ownerId = ownerId;
+            card.hp = Number(data.h ?? data.hp ?? base.hp ?? 1);
+            card.maxHp = Number(data.m ?? data.maxHp ?? base.hp ?? card.hp ?? 1);
+            card.atk = Number(data.a ?? data.atk ?? base.atk ?? 0);
+            card.originalHp = Number(data.o ?? data.originalHp ?? base.hp ?? card.maxHp ?? card.hp ?? 1);
+            card.defender = Boolean(base.defender);
+            card.drawTax = Boolean(base.drawTax);
+            card.elemental = Boolean(base.elemental);
+            card.element = base.element || "";
+            card.thunderSynergy = Boolean(base.thunderSynergy);
+            card.startHeal = base.startHeal || 0;
+        }
+
+        return card;
+    }
+
+    function serializeCardListCompact(cards, zone = "stack") {
+        return Array.isArray(cards)
+            ? cards.map(card => serializeCardCompact(card, zone)).filter(Boolean)
+            : [];
+    }
+
+    function hydrateCardListCompact(cards, ownerId = "", zone = "stack") {
+        return Array.isArray(cards)
+            ? cards.map(card => hydrateCardCompact(card, ownerId, zone)).filter(Boolean)
+            : [];
+    }
+
     function serializePlayer(player) {
         return {
-            hp: player.hp,
-            field: player.field,
-            hand: player.hand,
-            deck: player.deck,
-            discard: player.discard,
-            graveyard: player.graveyard,
-            shards: player.shards,
-            attackedThisTurn: [...player.attackedThisTurn],
-            cloakActive: player.cloakActive,
+            h: player.hp,
+            f: serializeCardListCompact(player.field, "field"),
+            n: serializeCardListCompact(player.hand, "stack"),
+            d: serializeCardListCompact(player.deck, "stack"),
+            x: serializeCardListCompact(player.discard, "stack"),
+            g: serializeCardListCompact(player.graveyard, "graveyard"),
+            s: player.shards,
+            t: [...player.attackedThisTurn],
+            c: player.cloakActive ? 1 : 0,
             stats: player.stats
         };
     }
 
-    function hydratePlayer(player) {
+    function hydratePlayer(player, ownerId = "") {
         const fresh = makePlayer();
-        const merged = { ...fresh, ...player };
-        merged.field = Array.isArray(player?.field) ? player.field : [];
-        merged.hand = Array.isArray(player?.hand) ? player.hand : [];
-        merged.deck = Array.isArray(player?.deck) ? player.deck : [];
-        merged.discard = Array.isArray(player?.discard) ? player.discard : [];
-        merged.graveyard = Array.isArray(player?.graveyard) ? player.graveyard : [];
-        merged.attackedThisTurn = new Set(player?.attackedThisTurn || []);
-        merged.stats = { ...fresh.stats, ...(player?.stats || {}) };
-        return merged;
+
+        // Backwards compatible with old full-state synced rooms.
+        if (player && ("hp" in player || "field" in player || "hand" in player || "deck" in player)) {
+            const merged = { ...fresh, ...player };
+            merged.field = Array.isArray(player?.field) ? player.field : [];
+            merged.hand = Array.isArray(player?.hand) ? player.hand : [];
+            merged.deck = Array.isArray(player?.deck) ? player.deck : [];
+            merged.discard = Array.isArray(player?.discard) ? player.discard : [];
+            merged.graveyard = Array.isArray(player?.graveyard) ? player.graveyard : [];
+            merged.attackedThisTurn = new Set(player?.attackedThisTurn || []);
+            merged.stats = { ...fresh.stats, ...(player?.stats || {}) };
+            return merged;
+        }
+
+        return {
+            ...fresh,
+            hp: Number(player?.h ?? STARTING_HP),
+            field: hydrateCardListCompact(player?.f, ownerId, "field"),
+            hand: hydrateCardListCompact(player?.n, ownerId, "stack"),
+            deck: hydrateCardListCompact(player?.d, ownerId, "stack"),
+            discard: hydrateCardListCompact(player?.x, ownerId, "stack"),
+            graveyard: hydrateCardListCompact(player?.g, ownerId, "graveyard"),
+            shards: Number(player?.s ?? 0),
+            attackedThisTurn: new Set(player?.t || []),
+            cloakActive: Boolean(player?.c),
+            stats: { ...fresh.stats, ...(player?.stats || {}) }
+        };
     }
 
     function serializeGameState() {
         return {
-            active: state.active,
+            fmt: 2,
+            active: state.active ? 1 : 0,
             mode: "online",
             names: state.names,
-            awaitingPass: false,
             turn: state.turn,
-            centralDeck: state.centralDeck,
-            shopCards: state.shopCards,
-            arcaneClustersRemaining: state.arcaneClustersRemaining,
-            // Targeting/selection is local-only. Do not sync selectedAttackerUid or pendingSpell,
-            // otherwise the Realtime Database echo can cancel a player's targeting before they tap a target.
-            selectedAttackerUid: null,
-            pendingSpell: null,
-            logs: state.logs,
-            debugLines: [],
-            player: serializePlayer(state.player),
-            ai: serializePlayer(state.ai),
-            uidCounter
+            cd: serializeCardListCompact(state.centralDeck, "stack"),
+            shop: serializeCardListCompact(state.shopCards, "stack"),
+            clusters: state.arcaneClustersRemaining,
+            logs: state.logs.slice(0, 8),
+            p: serializePlayer(state.player),
+            a: serializePlayer(state.ai),
+            uid: uidCounter
         };
     }
 
@@ -4460,21 +4873,41 @@
         if (state.active && version <= state.online.version) return;
         const online = { ...state.online };
         state.online.applyingRemote = true;
-        uidCounter = Number(gameState.uidCounter || uidCounter || 1);
-        state.active = Boolean(gameState.active);
-        state.mode = "online";
-        state.names = gameState.names || state.names;
-        state.awaitingPass = false;
-        state.turn = gameState.turn || "player";
-        state.centralDeck = Array.isArray(gameState.centralDeck) ? gameState.centralDeck : [];
-        state.shopCards = Array.isArray(gameState.shopCards) ? gameState.shopCards : [];
-        state.arcaneClustersRemaining = Number(gameState.arcaneClustersRemaining ?? 0);
-        state.selectedAttackerUid = gameState.selectedAttackerUid || null;
-        state.pendingSpell = gameState.pendingSpell || null;
-        state.logs = Array.isArray(gameState.logs) ? gameState.logs : [];
-        state.debugLines = Array.isArray(gameState.debugLines) ? gameState.debugLines : [];
-        state.player = hydratePlayer(gameState.player || {});
-        state.ai = hydratePlayer(gameState.ai || {});
+
+        if (gameState.fmt === 2) {
+            uidCounter = Number(gameState.uid || uidCounter || 1);
+            state.active = Boolean(gameState.active);
+            state.mode = "online";
+            state.names = gameState.names || state.names;
+            state.awaitingPass = false;
+            state.turn = gameState.turn || "player";
+            state.centralDeck = hydrateCardListCompact(gameState.cd, "", "stack");
+            state.shopCards = hydrateCardListCompact(gameState.shop, "", "stack");
+            state.arcaneClustersRemaining = Number(gameState.clusters ?? 0);
+            state.selectedAttackerUid = null;
+            state.pendingSpell = null;
+            state.logs = Array.isArray(gameState.logs) ? gameState.logs : [];
+            state.debugLines = [];
+            state.player = hydratePlayer(gameState.p || {}, "player");
+            state.ai = hydratePlayer(gameState.a || {}, "ai");
+        } else {
+            uidCounter = Number(gameState.uidCounter || uidCounter || 1);
+            state.active = Boolean(gameState.active);
+            state.mode = "online";
+            state.names = gameState.names || state.names;
+            state.awaitingPass = false;
+            state.turn = gameState.turn || "player";
+            state.centralDeck = Array.isArray(gameState.centralDeck) ? gameState.centralDeck : [];
+            state.shopCards = Array.isArray(gameState.shopCards) ? gameState.shopCards : [];
+            state.arcaneClustersRemaining = Number(gameState.arcaneClustersRemaining ?? 0);
+            state.selectedAttackerUid = gameState.selectedAttackerUid || null;
+            state.pendingSpell = gameState.pendingSpell || null;
+            state.logs = Array.isArray(gameState.logs) ? gameState.logs.slice(0, 8) : [];
+            state.debugLines = Array.isArray(gameState.debugLines) ? gameState.debugLines : [];
+            state.player = hydratePlayer(gameState.player || {}, "player");
+            state.ai = hydratePlayer(gameState.ai || {}, "ai");
+        }
+
         state.online = { ...online, enabled: true, version };
         state.online.applyingRemote = false;
         tapLocked = false;
@@ -4500,11 +4933,17 @@
 
     async function pushOnlineStateNow() {
         if (!state.online.enabled || state.online.applyingRemote || !firebaseClient.loaded || !state.online.roomCode) return;
+        const gameState = serializeGameState();
+        const stateJson = JSON.stringify(gameState);
+        if (stateJson === firebaseClient.lastStateJson) return;
+
         const nextVersion = (state.online.version || 0) + 1;
         state.online.version = nextVersion;
+        firebaseClient.lastStateJson = stateJson;
+
         await firebaseClient.fns.update(onlineRoomRef(state.online.roomCode), {
             status: state.active ? "active" : "finished",
-            gameState: serializeGameState(),
+            gameState,
             version: nextVersion,
             updatedAt: Date.now()
         });
@@ -4803,6 +5242,81 @@
         });
     }
 
+
+    function showStoryMap() {
+        state.active = false;
+        const progress = getStoryProgress();
+        const chapterButtons = STORY_CHAPTERS.map((chapter, index) => {
+            const chapterNumber = index + 1;
+            const completed = chapterNumber < progress;
+            const available = chapterNumber <= progress;
+            const status = completed ? "Complete" : available ? "Start" : "Locked";
+            const cls = completed ? "completed" : available ? "available" : "locked";
+            return `
+                <button type="button" class="chapter-button ${cls}" ${available ? `data-story-chapter="${chapter.id}"` : "disabled"}>
+                    <img class="chapter-thumb" src="${chapter.locationImage}" alt="" />
+                    <span>
+                        <span class="chapter-title">${escapeHtml(chapter.title)}</span>
+                        <span class="chapter-sub">${escapeHtml(chapter.theme)}</span>
+                    </span>
+                    <span class="chapter-badge">${status}</span>
+                </button>`;
+        }).join("");
+
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <div class="story-map-preview"></div>
+                    <h2>The Shattered Grimoire</h2>
+                    <p>Recover five lost pages by defeating themed guardians. Each chapter teaches new cards and unlocks the next stage.</p>
+                    <div class="chapter-list">${chapterButtons}</div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-dark" data-modal="back-start"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Back</span></button>
+                    </div>
+                </div>
+            </div>`;
+
+        els.modalRoot.querySelectorAll("[data-story-chapter]").forEach(button => {
+            button.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                showStoryChapterDetail(button.dataset.storyChapter);
+            });
+        });
+        els.modalRoot.querySelector('[data-modal="back-start"]').addEventListener("pointerup", showStartModal, { once: true });
+    }
+
+    function storyListText(items = []) {
+        return items.join(", ");
+    }
+
+    function showStoryChapterDetail(chapterId) {
+        const chapter = storyChapterById(chapterId);
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <div class="chapter-hero" style="background-image:linear-gradient(180deg, rgba(4,7,15,0.05), rgba(4,7,15,0.66)), url('${chapter.locationImage}')"></div>
+                    <h2>${escapeHtml(chapter.title)}</h2>
+                    <p>${escapeHtml(chapter.intro)}</p>
+                    <div class="story-detail-grid">
+                        <div><strong>Enemy:</strong> ${escapeHtml(chapter.enemyName)}</div>
+                        <div><strong>Focus:</strong> ${escapeHtml(chapter.theme)}</div>
+                        <div class="story-unlocks">Reward: ${escapeHtml(storyListText(chapter.unlocks))}</div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-dark" data-modal="story-map-back"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Map</span></button>
+                        <button type="button" class="btn-orange" data-modal="start-story-chapter"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Chapter</span></button>
+                    </div>
+                </div>
+            </div>`;
+
+        els.modalRoot.querySelector('[data-modal="story-map-back"]').addEventListener("pointerup", showStoryMap, { once: true });
+        els.modalRoot.querySelector('[data-modal="start-story-chapter"]').addEventListener("pointerup", () => {
+            unlockAudioFromGesture();
+            els.modalRoot.innerHTML = "";
+            initGame({ mode: "story", chapterId: chapter.id, playerName: state.names?.player || "Player 1" });
+        }, { once: true });
+    }
+
     function showStartModal() {
         state.active = false;
         els.modalRoot.innerHTML = `
@@ -4810,8 +5324,9 @@
                 <div class="modal-card">
                     <div class="start-art"></div>
                     <h2>Arcane Spell Craft</h2>
-                    <p>Choose mode, names, audio, then start.</p>
+                    <p>Choose Story Mode to learn cards chapter by chapter, or jump straight into a duel.</p>
                     <div class="mode-grid">
+                        <button type="button" class="mode-choice story-entry" data-modal="story-mode"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Story Mode</span></button>
                         <button type="button" class="mode-choice selected" data-start-mode="ai"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_helmet.webp" alt="" /> Solo vs AI</span></button>
                         <button type="button" class="mode-choice" data-start-mode="pass"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_passplay.webp" alt="" /> Pass &amp; Play</span></button>
                         <button type="button" class="mode-choice" data-modal="host-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Host Online</span></button>
@@ -4821,13 +5336,6 @@
                         <input id="startPlayerOne" maxlength="18" value="Player 1" aria-label="Player 1 name" />
                         <input id="startPlayerTwo" maxlength="18" value="Player 2" aria-label="Player 2 name" />
                     </div>
-                    <ul class="rules-list">
-                        <li>Play Shards to gain resources.</li>
-                        <li>Buy market cards into discard.</li>
-                        <li>Tap creature, then enemy target.</li>
-                        <li>Defenders block hero damage.</li>
-                        <li>Press and hold any card to view full card info.</li>
-                    </ul>
                     <div class="settings-row audio-compact">
                         <button type="button" class="audio-toggle" data-modal="toggle-music"><span class="button-inline">Music On</span></button>
                         <button type="button" class="audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Game Sounds On</span></button>
@@ -4860,6 +5368,12 @@
         bindInstallButtons(els.modalRoot);
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+        els.modalRoot.querySelector('[data-modal="story-mode"]').addEventListener("pointerup", () => {
+            const playerName = els.modalRoot.querySelector("#startPlayerOne").value.trim() || "Player 1";
+            state.names = { ...state.names, player: playerName };
+            playSfx("uiTap");
+            showStoryMap();
+        });
         els.modalRoot.querySelector('[data-modal="host-online"]').addEventListener("pointerup", () => {
             const playerName = els.modalRoot.querySelector("#startPlayerOne").value;
             hostOnlineGame(playerName);
