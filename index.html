@@ -1919,6 +1919,8 @@
         uid: "",
         roomUnsubscribe: null,
         pushTimer: null,
+        waitingDisconnect: null,
+        activeDisconnect: null,
         fns: null
     };
 
@@ -4223,7 +4225,8 @@
                 get: dbMod.get,
                 update: dbMod.update,
                 onValue: dbMod.onValue,
-                remove: dbMod.remove
+                remove: dbMod.remove,
+                onDisconnect: dbMod.onDisconnect
             };
 
             await authMod.signInAnonymously(firebaseClient.auth);
@@ -4291,7 +4294,41 @@
         state.awaitingPass = false;
     }
 
+    function cancelDisconnectHandle(handleName) {
+        const handle = firebaseClient[handleName];
+        firebaseClient[handleName] = null;
+        if (handle && typeof handle.cancel === "function") {
+            handle.cancel().catch(error => console.warn("Firebase disconnect cancel failed", error));
+        }
+    }
+
+    function cancelOnlineDisconnects() {
+        cancelDisconnectHandle("waitingDisconnect");
+        cancelDisconnectHandle("activeDisconnect");
+    }
+
+    async function setupWaitingRoomAutoRemove(roomCode) {
+        if (!firebaseClient.loaded || !roomCode || !firebaseClient.fns?.onDisconnect) return;
+        cancelDisconnectHandle("waitingDisconnect");
+        const handle = firebaseClient.fns.onDisconnect(onlineRoomRef(roomCode));
+        await handle.remove();
+        firebaseClient.waitingDisconnect = handle;
+    }
+
+    async function setupActiveRoomDisconnectMark(roomCode, ownerId) {
+        if (!firebaseClient.loaded || !roomCode || !ownerId || !firebaseClient.fns?.onDisconnect) return;
+        cancelDisconnectHandle("waitingDisconnect");
+        cancelDisconnectHandle("activeDisconnect");
+        const handle = firebaseClient.fns.onDisconnect(onlineRoomRef(roomCode));
+        const update = {};
+        update[`left/${ownerId}`] = true;
+        update.updatedAt = Date.now();
+        await handle.update(update);
+        firebaseClient.activeDisconnect = handle;
+    }
+
     function leaveOnlineRoom(clearModal = true) {
+        cancelOnlineDisconnects();
         if (firebaseClient.roomUnsubscribe) {
             firebaseClient.roomUnsubscribe();
             firebaseClient.roomUnsubscribe = null;
@@ -4508,6 +4545,7 @@
                 version: 0,
                 left: { player: false, ai: false }
             });
+            await setupWaitingRoomAutoRemove(roomCode);
             listenToOnlineRoom(roomCode);
             showHostWaiting(roomCode);
         } catch (error) {
@@ -4544,6 +4582,7 @@
 
     async function cancelOnlineRoom() {
         const roomCode = state.online.roomCode;
+        cancelOnlineDisconnects();
         if (roomCode && firebaseClient.loaded) {
             await firebaseClient.fns.remove(onlineRoomRef(roomCode));
         }
@@ -4589,6 +4628,11 @@
             const snap = await firebaseClient.fns.get(roomRef);
             if (!snap.exists()) throw new Error("Room not found. Check the code and try again.");
             const room = snap.val();
+            const staleMs = 30 * 60 * 1000;
+            if (room.status === "waiting" && !room.guestUid && Number(room.updatedAt || 0) && Date.now() - Number(room.updatedAt || 0) > staleMs) {
+                await firebaseClient.fns.remove(roomRef);
+                throw new Error("That room expired. Ask the host to create a new code.");
+            }
 
             let localOwner = "";
             if (room.hostUid === firebaseClient.uid) {
@@ -4608,6 +4652,7 @@
             }
 
             setOnlineState({ roomCode, localOwner, host: localOwner === "player" });
+            await setupActiveRoomDisconnectMark(roomCode, localOwner);
             listenToOnlineRoom(roomCode);
             showOnlineMessage("Joined", "Waiting for the host to start the match. The game will open automatically when the synced match state arrives...");
         } catch (error) {
@@ -4633,6 +4678,11 @@
             const version = Number(room.version || 0);
 
             if (state.online.host && (room.status === "ready" || room.guestUid) && !room.gameState) {
+                if (room.left?.ai) {
+                    showOnlineError("Player 2 disconnected before the match started. Create a new room code.");
+                    firebaseClient.fns.remove(onlineRoomRef(roomCode)).catch(error => console.warn("Room cleanup failed", error));
+                    return;
+                }
                 startHostedOnlineMatch(room).catch(error => showOnlineError(error.message || String(error)));
                 return;
             }
@@ -4669,6 +4719,7 @@
         unlockAudioFromGesture();
         if (audioState.musicEnabled) startMusic();
         updateAudioButtons();
+        await setupActiveRoomDisconnectMark(state.online.roomCode, state.online.localOwner);
         addLog(`Online match started. ${labelFor("player")} goes first.`);
         startTurn("player");
         await pushOnlineStateNow();
