@@ -4122,7 +4122,7 @@
     function showOnlineMessage(title, message, buttons = "") {
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
-                <div class="modal-card">
+                <div class="modal-card online-status">
                     <h2>${escapeHtml(title)}</h2>
                     <p>${escapeHtml(message)}</p>
                     ${buttons}
@@ -4229,7 +4229,12 @@
         state.online.applyingRemote = false;
         tapLocked = false;
         if (audioState.musicEnabled) startMusic();
-        els.modalRoot.querySelector(".online-waiting")?.closest(".modal")?.remove();
+
+        const onlineModal = els.modalRoot.querySelector(".online-waiting, .online-status");
+        if (onlineModal) {
+            els.modalRoot.innerHTML = "";
+        }
+
         queueRender();
     }
 
@@ -4380,7 +4385,7 @@
 
             setOnlineState({ roomCode, localOwner, host: localOwner === "player" });
             listenToOnlineRoom(roomCode);
-            showOnlineMessage("Joined", "Waiting for the host to start the match...");
+            showOnlineMessage("Joined", "Waiting for the host to start the match. The game will open automatically when the synced match state arrives...");
         } catch (error) {
             showOnlineError(error.message || String(error));
         }
@@ -4406,7 +4411,7 @@
             }
 
             if (room.gameState) {
-                if (version >= state.online.version) {
+                if (version >= state.online.version || !state.active) {
                     applyRemoteGameState(room.gameState, version);
                 }
             }
