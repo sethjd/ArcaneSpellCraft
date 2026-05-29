@@ -3347,21 +3347,37 @@
         return legal.find(isHeroRef) || legal[0];
     }
 
+    function winnerOwner() {
+        if (state.player?.hp <= 0) return "ai";
+        if (state.ai?.hp <= 0) return "player";
+        return "";
+    }
+
+    function isLocalVictory(winner) {
+        if (!winner) return false;
+        if (state.mode === "online") return winner === state.online.localOwner;
+        if (state.mode === "ai") return winner === "player";
+        return true;
+    }
+
+    function showGameOverFromState() {
+        const winner = winnerOwner();
+        if (!winner) return false;
+        showGameOver(`${labelFor(winner)} wins!`, isLocalVictory(winner));
+        return true;
+    }
+
     function checkWinConditions() {
         if (!state.active) return;
-        if (state.player.hp <= 0) {
-            state.active = false;
-            tapLocked = false;
-            playSfx("defeat");
-            stopMusic();
-            showGameOver(`${labelFor("ai")} wins!`, state.mode === "ai" ? false : true);
-        } else if (state.ai.hp <= 0) {
-            state.active = false;
-            tapLocked = false;
-            playSfx("victory");
-            stopMusic();
-            showGameOver(`${labelFor("player")} wins!`, true);
-        }
+        const winner = winnerOwner();
+        if (!winner) return;
+
+        state.active = false;
+        tapLocked = false;
+        playSfx(isLocalVictory(winner) ? "victory" : "defeat");
+        stopMusic();
+        showGameOver(`${labelFor(winner)} wins!`, isLocalVictory(winner));
+        if (state.online.enabled) scheduleOnlinePush();
     }
 
     function iconHtml(kind, extraClass = "") {
@@ -4024,17 +4040,28 @@
     }
 
     function showGameOver(message, isVictory) {
+        const detail = state.mode === "online"
+            ? (isVictory ? "You won the online duel." : "You lost the online duel.")
+            : state.mode === "ai"
+                ? (isVictory ? "Nice run. The shards are yours." : "The AI claimed the shards this time.")
+                : "Great duel. Return to the menu to set up another match.";
+
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card game-over-card">
                     <h2 class="${isVictory ? "victory" : "defeat"}">${escapeHtml(message)}</h2>
-                    <p>${state.mode === "ai" ? (isVictory ? "Nice run. The shards are yours." : "The AI claimed the shards this time.") : "Great duel. Pass the device back to set up another match."}</p>
+                    <p>${escapeHtml(detail)}</p>
                     ${gameOverStatsHtml()}
-                    <button type="button" class="btn-wide" data-modal="restart"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Play Again</span></button>
+                    <button type="button" class="btn-wide" data-modal="main-menu-after-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Main Menu</span></button>
                 </div>
             </div>`;
-        const restart = els.modalRoot.querySelector('[data-modal="restart"]');
-        restart.addEventListener("pointerup", initGame, { once: true });
+        const mainMenu = els.modalRoot.querySelector('[data-modal="main-menu-after-game"]');
+        mainMenu.addEventListener("pointerup", () => {
+            if (state.online.enabled) leaveOnlineRoom(false);
+            stopMusic();
+            state.active = false;
+            showStartModal();
+        }, { once: true });
         queueRender();
     }
 
@@ -4236,6 +4263,16 @@
         const onlineModal = els.modalRoot.querySelector(".online-waiting, .online-status");
         if (onlineModal) {
             els.modalRoot.innerHTML = "";
+        }
+
+        const remoteWinner = winnerOwner();
+        if (!state.active && remoteWinner) {
+            if (!els.modalRoot.querySelector(".game-over-card")) {
+                playSfx(isLocalVictory(remoteWinner) ? "victory" : "defeat");
+                stopMusic();
+                showGameOver(`${labelFor(remoteWinner)} wins!`, isLocalVictory(remoteWinner));
+            }
+            return;
         }
 
         queueRender();
