@@ -3820,7 +3820,7 @@
                 break;
         }
 
-        if (state.online.enabled && isOnlineGameAction(action)) {
+        if (state.online.enabled && isOnlineGameAction(action) && !state.pendingSpell && !state.selectedAttackerUid) {
             scheduleOnlinePush();
         }
     }
@@ -4196,6 +4196,8 @@
             centralDeck: state.centralDeck,
             shopCards: state.shopCards,
             arcaneClustersRemaining: state.arcaneClustersRemaining,
+            // Targeting/selection is local-only. Do not sync selectedAttackerUid or pendingSpell,
+            // otherwise the Realtime Database echo can cancel a player's targeting before they tap a target.
             selectedAttackerUid: null,
             pendingSpell: null,
             logs: state.logs,
