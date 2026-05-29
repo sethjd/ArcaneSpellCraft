@@ -1209,13 +1209,14 @@
 
         .story-map-overlay {
             position: absolute;
-            inset: 0;
-            z-index: 1;
+            left: 12px;
+            right: 12px;
+            bottom: max(14px, var(--safe-bottom));
+            z-index: 3;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
             gap: 8px;
-            padding: max(14px, var(--safe-top)) 12px max(16px, var(--safe-bottom));
         }
 
         .story-map-header {
@@ -1245,111 +1246,88 @@
             line-height: 1.25;
         }
 
-        .chapter-list {
-            display: grid;
-            gap: 7px;
-            max-height: min(47dvh, 390px);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding: 4px 2px 8px;
+        .chapter-pin-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
         }
 
-        .chapter-button {
-            display: grid;
-            grid-template-columns: 58px minmax(0, 1fr) auto;
-            gap: 8px;
-            align-items: center;
-            min-height: 62px;
-            padding: 7px;
-            border-radius: 18px;
-            text-align: left;
-            --btn-bg: url('assets/ui/button_small_dark.webp');
-            background-image:
-                linear-gradient(90deg, rgba(5,7,14,0.78), rgba(5,7,14,0.54)),
-                var(--btn-bg);
-            border: 1px solid rgba(255,255,255,0.12);
-            backdrop-filter: blur(5px);
-        }
-
-
-        .story-map-footer {
+        .chapter-pin {
+            position: absolute;
+            left: var(--pin-x);
+            top: var(--pin-y);
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+            min-width: 112px;
+            max-width: 142px;
+            min-height: 50px;
+            padding: 6px 8px;
+            border-radius: 16px;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 8px;
+            gap: 3px;
+            align-content: center;
+            text-align: center;
+            --btn-bg: url('assets/ui/button_small_dark.webp');
+            background-image:
+                linear-gradient(180deg, rgba(5,7,14,0.72), rgba(5,7,14,0.42)),
+                var(--btn-bg);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.42), 0 0 18px rgba(124,92,255,0.10);
+            backdrop-filter: blur(4px);
         }
 
-        .story-map-footer button {
-            width: 100%;
+        .chapter-pin::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: -12px;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffeaa6 0 26%, #7c5cff 27% 58%, rgba(0,0,0,0.72) 59% 100%);
+            border: 1px solid rgba(255, 215, 106, 0.42);
+            box-shadow: 0 0 14px rgba(255, 215, 106, 0.56);
         }
 
-        @media (min-width: 720px) {
-            .story-map-overlay {
-                max-width: 520px;
-                left: 50%;
-                transform: translateX(-50%);
-                padding-bottom: max(24px, var(--safe-bottom));
-            }
-
-            .story-map-header {
-                max-width: 520px;
-                left: 50%;
-                right: auto;
-                width: calc(100% - 32px);
-                transform: translateX(-50%);
-            }
-        }
-
-        .chapter-button.available {
+        .chapter-pin.available {
             --btn-bg: url('assets/ui/button_small_blue.webp');
-            border-color: rgba(90, 183, 255, 0.20);
+            border-color: rgba(90, 183, 255, 0.28);
         }
 
-        .chapter-button.completed {
+        .chapter-pin.completed {
             --btn-bg: url('assets/ui/button_small_orange.webp');
-            border-color: rgba(255, 215, 106, 0.28);
+            border-color: rgba(255, 215, 106, 0.34);
         }
 
-        .chapter-button.locked {
+        .chapter-pin.locked {
             filter: grayscale(0.7);
-            opacity: 0.58;
+            opacity: 0.62;
         }
 
-        .chapter-thumb {
-            width: 58px;
-            height: 46px;
-            border-radius: 12px;
-            object-fit: cover;
-            border: 1px solid rgba(255, 215, 106, 0.26);
-            box-shadow: 0 6px 14px rgba(0,0,0,0.34);
-        }
-
-        .chapter-title {
-            display: block;
+        .chapter-pin-title {
             color: #fff7e6;
             font-weight: 1000;
-            font-size: 0.92rem;
-            line-height: 1.1;
-        }
-
-        .chapter-sub {
-            display: block;
-            color: var(--muted);
-            font-weight: 760;
             font-size: 0.72rem;
-            line-height: 1.18;
-            margin-top: 4px;
+            line-height: 1.05;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.78);
         }
 
-        .chapter-badge {
-            justify-self: end;
+        .chapter-pin-action {
             color: #ffeaa6;
-            font-size: 0.78rem;
-            font-weight: 1000;
-            padding: 6px 8px;
-            border-radius: 999px;
-            background: rgba(0,0,0,0.34);
-            border: 1px solid rgba(255, 215, 106, 0.18);
-            white-space: nowrap;
+            font-size: 0.64rem;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .chapter-pin.locked .chapter-pin-action {
+            color: #b9adc9;
         }
 
         .chapter-hero {
@@ -1389,17 +1367,7 @@
             .chapter-hero {
                 min-height: 160px;
             }
-
-            .chapter-button {
-                min-height: 64px;
-                grid-template-columns: 58px minmax(0, 1fr) auto;
-            }
-
-            .chapter-thumb {
-                width: 58px;
-                height: 48px;
-            }
-        }
+}
 
 
         .name-grid {
@@ -5328,20 +5296,24 @@
     function showStoryMap() {
         state.active = false;
         const progress = getStoryProgress();
+        const pinPositions = [
+            { x: 45, y: 82 },
+            { x: 63, y: 64 },
+            { x: 39, y: 52 },
+            { x: 55, y: 36 },
+            { x: 50, y: 18 }
+        ];
         const chapterButtons = STORY_CHAPTERS.map((chapter, index) => {
             const chapterNumber = index + 1;
             const completed = chapterNumber < progress;
             const available = chapterNumber <= progress;
             const status = completed ? "Complete" : available ? "Start" : "Locked";
             const cls = completed ? "completed" : available ? "available" : "locked";
+            const pos = pinPositions[index] || { x: 50, y: 50 };
             return `
-                <button type="button" class="chapter-button ${cls}" ${available ? `data-story-chapter="${chapter.id}"` : "disabled"}>
-                    <img class="chapter-thumb" src="${chapter.locationImage}" alt="" />
-                    <span>
-                        <span class="chapter-title">${escapeHtml(chapter.title)}</span>
-                        <span class="chapter-sub">${escapeHtml(chapter.theme)}</span>
-                    </span>
-                    <span class="chapter-badge">${status}</span>
+                <button type="button" class="chapter-pin ${cls}" style="--pin-x:${pos.x}%;--pin-y:${pos.y}%;" ${available ? `data-story-chapter="${chapter.id}"` : "disabled"}>
+                    <span class="chapter-pin-title">${escapeHtml(chapter.shortTitle || chapter.title)}</span>
+                    <span class="chapter-pin-action">${status}</span>
                 </button>`;
         }).join("");
 
@@ -5352,8 +5324,8 @@
                         <h2>The Shattered Grimoire</h2>
                         <p>Choose a chapter. Win duels to unlock the next location.</p>
                     </div>
+                    <div class="chapter-pin-layer">${chapterButtons}</div>
                     <div class="story-map-overlay">
-                        <div class="chapter-list">${chapterButtons}</div>
                         <div class="story-map-footer">
                             <button type="button" class="btn-dark" data-modal="back-start"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Back to Start</span></button>
                         </div>
