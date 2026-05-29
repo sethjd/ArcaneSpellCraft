@@ -1756,6 +1756,21 @@
             overscroll-behavior: none;
         }
 
+        .install-help {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(124, 92, 255, 0.24);
+            background: rgba(0, 0, 0, 0.24);
+            color: var(--muted);
+            font-size: 0.82rem;
+            line-height: 1.35;
+        }
+
+        .install-help strong {
+            color: #fff7d6;
+        }
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -1862,6 +1877,13 @@
         appId: "1:118889050222:web:420b2921788785c42e767f",
         measurementId: "G-9595ES7DR5"
     });
+
+    const pwaInstall = {
+        deferredPrompt: null,
+        installed: false
+    };
+
+    window.pwaInstall = pwaInstall;
 
     const firebaseClient = {
         loaded: false,
@@ -3994,6 +4016,7 @@
                     <div class="settings-row menu-compact">
                         <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline">Resume Game</span></button>
                         ${matchButton}
+                        ${installButtonHtml()}
                         <button type="button" class="menu-half" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
                         <button type="button" class="menu-half" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
                         ${audioControlHtml("music")}
@@ -4004,6 +4027,7 @@
             </div>`;
         updateAudioButtons();
         bindAudioVolumeControls(els.modalRoot);
+        bindInstallButtons(els.modalRoot);
 
         els.modalRoot.querySelector('[data-modal="resume-game"]').addEventListener("pointerup", () => {
             els.modalRoot.innerHTML = "";
@@ -4629,6 +4653,73 @@
         if (back) back.addEventListener("pointerup", showStartModal, { once: true });
     }
 
+
+    function isStandalonePwa() {
+        return Boolean(
+            window.matchMedia?.("(display-mode: standalone)").matches ||
+            window.navigator.standalone
+        );
+    }
+
+    function isIosDevice() {
+        return /iphone|ipad|ipod/i.test(window.navigator.userAgent || "");
+    }
+
+    function installButtonHtml() {
+        if (isStandalonePwa()) {
+            return `<button type="button" class="menu-primary" data-modal="install-app"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> App Installed</span></button>`;
+        }
+        return `<button type="button" class="menu-primary" data-modal="install-app"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Install App</span></button>`;
+    }
+
+    function showInstallHelp(message = "") {
+        const defaultMessage = isIosDevice()
+            ? "On iPhone/iPad: open this game in Safari, tap the Share button, then choose Add to Home Screen."
+            : "Use your browser menu and choose Install App or Add to Home Screen. On Android Chrome, the install popup may appear after you tap Install App.";
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <h2>Install App</h2>
+                    <p>${escapeHtml(message || defaultMessage)}</p>
+                    <div class="install-help">
+                        <strong>Tip:</strong> Installing adds Arcane Spell Craft to your home screen and opens it more like a mobile app.
+                    </div>
+                    <button type="button" class="btn-wide" data-modal="install-help-close"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Got it</span></button>
+                </div>
+            </div>`;
+        const close = els.modalRoot.querySelector('[data-modal="install-help-close"]');
+        if (close) close.addEventListener("pointerup", showStartModal, { once: true });
+    }
+
+    async function handleInstallApp() {
+        playSfx("uiTap");
+
+        if (isStandalonePwa() || pwaInstall.installed) {
+            showInstallHelp("Arcane Spell Craft already appears to be installed on this device.");
+            return;
+        }
+
+        if (pwaInstall.deferredPrompt) {
+            const promptEvent = pwaInstall.deferredPrompt;
+            pwaInstall.deferredPrompt = null;
+            promptEvent.prompt();
+            try {
+                await promptEvent.userChoice;
+            } catch {
+                // Browser may not expose result on every platform.
+            }
+            return;
+        }
+
+        showInstallHelp();
+    }
+
+    function bindInstallButtons(root = els.modalRoot) {
+        root.querySelectorAll('[data-modal="install-app"]').forEach(button => {
+            button.addEventListener("pointerup", handleInstallApp);
+        });
+    }
+
     function showStartModal() {
         state.active = false;
         els.modalRoot.innerHTML = `
@@ -4657,6 +4748,7 @@
                     <div class="settings-row audio-compact">
                         <button type="button" data-modal="toggle-music"><span class="button-inline">Music On</span></button>
                         <button type="button" data-modal="toggle-sfx"><span class="button-inline">Game Sounds On</span></button>
+                        ${installButtonHtml()}
                         ${audioControlHtml("music")}
                         ${audioControlHtml("sfx")}
                     </div>
@@ -4680,6 +4772,7 @@
         updateMode("ai");
         updateAudioButtons();
         bindAudioVolumeControls(els.modalRoot);
+        bindInstallButtons(els.modalRoot);
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
         els.modalRoot.querySelector('[data-modal="host-online"]').addEventListener("pointerup", () => {
@@ -4749,6 +4842,21 @@
     if (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) {
         document.documentElement.classList.add("standalone-pwa");
     }
+
+    window.addEventListener("beforeinstallprompt", event => {
+        event.preventDefault();
+        if (window.pwaInstall) {
+            window.pwaInstall.deferredPrompt = event;
+        }
+    });
+
+    window.addEventListener("appinstalled", () => {
+        if (window.pwaInstall) {
+            window.pwaInstall.installed = true;
+            window.pwaInstall.deferredPrompt = null;
+        }
+    });
+
     if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
             navigator.serviceWorker.register("./service-worker.js").catch(error => {
@@ -4758,5 +4866,6 @@
     }
 })();
 </script>
+
 </body>
 </html>
