@@ -2374,6 +2374,7 @@
     const STORY_CHAPTERS = Object.freeze([
         {
             id: "moonlit_market",
+            musicFile: "assets/music/story/chapter_1_moonlit_market.ogg",
             title: "Chapter 1: Moonlit Market",
             shortTitle: "Moonlit Market",
             locationImage: "assets/story/moonlit_market.webp",
@@ -2399,6 +2400,7 @@
         },
         {
             id: "tidal_sanctum",
+            musicFile: "assets/music/story/chapter_2_tidal_sanctum.ogg",
             title: "Chapter 2: Tidal Sanctum",
             shortTitle: "Tidal Sanctum",
             locationImage: "assets/story/tidal_sanctum.webp",
@@ -2445,6 +2447,7 @@
         },
         {
             id: "venomfen_marsh",
+            musicFile: "assets/music/story/chapter_3_venomfen_marsh.ogg",
             title: "Chapter 3: Venomfen Marsh",
             shortTitle: "Venomfen Marsh",
             locationImage: "assets/story/venomfen_marsh.webp",
@@ -2475,6 +2478,7 @@
         },
         {
             id: "rootbound_vale",
+            musicFile: "assets/music/story/chapter_4_rootbound_vale.ogg",
             title: "Chapter 4: Rootbound Vale",
             shortTitle: "Rootbound Vale",
             locationImage: "assets/story/rootbound_vale.webp",
@@ -2509,6 +2513,7 @@
         },
         {
             id: "umbral_citadel",
+            musicFile: "assets/music/story/chapter_5_umbral_citadel.ogg",
             title: "Chapter 5: Umbral Citadel",
             shortTitle: "Umbral Citadel",
             locationImage: "assets/story/umbral_citadel.webp",
@@ -2649,7 +2654,9 @@
         musicTimer: null,
         musicGain: null,
         musicStep: 0,
-        musicStarted: false
+        musicStarted: false,
+        musicElement: null,
+        musicElementSrc: ""
     };
 
     const NOTE_FREQ = Object.freeze({
@@ -2812,7 +2819,15 @@
         }
     }
 
-    function startMusic() {
+    function currentMusicFile() {
+        if (state.mode === "story" && state.story?.chapterId) {
+            const chapter = storyChapterById(state.story.chapterId);
+            if (chapter?.musicFile) return chapter.musicFile;
+        }
+        return "";
+    }
+
+    function startProceduralMusic() {
         const ctx = getAudioContext();
         if (!ctx || !audioState.musicEnabled || audioState.musicStarted) return;
         audioState.musicStarted = true;
@@ -2844,8 +2859,7 @@
         audioState.musicTimer = setInterval(scheduleBeat, 375);
     }
 
-    function stopMusic() {
-        audioState.musicStarted = false;
+    function stopProceduralMusic() {
         if (audioState.musicTimer) {
             clearInterval(audioState.musicTimer);
             audioState.musicTimer = null;
@@ -2860,6 +2874,55 @@
             } catch {
                 audioState.musicGain = null;
             }
+        }
+    }
+
+    function startMusicFile(src) {
+        if (!src || !audioState.musicEnabled) return;
+        stopProceduralMusic();
+
+        if (!audioState.musicElement) {
+            audioState.musicElement = new Audio();
+            audioState.musicElement.loop = true;
+            audioState.musicElement.preload = "auto";
+        }
+
+        const resolvedSrc = new URL(src, window.location.href).href;
+        if (audioState.musicElementSrc !== resolvedSrc) {
+            audioState.musicElement.pause();
+            audioState.musicElement.src = src;
+            audioState.musicElementSrc = resolvedSrc;
+            audioState.musicElement.currentTime = 0;
+        }
+
+        audioState.musicElement.loop = true;
+        audioState.musicElement.volume = Math.max(0, Math.min(1, audioState.musicVolume * 0.75));
+        const playPromise = audioState.musicElement.play();
+        if (playPromise?.catch) playPromise.catch(error => console.warn("Music playback blocked:", error));
+        audioState.musicStarted = true;
+    }
+
+    function startMusic() {
+        if (!audioState.musicEnabled || !state.active) return;
+        const fileMusic = currentMusicFile();
+        if (fileMusic) {
+            startMusicFile(fileMusic);
+            return;
+        }
+
+        if (audioState.musicElement) {
+            audioState.musicElement.pause();
+            audioState.musicElement.currentTime = 0;
+            audioState.musicElementSrc = "";
+        }
+        startProceduralMusic();
+    }
+
+    function stopMusic() {
+        audioState.musicStarted = false;
+        stopProceduralMusic();
+        if (audioState.musicElement) {
+            audioState.musicElement.pause();
         }
     }
 
@@ -2884,6 +2947,9 @@
         localStorage.setItem("arcaneSpellCraftMusicVolume", String(audioState.musicVolume));
         if (audioState.musicGain) {
             audioState.musicGain.gain.setTargetAtTime(0.16 * audioState.musicVolume, audioState.ctx.currentTime, 0.04);
+        }
+        if (audioState.musicElement) {
+            audioState.musicElement.volume = Math.max(0, Math.min(1, audioState.musicVolume * 0.75));
         }
         updateAudioButtons();
     }
@@ -3290,7 +3356,10 @@
         state.debugLines = [];
         els.modalRoot.innerHTML = "";
         unlockAudioFromGesture();
-        if (audioState.musicEnabled) startMusic();
+        if (audioState.musicEnabled) {
+            stopMusic();
+            startMusic();
+        }
         updateAudioButtons();
         addLog(chapter ? `${chapter.title}: ${chapter.enemyName} challenges you.` : `${labelFor("player")} starts. Tap cards to play, then attack with your creatures.`);
         startTurn("player");
