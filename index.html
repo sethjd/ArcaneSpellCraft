@@ -2819,12 +2819,14 @@
         }
     }
 
+    const MAIN_MUSIC_FILE = "assets/music/main_game_arcane_duel.ogg";
+
     function currentMusicFile() {
         if (state.mode === "story" && state.story?.chapterId) {
             const chapter = storyChapterById(state.story.chapterId);
             if (chapter?.musicFile) return chapter.musicFile;
         }
-        return "";
+        return MAIN_MUSIC_FILE;
     }
 
     function startProceduralMusic() {
