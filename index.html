@@ -2357,6 +2357,7 @@
             title: "Chapter 1: Moonlit Market",
             shortTitle: "Moonlit Market",
             locationImage: "assets/story/moonlit_market.webp",
+            boardImage: "assets/story/boards/moonlit_market_board.webp",
             enemyName: "Apprentice Shade",
             theme: "Basics, shards, market buying, simple attacks.",
             intro: "The first page of the Grimoire is hidden in the Moonlit Market, where enchanted cards trade themselves after midnight. A shadow apprentice guards the page and tests your first spell duel.",
@@ -2372,6 +2373,7 @@
             title: "Chapter 2: Tidal Sanctum",
             shortTitle: "Tidal Sanctum",
             locationImage: "assets/story/tidal_sanctum.webp",
+            boardImage: "assets/story/boards/tidal_sanctum_board.webp",
             enemyName: "Tidal Oracle",
             theme: "Healing, sustain, Water Elemental, longer fights.",
             intro: "The second page drifted into the Tidal Sanctum. Moonlit water now guards it, teaching patience, healing, and careful target choices.",
@@ -2387,6 +2389,7 @@
             title: "Chapter 3: Venomfen Marsh",
             shortTitle: "Venomfen Marsh",
             locationImage: "assets/story/venomfen_marsh.webp",
+            boardImage: "assets/story/boards/venomfen_marsh_board.webp",
             enemyName: "Venomous Hydra",
             theme: "Fast enemy pressure, cheap creatures, creature removal.",
             intro: "The third page has sunk into a toxic marsh. A many-headed hydra has swallowed it, and every turn it threatens to flood the board.",
@@ -2402,6 +2405,7 @@
             title: "Chapter 4: Rootbound Vale",
             shortTitle: "Rootbound Vale",
             locationImage: "assets/story/rootbound_vale.webp",
+            boardImage: "assets/story/boards/rootbound_vale_board.webp",
             enemyName: "Rootbound Guardian",
             theme: "Defenders, high-health walls, Earth Golem draw pressure.",
             intro: "The fourth page is sealed beneath a living valley. The forest does not rush; it roots, waits, and forces you to break through its defenses.",
@@ -2417,6 +2421,7 @@
             title: "Chapter 5: Umbral Citadel",
             shortTitle: "Umbral Citadel",
             locationImage: "assets/story/umbral_citadel.webp",
+            boardImage: "assets/story/boards/umbral_citadel_board.webp",
             enemyName: "The Grimoire Horror",
             theme: "Final boss using control, burst damage, resurrection, and big threats.",
             intro: "The final page did not hide. It became something terrible. At the top of the Umbral Citadel, the last page feeds on every spell cast before it.",
@@ -2942,6 +2947,29 @@
     function storyChapterById(id) {
         return STORY_CHAPTERS.find(chapter => chapter.id === id) || STORY_CHAPTERS[0];
     }
+    const DEFAULT_GAME_BACKGROUND = "assets/ui/bg_board.webp";
+
+    function gameBackgroundCss(imageUrl = DEFAULT_GAME_BACKGROUND) {
+        return `
+                linear-gradient(180deg, rgba(2, 4, 10, 0.34), rgba(4, 7, 14, 0.88)),
+                radial-gradient(circle at 12% 0%, rgba(124, 92, 255, 0.28), transparent 34%),
+                radial-gradient(circle at 85% 18%, rgba(255, 135, 79, 0.16), transparent 30%),
+                url('${imageUrl}') center top / cover fixed no-repeat,
+                linear-gradient(145deg, #060912 0%, #101426 100%)`;
+    }
+
+    function currentStoryBoardImage() {
+        if (state.mode === "story" && state.story?.chapterId) {
+            const chapter = storyChapterById(state.story.chapterId);
+            if (chapter?.boardImage) return chapter.boardImage;
+        }
+        return DEFAULT_GAME_BACKGROUND;
+    }
+
+    function applyGameBackground(forceDefault = false) {
+        const bgImage = forceDefault ? DEFAULT_GAME_BACKGROUND : currentStoryBoardImage();
+        document.body.style.background = gameBackgroundCss(bgImage);
+    }
 
     function other(ownerId) {
         return ownerId === "player" ? "ai" : "player";
@@ -3102,6 +3130,8 @@
             state.story.chapterId = chapter.id;
             state.story.chapterIndex = STORY_CHAPTERS.findIndex(item => item.id === chapter.id);
         }
+
+        applyGameBackground();
 
         const p1 = (options.playerName ?? state.names?.player ?? "Player 1").trim() || "Player 1";
         const p2 = chapter
@@ -5300,6 +5330,7 @@
 
     function showStoryMap() {
         state.active = false;
+        applyGameBackground(true);
         const progress = getStoryProgress();
         const pinPositions = [
             { x: 45, y: 82 },
@@ -5381,6 +5412,7 @@
 
     function showStartModal() {
         state.active = false;
+        applyGameBackground(true);
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
