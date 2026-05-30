@@ -147,6 +147,26 @@
             white-space: nowrap;
         }
 
+
+        body.story-board-active {
+            --panel: rgba(15, 18, 31, 0.58);
+            --panel-strong: rgba(7, 10, 19, 0.66);
+            --zone-bg-opacity: 0.34;
+        }
+
+        body.story-board-active .zone {
+            background: rgba(8, 10, 18, 0.58);
+            backdrop-filter: blur(8px);
+        }
+
+        body.story-board-active .shop-zone::before {
+            background:
+                linear-gradient(90deg, rgba(6, 7, 14, 0.14), rgba(6, 7, 14, 0.34) 38%, rgba(6, 7, 14, 0.34) 62%, rgba(6, 7, 14, 0.14)),
+                linear-gradient(180deg, rgba(2, 5, 11, 0.12), rgba(2, 5, 11, 0.36)),
+                var(--zone-bg, url('assets/ui/shop_market_bg.webp')) center / cover no-repeat;
+        }
+
+
         .zone {
             position: relative;
             border: 1px solid var(--line);
@@ -164,8 +184,8 @@
             inset: 0;
             background:
                 linear-gradient(180deg, rgba(2, 5, 11, 0.14), rgba(2, 5, 11, 0.5)),
-                url('assets/ui/bg_menu.webp') center / cover no-repeat;
-            opacity: 0.18;
+                var(--zone-bg, url('assets/ui/bg_menu.webp')) center / cover no-repeat;
+            opacity: var(--zone-bg-opacity, 0.18);
             pointer-events: none;
             z-index: 0;
         }
@@ -2969,6 +2989,17 @@
     function applyGameBackground(forceDefault = false) {
         const bgImage = forceDefault ? DEFAULT_GAME_BACKGROUND : currentStoryBoardImage();
         document.body.style.background = gameBackgroundCss(bgImage);
+
+        if (forceDefault || state.mode !== "story") {
+            document.body.classList.remove("story-board-active");
+            document.documentElement.style.removeProperty("--zone-bg");
+            document.documentElement.style.removeProperty("--zone-bg-opacity");
+            return;
+        }
+
+        document.body.classList.add("story-board-active");
+        document.documentElement.style.setProperty("--zone-bg", `url('${bgImage}')`);
+        document.documentElement.style.setProperty("--zone-bg-opacity", "0.34");
     }
 
     function other(ownerId) {
