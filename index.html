@@ -2379,13 +2379,22 @@
             locationImage: "assets/story/moonlit_market.webp",
             boardImage: "assets/story/boards/moonlit_market_board.webp",
             enemyName: "Apprentice Shade",
+            playerHp: 45,
+            enemyHp: 35,
             theme: "Basics, shards, market buying, simple attacks.",
             intro: "The first page of the Grimoire is hidden in the Moonlit Market, where enchanted cards trade themselves after midnight. A shadow apprentice guards the page and tests your first spell duel.",
             victory: "The market lanterns flare purple as the first page returns to the Grimoire.",
-            playerDeck: ["shard","shard","shard","shard","shard","surge","surge","inferno","panther","frostwolf"],
+            playerDeck: ["shard","shard","shard","shard","shard","surge","surge","inferno","panther","panther","frostwolf","frostwolf"],
             enemyDeck: ["shard","shard","shard","shard","shard","surge","surge","inferno","panther","panther","frostwolf"],
-            marketPool: ["surge","surge","surge","inferno","inferno","panther","panther","frostwolf","frostwolf","healwave"],
-            clusters: 4,
+            marketPool: [
+                "surge","surge","surge",
+                "inferno","inferno","inferno",
+                "panther","panther","panther",
+                "frostwolf","frostwolf","frostwolf",
+                "healwave","healwave",
+                "cluster","cluster","cluster"
+            ],
+            clusters: 5,
             unlocks: ["Arcane Cluster", "Healing Wave", "Chapter 2"]
         },
         {
@@ -2395,13 +2404,25 @@
             locationImage: "assets/story/tidal_sanctum.webp",
             boardImage: "assets/story/boards/tidal_sanctum_board.webp",
             enemyName: "Tidal Oracle",
+            playerHp: 50,
+            enemyHp: 45,
             theme: "Healing, sustain, Water Elemental, longer fights.",
             intro: "The second page drifted into the Tidal Sanctum. Moonlit water now guards it, teaching patience, healing, and careful target choices.",
             victory: "The tide calms. The second page rises from the waves and binds itself to your deck.",
-            playerDeck: ["shard","shard","shard","shard","shard","cluster","surge","surge","inferno","panther","frostwolf","healwave","water_ele"],
-            enemyDeck: ["shard","shard","shard","shard","shard","healwave","healwave","water_ele","water_ele","unicorn","surge","surge","frostwolf"],
-            marketPool: ["surge","surge","inferno","healwave","healwave","panther","frostwolf","water_ele","water_ele","unicorn","arcanestudy","cluster"],
-            clusters: 5,
+            playerDeck: ["shard","shard","shard","shard","shard","cluster","surge","surge","inferno","panther","panther","frostwolf","healwave","water_ele","arcanestudy"],
+            enemyDeck: ["shard","shard","shard","shard","shard","cluster","healwave","healwave","water_ele","water_ele","unicorn","surge","surge","frostwolf"],
+            marketPool: [
+                "surge","surge","surge",
+                "inferno","inferno",
+                "healwave","healwave","healwave",
+                "panther","panther","panther",
+                "frostwolf","frostwolf",
+                "water_ele","water_ele","water_ele",
+                "unicorn","unicorn",
+                "arcanestudy","arcanestudy",
+                "cluster","cluster","cluster","cluster"
+            ],
+            clusters: 6,
             unlocks: ["Water Elemental", "Celestial Unicorn", "Arcane Study", "Chapter 3"]
         },
         {
@@ -2411,13 +2432,27 @@
             locationImage: "assets/story/venomfen_marsh.webp",
             boardImage: "assets/story/boards/venomfen_marsh_board.webp",
             enemyName: "Venomous Hydra",
+            playerHp: 55,
+            enemyHp: 50,
             theme: "Fast enemy pressure, cheap creatures, creature removal.",
             intro: "The third page has sunk into a toxic marsh. A many-headed hydra has swallowed it, and every turn it threatens to flood the board.",
             victory: "The hydra sinks beneath the green water. The third page breaks free from its jaws.",
-            playerDeck: ["shard","shard","shard","shard","shard","cluster","surge","surge","inferno","healwave","arcanestudy","water_ele","panther","frostwolf"],
-            enemyDeck: ["shard","shard","shard","shard","shard","hydra","hydra","hydra","panther","panther","frostwolf","frostwolf","surge","surge","inferno","cloak"],
-            marketPool: ["surge","surge","inferno","inferno","healwave","arcanestudy","panther","frostwolf","water_ele","unicorn","hydra","hydra","cloak","cluster"],
-            clusters: 5,
+            playerDeck: ["shard","shard","shard","shard","shard","cluster","cluster","surge","surge","inferno","healwave","arcanestudy","water_ele","panther","panther","frostwolf","hydra"],
+            enemyDeck: ["shard","shard","shard","shard","shard","cluster","hydra","hydra","hydra","panther","panther","frostwolf","frostwolf","surge","surge","inferno","cloak"],
+            marketPool: [
+                "surge","surge","surge",
+                "inferno","inferno","inferno",
+                "healwave","healwave",
+                "arcanestudy","arcanestudy",
+                "panther","panther","panther",
+                "frostwolf","frostwolf","frostwolf",
+                "water_ele","water_ele","water_ele",
+                "unicorn","unicorn",
+                "hydra","hydra","hydra","hydra",
+                "cloak","cloak",
+                "cluster","cluster","cluster","cluster"
+            ],
+            clusters: 6,
             unlocks: ["Venomous Hydra", "Ethereal Cloak", "Chapter 4"]
         },
         {
@@ -2427,13 +2462,31 @@
             locationImage: "assets/story/rootbound_vale.webp",
             boardImage: "assets/story/boards/rootbound_vale_board.webp",
             enemyName: "Rootbound Guardian",
+            playerHp: 60,
+            enemyHp: 55,
             theme: "Defenders, high-health walls, Earth Golem draw pressure.",
             intro: "The fourth page is sealed beneath a living valley. The forest does not rush; it roots, waits, and forces you to break through its defenses.",
             victory: "The great guardian lowers its head. The fourth page opens like a leaf of blue fire.",
-            playerDeck: ["shard","shard","shard","shard","shard","cluster","cluster","surge","surge","inferno","healwave","arcanestudy","water_ele","unicorn","hydra","cloak","frostshield_spell"],
-            enemyDeck: ["shard","shard","shard","shard","shard","cluster","cluster","frostshield_spell","frostshield_spell","treant","treant","golem","golem","earth_ele","earth_ele","healwave","unicorn","arcanestudy"],
-            marketPool: ["surge","inferno","healwave","arcanestudy","cloak","frostshield_spell","frostshield_spell","water_ele","unicorn","hydra","panther","frostwolf","earth_ele","earth_ele","golem","treant","cluster"],
-            clusters: 6,
+            playerDeck: ["shard","shard","shard","shard","shard","cluster","cluster","surge","surge","inferno","inferno","healwave","arcanestudy","cloak","frostshield_spell","water_ele","earth_ele","hydra","unicorn"],
+            enemyDeck: ["shard","shard","shard","shard","shard","cluster","cluster","frostshield_spell","frostshield_spell","treant","golem","golem","earth_ele","earth_ele","healwave","unicorn","arcanestudy","surge"],
+            marketPool: [
+                "surge","surge","surge",
+                "inferno","inferno","inferno",
+                "healwave","healwave",
+                "arcanestudy","arcanestudy",
+                "cloak","cloak",
+                "frostshield_spell","frostshield_spell","frostshield_spell",
+                "water_ele","water_ele",
+                "unicorn","unicorn",
+                "hydra","hydra","hydra",
+                "panther","panther",
+                "frostwolf","frostwolf",
+                "earth_ele","earth_ele","earth_ele",
+                "golem","golem",
+                "treant","treant",
+                "cluster","cluster","cluster","cluster"
+            ],
+            clusters: 7,
             unlocks: ["Frost Shield", "Earth Elemental", "Earth Golem", "Ancient Treant", "Chapter 5"]
         },
         {
@@ -2443,16 +2496,45 @@
             locationImage: "assets/story/umbral_citadel.webp",
             boardImage: "assets/story/boards/umbral_citadel_board.webp",
             enemyName: "The Grimoire Horror",
+            playerHp: 70,
+            enemyHp: 75,
             theme: "Final boss using control, burst damage, resurrection, and big threats.",
             intro: "The final page did not hide. It became something terrible. At the top of the Umbral Citadel, the last page feeds on every spell cast before it.",
             victory: "The Horror collapses into ink and starlight. The Shattered Grimoire is whole again.",
-            playerDeck: ["shard","shard","shard","shard","shard","cluster","cluster","surge","surge","inferno","healwave","arcanestudy","cloak","frostshield_spell","water_ele","earth_ele","hydra","unicorn","treant","thunderstrike"],
-            enemyDeck: ["shard","shard","shard","shard","shard","cluster","cluster","cluster","wraith","wraith","hydra","hydra","storm_ele","storm_ele","thunderstrike","thunderstrike","mindcontrol","souleater","behemoth","lavadrake","phoenix","cloak"],
-            marketPool: ["surge","surge","inferno","inferno","healwave","arcanestudy","frostshield_spell","cloak","mindcontrol","thunderstrike","fire_ele","earth_ele","water_ele","storm_ele","frostwolf","panther","hydra","unicorn","golem","treant","thunderbird","behemoth","wraith","lavadrake","souleater","phoenix","cluster"],
-            clusters: 7,
+            playerDeck: ["shard","shard","shard","shard","shard","cluster","cluster","cluster","surge","surge","inferno","inferno","healwave","arcanestudy","cloak","frostshield_spell","mindcontrol","thunderstrike","water_ele","earth_ele","storm_ele","hydra","unicorn","treant","thunderbird"],
+            enemyDeck: ["shard","shard","shard","shard","shard","cluster","cluster","cluster","wraith","wraith","hydra","hydra","storm_ele","storm_ele","thunderstrike","thunderstrike","mindcontrol","souleater","behemoth","lavadrake","phoenix","cloak","golem"],
+            marketPool: [
+                "cluster","cluster","cluster","cluster",
+                "surge","surge","surge",
+                "inferno","inferno","inferno",
+                "healwave","healwave",
+                "arcanestudy","arcanestudy",
+                "frostshield_spell","frostshield_spell",
+                "cloak","cloak",
+                "mindcontrol","mindcontrol",
+                "thunderstrike","thunderstrike","thunderstrike",
+                "fire_ele","fire_ele",
+                "earth_ele","earth_ele",
+                "water_ele","water_ele",
+                "storm_ele","storm_ele",
+                "frostwolf","frostwolf",
+                "panther","panther",
+                "hydra","hydra","hydra",
+                "unicorn","unicorn",
+                "golem","golem",
+                "treant","treant",
+                "thunderbird","thunderbird",
+                "behemoth","behemoth",
+                "wraith","wraith",
+                "lavadrake","lavadrake",
+                "souleater","souleater",
+                "phoenix"
+            ],
+            clusters: 8,
             unlocks: ["Story Complete", "Full card pool for solo practice"]
         }
     ]);
+
 
 
     const els = {
@@ -3177,6 +3259,8 @@
         state.player = makePlayer();
         state.ai = makePlayer();
         if (chapter) {
+            state.player.hp = Number(chapter.playerHp || STARTING_HP);
+            state.ai.hp = Number(chapter.enemyHp || STARTING_HP);
             state.player.deck = buildDeckFromIds(chapter.playerDeck);
             state.ai.deck = buildDeckFromIds(chapter.enemyDeck);
         }
@@ -5423,6 +5507,7 @@
                     <p>${escapeHtml(chapter.intro)}</p>
                     <div class="story-detail-grid">
                         <div><strong>Enemy:</strong> ${escapeHtml(chapter.enemyName)}</div>
+                        <div><strong>Health:</strong> You ${chapter.playerHp || STARTING_HP} / Enemy ${chapter.enemyHp || STARTING_HP}</div>
                         <div><strong>Focus:</strong> ${escapeHtml(chapter.theme)}</div>
                         <div class="story-unlocks">Reward: ${escapeHtml(storyListText(chapter.unlocks))}</div>
                     </div>
