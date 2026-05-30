@@ -2025,6 +2025,86 @@
             color: #fff7d6;
         }
 
+
+        .tutorial-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 180;
+            background: rgba(2, 4, 10, 0.56);
+            pointer-events: auto;
+        }
+
+        .tutorial-highlight {
+            position: fixed;
+            z-index: 181;
+            border: 3px solid rgba(255, 215, 106, 0.98);
+            border-radius: 20px;
+            box-shadow:
+                0 0 0 9999px rgba(0,0,0,0.42),
+                0 0 24px rgba(255, 215, 106, 0.74),
+                inset 0 0 18px rgba(255, 215, 106, 0.16);
+            pointer-events: none;
+            transition: left 180ms ease, top 180ms ease, width 180ms ease, height 180ms ease;
+        }
+
+        .tutorial-card {
+            position: fixed;
+            left: 12px;
+            right: 12px;
+            bottom: max(14px, var(--safe-bottom));
+            z-index: 182;
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 14px;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 215, 106, 0.48);
+            background: linear-gradient(145deg, rgba(35, 26, 56, 0.96), rgba(8, 12, 22, 0.96));
+            box-shadow: 0 18px 54px rgba(0,0,0,0.58);
+            text-align: center;
+        }
+
+        .tutorial-card h2 {
+            margin: 0 0 6px;
+            font-size: 1.15rem;
+            color: #fff4d2;
+        }
+
+        .tutorial-card p {
+            margin: 0 0 10px;
+            color: #d8d0f8;
+            line-height: 1.35;
+            font-size: 0.9rem;
+        }
+
+        .tutorial-progress {
+            color: #ffd76a;
+            font-size: 0.76rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .tutorial-actions {
+            display: grid;
+            grid-template-columns: 0.72fr 1fr;
+            gap: 8px;
+        }
+
+        .tutorial-actions button {
+            min-height: 42px;
+        }
+
+        @media (min-width: 720px) {
+            .tutorial-card {
+                left: 50%;
+                right: auto;
+                width: 520px;
+                transform: translateX(-50%);
+            }
+        }
+
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -2116,6 +2196,7 @@
     </div>
 
     <div id="modalRoot"></div>
+    <div id="tutorialRoot"></div>
 
 <script>
 (() => {
@@ -2370,6 +2451,7 @@
     const MAX_LOGS = 14;
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
+    const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
 
     const STORY_CHAPTERS = Object.freeze([
         {
@@ -2484,13 +2566,38 @@
             locationImage: "assets/story/rootbound_vale.webp",
             boardImage: "assets/story/boards/rootbound_vale_board.webp",
             enemyName: "Rootbound Guardian",
-            playerHp: 60,
+            playerHp: 62,
             enemyHp: 55,
             theme: "Defenders, high-health walls, Earth Golem draw pressure.",
             intro: "The fourth page is sealed beneath a living valley. The forest does not rush; it roots, waits, and forces you to break through its defenses.",
             victory: "The great guardian lowers its head. The fourth page opens like a leaf of blue fire.",
-            playerDeck: ["shard","shard","shard","shard","shard","cluster","cluster","surge","surge","inferno","inferno","healwave","arcanestudy","cloak","frostshield_spell","water_ele","earth_ele","hydra","unicorn"],
-            enemyDeck: ["shard","shard","shard","shard","shard","cluster","cluster","frostshield_spell","frostshield_spell","treant","golem","golem","earth_ele","earth_ele","healwave","unicorn","arcanestudy","surge"],
+            playerDeck: [
+                "shard","shard","shard","shard","shard",
+                "cluster","cluster",
+                "surge","surge",
+                "inferno","inferno","inferno",
+                "healwave",
+                "arcanestudy",
+                "cloak",
+                "frostshield_spell",
+                "water_ele",
+                "earth_ele","earth_ele",
+                "hydra","hydra",
+                "unicorn",
+                "frostwolf"
+            ],
+            enemyDeck: [
+                "shard","shard","shard","shard","shard",
+                "cluster","cluster",
+                "frostshield_spell",
+                "treant",
+                "golem",
+                "earth_ele","earth_ele",
+                "healwave",
+                "arcanestudy",
+                "surge",
+                "frostwolf"
+            ],
             marketPool: [
                 "surge","surge","surge",
                 "inferno","inferno","inferno",
@@ -2519,13 +2626,46 @@
             locationImage: "assets/story/umbral_citadel.webp",
             boardImage: "assets/story/boards/umbral_citadel_board.webp",
             enemyName: "The Grimoire Horror",
-            playerHp: 70,
-            enemyHp: 75,
+            playerHp: 78,
+            enemyHp: 68,
             theme: "Final boss using control, burst damage, resurrection, and big threats.",
             intro: "The final page did not hide. It became something terrible. At the top of the Umbral Citadel, the last page feeds on every spell cast before it.",
             victory: "The Horror collapses into ink and starlight. The Shattered Grimoire is whole again.",
-            playerDeck: ["shard","shard","shard","shard","shard","cluster","cluster","cluster","surge","surge","inferno","inferno","healwave","arcanestudy","cloak","frostshield_spell","mindcontrol","thunderstrike","water_ele","earth_ele","storm_ele","hydra","unicorn","treant","thunderbird"],
-            enemyDeck: ["shard","shard","shard","shard","shard","cluster","cluster","cluster","wraith","wraith","hydra","hydra","storm_ele","storm_ele","thunderstrike","thunderstrike","mindcontrol","souleater","behemoth","lavadrake","phoenix","cloak","golem"],
+            playerDeck: [
+                "shard","shard","shard","shard","shard",
+                "cluster","cluster","cluster",
+                "surge","surge",
+                "inferno","inferno",
+                "healwave",
+                "arcanestudy",
+                "cloak",
+                "frostshield_spell",
+                "mindcontrol",
+                "thunderstrike",
+                "water_ele",
+                "earth_ele",
+                "storm_ele",
+                "hydra",
+                "unicorn",
+                "treant",
+                "thunderbird",
+                "behemoth"
+            ],
+            enemyDeck: [
+                "shard","shard","shard","shard","shard",
+                "cluster","cluster","cluster",
+                "wraith","wraith",
+                "hydra","hydra",
+                "storm_ele","storm_ele",
+                "thunderstrike","thunderstrike",
+                "mindcontrol",
+                "souleater",
+                "behemoth",
+                "lavadrake",
+                "phoenix",
+                "cloak",
+                "golem"
+            ],
             marketPool: [
                 "cluster","cluster","cluster","cluster",
                 "surge","surge","surge",
@@ -2555,7 +2695,7 @@
             ],
             clusters: 8,
             unlocks: ["Story Complete", "Full card pool for solo practice"]
-        }
+        },
     ]);
 
 
@@ -2600,6 +2740,7 @@
         gameLog: document.getElementById("gameLog"),
         debugLog: document.getElementById("debugLog"),
         modalRoot: document.getElementById("modalRoot"),
+        tutorialRoot: document.getElementById("tutorialRoot"),
         musicToggleBtn: document.getElementById("musicToggleBtn"),
         sfxToggleBtn: document.getElementById("sfxToggleBtn"),
         cancelActionBtn: document.getElementById("cancelActionBtn"),
@@ -2631,6 +2772,10 @@
             enabled: false,
             chapterId: "",
             chapterIndex: 0
+        },
+        tutorial: {
+            active: false,
+            index: 0
         },
         awaitingPass: false,
         turn: "player",
@@ -3365,6 +3510,9 @@
         updateAudioButtons();
         addLog(chapter ? `${chapter.title}: ${chapter.enemyName} challenges you.` : `${labelFor("player")} starts. Tap cards to play, then attack with your creatures.`);
         startTurn("player");
+        if (shouldShowChapterOneTutorial()) {
+            window.setTimeout(beginChapterOneTutorial, 420);
+        }
     }
 
     function drawCard(ownerId) {
@@ -3821,7 +3969,7 @@
 
     function handlePlayerCreature(cardUid) {
         const ownerId = currentHumanOwner();
-        if (state.turn !== ownerId || !state.active || state.pendingSpell || state.awaitingPass) return;
+        if (state.turn !== ownerId || !state.active || tapLocked || state.pendingSpell || state.awaitingPass) return;
         const creature = findCreature(ownerId, cardUid);
         if (!creature) return;
         if (actor(ownerId).attackedThisTurn.has(cardUid)) {
@@ -3836,7 +3984,7 @@
 
     async function handleEndTurn() {
         const ownerId = currentHumanOwner();
-        if (state.turn !== ownerId || !state.active || state.awaitingPass) return;
+        if (state.turn !== ownerId || !state.active || tapLocked || state.awaitingPass) return;
         if (state.pendingSpell || state.selectedAttackerUid) {
             addLog("Finish or cancel your action first.");
             return;
@@ -5551,6 +5699,128 @@
     }
 
 
+
+    const CHAPTER_ONE_TUTORIAL_STEPS = Object.freeze([
+        {
+            selector: ".shop-zone",
+            title: "This is the Shop",
+            text: "Buy monsters and spells here using shards. Bought cards go to your discard pile first, then come back later when your deck reshuffles."
+        },
+        {
+            selector: "#playerHand",
+            title: "This is Your Hand",
+            text: "Tap cards to play them. Push and hold any card to see the full card info before you decide what to do."
+        },
+        {
+            selector: "#playerZone .stats",
+            title: "Your Health, Shards, Deck and Discard",
+            text: "Your life is the heart number. Shards are your temporary money for this turn. Deck and discard show how many cards you have left."
+        },
+        {
+            selector: "#aiZone .stats",
+            title: "Opponent Health",
+            text: "Reduce the opponent's life to zero to win the chapter. You can attack the opponent directly when no Defender is blocking."
+        },
+        {
+            selector: "#playerBattlefield",
+            title: "Your Creatures",
+            text: "Monsters you play go here. Tap one of your creatures, then tap an enemy creature or the opponent to attack."
+        },
+        {
+            selector: "#aiBattlefield",
+            title: "Enemy Creatures",
+            text: "Enemy monsters appear here. Some creatures have Defender, which means you must defeat them before attacking the opponent."
+        },
+        {
+            selector: "#endTurnBtn",
+            title: "End Your Turn",
+            text: "When you have played cards, attacked, and spent your shards, press End Turn. Any unspent shards disappear at the end of the turn."
+        }
+    ]);
+
+    function shouldShowChapterOneTutorial() {
+        return state.mode === "story" &&
+            state.story?.chapterId === "moonlit_market" &&
+            localStorage.getItem(CHAPTER_ONE_TUTORIAL_KEY) !== "done";
+    }
+
+    function beginChapterOneTutorial() {
+        if (!shouldShowChapterOneTutorial() || !els.tutorialRoot) return;
+        state.tutorial.active = true;
+        state.tutorial.index = 0;
+        tapLocked = true;
+        queueRender();
+        renderTutorialStep();
+    }
+
+    function finishChapterOneTutorial(markDone = true) {
+        state.tutorial.active = false;
+        state.tutorial.index = 0;
+        tapLocked = false;
+        if (markDone) localStorage.setItem(CHAPTER_ONE_TUTORIAL_KEY, "done");
+        if (els.tutorialRoot) els.tutorialRoot.innerHTML = "";
+        addLog("Tutorial complete. Play your cards and win the duel.");
+        queueRender();
+    }
+
+    function renderTutorialStep() {
+        if (!state.tutorial.active || !els.tutorialRoot) return;
+        const step = CHAPTER_ONE_TUTORIAL_STEPS[state.tutorial.index];
+        if (!step) {
+            finishChapterOneTutorial(true);
+            return;
+        }
+
+        const target = document.querySelector(step.selector);
+        if (target) {
+            target.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+        }
+
+        window.setTimeout(() => {
+            const rect = target ? target.getBoundingClientRect() : { left: 16, top: 120, width: window.innerWidth - 32, height: 120 };
+            const pad = 7;
+            const left = Math.max(8, rect.left - pad);
+            const top = Math.max(8, rect.top - pad);
+            const width = Math.min(window.innerWidth - left - 8, rect.width + pad * 2);
+            const height = Math.min(window.innerHeight - top - 8, rect.height + pad * 2);
+            const isLast = state.tutorial.index >= CHAPTER_ONE_TUTORIAL_STEPS.length - 1;
+
+            els.tutorialRoot.innerHTML = `
+                <div class="tutorial-overlay" role="dialog" aria-modal="true">
+                    <div class="tutorial-highlight" style="left:${left}px;top:${top}px;width:${width}px;height:${height}px;"></div>
+                    <div class="tutorial-card">
+                        <div class="tutorial-progress">Step ${state.tutorial.index + 1} of ${CHAPTER_ONE_TUTORIAL_STEPS.length}</div>
+                        <h2>${escapeHtml(step.title)}</h2>
+                        <p>${escapeHtml(step.text)}</p>
+                        <div class="tutorial-actions">
+                            <button type="button" class="btn-dark" data-tutorial="skip"><span class="button-inline">Skip</span></button>
+                            <button type="button" class="btn-orange" data-tutorial="next"><span class="button-inline">${isLast ? "Start Playing" : "Next"}</span></button>
+                        </div>
+                    </div>
+                </div>`;
+
+            const next = els.tutorialRoot.querySelector('[data-tutorial="next"]');
+            const skip = els.tutorialRoot.querySelector('[data-tutorial="skip"]');
+            if (next) {
+                next.addEventListener("pointerup", () => {
+                    playSfx("uiTap");
+                    state.tutorial.index += 1;
+                    renderTutorialStep();
+                }, { once: true });
+            }
+            if (skip) {
+                skip.addEventListener("pointerup", () => {
+                    playSfx("uiTap");
+                    finishChapterOneTutorial(true);
+                }, { once: true });
+            }
+        }, target ? 220 : 0);
+    }
+
+    window.addEventListener("resize", () => {
+        if (state.tutorial.active) renderTutorialStep();
+    });
+
     function showStoryMap() {
         state.active = false;
         applyGameBackground(true);
@@ -5636,6 +5906,7 @@
 
     function showStartModal() {
         state.active = false;
+        if (state.tutorial?.active) finishChapterOneTutorial(false);
         applyGameBackground(true);
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
