@@ -3928,7 +3928,7 @@
     function isLocalVictory(winner) {
         if (!winner) return false;
         if (state.mode === "online") return winner === state.online.localOwner;
-        if (state.mode === "ai") return winner === "player";
+        if (state.mode === "ai" || state.mode === "story") return winner === "player";
         return true;
     }
 
@@ -4661,6 +4661,10 @@
     }
 
     function showGameOver(message, isVictory) {
+        if (state.mode === "story") {
+            isVictory = winnerOwner() === "player";
+        }
+
         let detail = state.mode === "online"
             ? (isVictory ? "You won the online duel." : "You lost the online duel.")
             : state.mode === "story"
@@ -4679,6 +4683,10 @@
             }
         }
 
+        const retryButton = state.mode === "story" && !isVictory
+            ? `<button type="button" class="btn-orange" data-modal="retry-story-chapter"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Retry Chapter</span></button>`
+            : "";
+
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card game-over-card">
@@ -4688,14 +4696,25 @@
                     <div class="modal-actions">
                         <button type="button" class="btn-wide" data-modal="main-menu-after-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Main Menu</span></button>
                         ${extraButton}
+                        ${retryButton}
                     </div>
                 </div>
             </div>`;
         const nextStory = els.modalRoot.querySelector('[data-modal="next-story-chapter"]');
         if (nextStory) {
             nextStory.addEventListener("pointerup", () => {
+                if (winnerOwner() !== "player") return;
                 const nextChapter = STORY_CHAPTERS[(state.story.chapterIndex || 0) + 1];
                 if (nextChapter) showStoryChapterDetail(nextChapter.id);
+            }, { once: true });
+        }
+        const retryStory = els.modalRoot.querySelector('[data-modal="retry-story-chapter"]');
+        if (retryStory) {
+            retryStory.addEventListener("pointerup", () => {
+                const chapter = storyChapterById(state.story.chapterId);
+                stopMusic();
+                els.modalRoot.innerHTML = "";
+                initGame({ mode: "story", chapterId: chapter.id, playerName: state.names?.player || "Player 1" });
             }, { once: true });
         }
         const mainMenu = els.modalRoot.querySelector('[data-modal="main-menu-after-game"]');
