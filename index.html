@@ -1150,16 +1150,33 @@
         .start-menu-list {
             display: grid;
             gap: 8px;
-            width: min(100%, 360px);
+            width: min(72vw, 255px);
+            max-width: 255px;
             margin: 10px auto;
+            justify-items: center;
         }
 
         .start-menu-list button {
             width: 100%;
-            max-width: 360px;
+            max-width: 255px;
             min-height: 48px;
             justify-content: center;
             justify-self: center;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        @media (max-width: 360px) {
+            .start-menu-list {
+                width: min(78vw, 250px);
+                max-width: 250px;
+            }
+
+            .start-menu-list button {
+                max-width: 250px;
+                min-height: 46px;
+                font-size: 0.86rem;
+            }
         }
 
         .start-menu-list .story-entry {
@@ -1198,7 +1215,6 @@
 
         .mode-choice.rules-entry {
             --btn-bg: url('assets/ui/button_small_blue.webp');
-            grid-column: 1 / -1;
         }
 
         .rules-scroll {
@@ -1284,7 +1300,6 @@
 
         .story-entry {
             --btn-bg: url('assets/ui/button_orange.webp');
-            grid-column: 1 / -1;
             min-height: 50px;
         }
 
