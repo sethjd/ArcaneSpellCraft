@@ -71,7 +71,7 @@
             background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
-            box-shadow: 0 10px 26px rgba(0,0,0,0.24), inset 0 1px rgba(255,255,255,0.12);
+            box-shadow: none;
             color: white;
             cursor: pointer;
             font-weight: 900;
@@ -1249,6 +1249,11 @@
             background-size: 100% 100%;
         }
 
+        .start-screen-card .start-menu-list button {
+            box-shadow: none !important;
+            filter: none;
+        }
+
         .start-screen-card .start-menu-list {
             margin-top: 0;
             margin-bottom: 0;
@@ -1370,7 +1375,7 @@
         .mode-choice.selected,
         .audio-toggle.selected {
             --btn-bg: url('assets/ui/button_small_blue.webp');
-            box-shadow: 0 0 0 2px rgba(90, 183, 255, 0.14), 0 10px 22px rgba(0,0,0,0.3);
+            box-shadow: none;
             filter: saturate(1.08);
         }
 
