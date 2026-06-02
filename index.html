@@ -1147,35 +1147,61 @@
 
 
 
+
+        .modal-card .name-grid {
+            width: min(76vw, 270px);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .modal-card .name-grid input {
+            text-align: center;
+        }
+
+
         .start-menu-list {
             display: grid;
             gap: 8px;
-            width: min(72vw, 255px);
-            max-width: 255px;
+            width: min(58vw, 215px);
+            max-width: 215px;
             margin: 10px auto;
             justify-items: center;
         }
 
         .start-menu-list button {
             width: 100%;
-            max-width: 255px;
-            min-height: 48px;
+            max-width: 215px;
+            min-height: 46px;
             justify-content: center;
             justify-self: center;
-            padding-left: 12px;
-            padding-right: 12px;
+            padding-left: 10px;
+            padding-right: 10px;
+            background-size: 100% 100%;
         }
 
-        @media (max-width: 360px) {
+        @media (max-width: 390px) {
             .start-menu-list {
-                width: min(78vw, 250px);
-                max-width: 250px;
+                width: min(62vw, 210px);
+                max-width: 210px;
             }
 
             .start-menu-list button {
-                max-width: 250px;
-                min-height: 46px;
-                font-size: 0.86rem;
+                max-width: 210px;
+                min-height: 44px;
+                font-size: 0.84rem;
+            }
+        }
+
+        @media (max-width: 340px) {
+            .start-menu-list {
+                width: min(66vw, 200px);
+                max-width: 200px;
+            }
+
+            .start-menu-list button {
+                max-width: 200px;
+                min-height: 42px;
+                font-size: 0.8rem;
             }
         }
 
