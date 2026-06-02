@@ -3042,6 +3042,21 @@
     const LONG_PRESS_MS = 560;
     const LONG_PRESS_MOVE_LIMIT = 14;
 
+    const HAPTIC_PATTERNS = Object.freeze({
+        tap: 10,
+        select: 16,
+        card: [10, 24, 12],
+        buy: [14, 28, 14],
+        attack: 22,
+        target: 18,
+        cancel: [8, 20, 8],
+        error: 35,
+        endTurn: [10, 38, 18],
+        info: [12, 32, 12],
+        victory: [28, 42, 28],
+        defeat: [38, 52, 38]
+    });
+
     const state = {
         active: false,
         mode: "ai",
@@ -3733,8 +3748,19 @@
         queueRender();
     }
 
-    function tapFeedback(ms = 12) {
-        if (navigator.vibrate) navigator.vibrate(ms);
+    function hapticFeedback(kind = "tap") {
+        if (!navigator.vibrate) return;
+        const pattern = HAPTIC_PATTERNS[kind] ?? kind ?? HAPTIC_PATTERNS.tap;
+
+        try {
+            navigator.vibrate(pattern);
+        } catch {
+            // Some browsers/devices may reject vibration silently.
+        }
+    }
+
+    function tapFeedback(pattern = HAPTIC_PATTERNS.tap) {
+        hapticFeedback(pattern);
     }
 
     function queueRender() {
@@ -4196,15 +4222,17 @@
         const pending = state.pendingSpell;
         if (!pending) return;
         if (!isLegalDamageTarget(pending.ownerId, ref)) {
+            hapticFeedback("error");
             addLog("That target is blocked or invalid.");
             return;
         }
         if (pending.targets.some(existing => refKey(existing) === refKey(ref))) {
+            hapticFeedback("error");
             addLog("Choose a different target.");
             return;
         }
         pending.targets.push(ref);
-        tapFeedback(18);
+        hapticFeedback("target");
 
         if (pending.targets.length >= pending.maxTargets) {
             playCard(pending.ownerId, pending.cardUid, pending.targets);
@@ -4229,16 +4257,18 @@
                 queueRender();
                 return;
             }
+            hapticFeedback("error");
             addLog("Finish or cancel your current spell first.");
             return;
         }
 
         if (state.selectedAttackerUid) {
+            hapticFeedback("error");
             addLog("Finish or cancel your attack first.");
             return;
         }
 
-        tapFeedback();
+        hapticFeedback("card");
 
         if (card.type === "economy" || card.type === "creature") {
             playCard(ownerId, card.uid);
@@ -4263,7 +4293,7 @@
             return;
         }
         state.selectedAttackerUid = state.selectedAttackerUid === cardUid ? null : cardUid;
-        tapFeedback();
+        hapticFeedback("select");
         addLog(state.selectedAttackerUid ? `${creature.name} selected. Tap an enemy target.` : `${creature.name} attack cancelled.`);
         queueRender();
     }
@@ -4272,6 +4302,7 @@
         const ownerId = currentHumanOwner();
         if (state.turn !== ownerId || !state.active || tapLocked || state.awaitingPass) return;
         if (state.pendingSpell || state.selectedAttackerUid) {
+            hapticFeedback("error");
             addLog("Finish or cancel your action first.");
             return;
         }
@@ -4470,6 +4501,7 @@
         state.active = false;
         tapLocked = false;
         playSfx(isLocalVictory(winner) ? "victory" : "defeat");
+        hapticFeedback(isLocalVictory(winner) ? "victory" : "defeat");
         stopMusic();
         showGameOver(`${labelFor(winner)} wins!`, isLocalVictory(winner));
         if (state.online.enabled) scheduleOnlinePush();
@@ -4819,6 +4851,7 @@
             y: event.clientY,
             time: performance.now(),
             action: actionTarget ? actionTarget.dataset.action : "",
+            inScrollLane: Boolean(event.target.closest(".scroll-lane")),
             inShop: Boolean(event.target.closest(".scroll-lane.shop")),
             cardId: infoTarget ? infoTarget.dataset.cardId : ""
         };
@@ -4831,34 +4864,55 @@
         }
     }
 
-    function isSwipeLikeShopGesture(event, action) {
+    function isSwipeLikeLaneGesture(event) {
         if (!pointerStart || pointerStart.id !== event.pointerId) return false;
-        if (!pointerStart.inShop && action !== "buy-shop" && action !== "buy-cluster") return false;
+        if (!pointerStart.inScrollLane) return false;
 
         const dx = Math.abs(event.clientX - pointerStart.x);
         const dy = Math.abs(event.clientY - pointerStart.y);
+        const dt = performance.now() - pointerStart.time;
+
         const movedEnoughToBeSwipe = dx > 10 || dy > 10;
         const mostlyHorizontal = dx > dy * 0.75;
-        return movedEnoughToBeSwipe && mostlyHorizontal;
+        const notLongPress = dt < LONG_PRESS_MS;
+
+        return movedEnoughToBeSwipe && mostlyHorizontal && notLongPress;
+    }
+
+    function isSwipeLikeShopGesture(event, action) {
+        // Backwards-compatible wrapper for shop actions.
+        return isSwipeLikeLaneGesture(event);
     }
 
     function handleTap(event) {
         clearLongPressTimer();
+
+        if (pointerStart && pointerStart.id !== event.pointerId) {
+            pointerStart = null;
+            return;
+        }
+
         if (longPressTriggered) {
             event.preventDefault();
             longPressTriggered = false;
             pointerStart = null;
             return;
         }
-        unlockAudioFromGesture();
-        const target = event.target.closest("[data-action]");
-        if (!target) return;
-        const action = target.dataset.action;
 
-        if ((action === "buy-shop" || action === "buy-cluster") && isSwipeLikeShopGesture(event, action)) {
+        const target = event.target.closest("[data-action]");
+        if (!target) {
             pointerStart = null;
             return;
         }
+
+        const action = target.dataset.action;
+
+        if (isSwipeLikeLaneGesture(event)) {
+            pointerStart = null;
+            return;
+        }
+
+        unlockAudioFromGesture();
 
         if (!["toggle-debug", "copy-debug"].includes(action)) {
             event.preventDefault();
@@ -4874,7 +4928,7 @@
                     handlePendingSpellTarget(ref);
                 } else if (state.selectedAttackerUid && target.dataset.owner === other(state.turn)) {
                     creatureAttack(state.turn, state.selectedAttackerUid, ref);
-                    tapFeedback(18);
+                    hapticFeedback("attack");
                 } else if (target.dataset.owner === state.turn) {
                     handlePlayerCreature(target.dataset.uid);
                 }
@@ -4883,23 +4937,26 @@
             case "target-hero": {
                 const ref = getTargetRefFromElement(target);
                 if (state.pendingSpell) handlePendingSpellTarget(ref);
-                else if (state.selectedAttackerUid && target.dataset.owner === other(state.turn)) creatureAttack(state.turn, state.selectedAttackerUid, ref);
+                else if (state.selectedAttackerUid && target.dataset.owner === other(state.turn)) {
+                    creatureAttack(state.turn, state.selectedAttackerUid, ref);
+                    hapticFeedback("attack");
+                }
                 break;
             }
             case "buy-shop":
                 if (isHumanOwner(state.turn) && !state.awaitingPass && !state.pendingSpell && !state.selectedAttackerUid) {
-                    tapFeedback();
+                    hapticFeedback("buy");
                     buyShopCard(currentHumanOwner(), Number(target.dataset.index));
                 }
                 break;
             case "buy-cluster":
                 if (isHumanOwner(state.turn) && !state.awaitingPass && !state.pendingSpell && !state.selectedAttackerUid) {
-                    tapFeedback();
+                    hapticFeedback("buy");
                     buyCluster(currentHumanOwner());
                 }
                 break;
             case "end-turn":
-                tapFeedback();
+                hapticFeedback("endTurn");
                 void handleEndTurn();
                 break;
             case "main-menu":
@@ -4937,7 +4994,7 @@
                 state.pendingSpell = null;
                 state.selectedAttackerUid = null;
                 addLog("Action cancelled.");
-                tapFeedback();
+                hapticFeedback("cancel");
                 queueRender();
                 break;
             case "toggle-debug":
@@ -4951,6 +5008,8 @@
         if (state.online.enabled && isOnlineGameAction(action) && !state.pendingSpell && !state.selectedAttackerUid) {
             scheduleOnlinePush();
         }
+
+        pointerStart = null;
     }
 
 
@@ -4994,7 +5053,7 @@
         if (!card) return;
         const rules = CARD_RULES[card.id] || {};
         playSfx("uiTap");
-        tapFeedback(18);
+        hapticFeedback("info");
         const image = card.image || "assets/ui/card_back.webp";
         const effect = rules.effect || card.desc || "No special effect.";
         const full = rules.full || "This card follows its listed stats and effect.";
@@ -5050,6 +5109,7 @@
 
     function handlePointerCancel() {
         clearLongPressTimer();
+        longPressTriggered = false;
         pointerStart = null;
     }
 
