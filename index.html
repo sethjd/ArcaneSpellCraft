@@ -1150,13 +1150,16 @@
         .start-menu-list {
             display: grid;
             gap: 8px;
-            margin: 10px 0;
+            width: min(100%, 360px);
+            margin: 10px auto;
         }
 
         .start-menu-list button {
             width: 100%;
+            max-width: 360px;
             min-height: 48px;
             justify-content: center;
+            justify-self: center;
         }
 
         .start-menu-list .story-entry {
@@ -2543,6 +2546,8 @@
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
+    const PLAYER_NAME_KEY = "arcaneSpellCraftPlayerName";
+    const PLAYER_TWO_NAME_KEY = "arcaneSpellCraftPlayerTwoName";
 
     const STORY_CHAPTERS = Object.freeze([
         {
@@ -3360,11 +3365,11 @@
 
     function getStoryProgress() {
         const value = Number(localStorage.getItem(STORY_PROGRESS_KEY) || "1");
-        return Math.max(1, Math.min(STORY_CHAPTERS.length, value || 1));
+        return Math.max(1, Math.min(STORY_CHAPTERS.length + 1, value || 1));
     }
 
     function setStoryProgress(chapterNumber) {
-        const next = Math.max(getStoryProgress(), Math.min(STORY_CHAPTERS.length, chapterNumber));
+        const next = Math.max(getStoryProgress(), Math.min(STORY_CHAPTERS.length + 1, chapterNumber));
         localStorage.setItem(STORY_PROGRESS_KEY, String(next));
     }
 
@@ -4868,8 +4873,8 @@
                     <h2>Multiplayer</h2>
                     <p>Choose local pass-and-play on one device, or play online with a room code.</p>
                     <div class="name-grid">
-                        <input id="multiPlayerOne" maxlength="18" value="${escapeHtml(state.names?.player || "Player 1")}" aria-label="Player 1 name" />
-                        <input id="multiPlayerTwo" maxlength="18" value="Player 2" aria-label="Player 2 name" />
+                        <input id="multiPlayerOne" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_NAME_KEY) || state.names?.player || "Player 1")}" aria-label="Player 1 name" />
+                        <input id="multiPlayerTwo" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_TWO_NAME_KEY) || state.names?.ai || "Player 2")}" aria-label="Player 2 name" />
                     </div>
                     <div class="start-menu-list">
                         <button type="button" class="mode-choice" data-modal="start-pass"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_passplay.webp" alt="" /> Pass &amp; Play</span></button>
@@ -4882,16 +4887,27 @@
                 </div>
             </div>`;
 
+        function saveMultiplayerNames() {
+            const playerName = els.modalRoot.querySelector("#multiPlayerOne").value.trim() || "Player 1";
+            const playerTwoName = els.modalRoot.querySelector("#multiPlayerTwo").value.trim() || "Player 2";
+            localStorage.setItem(PLAYER_NAME_KEY, playerName);
+            localStorage.setItem(PLAYER_TWO_NAME_KEY, playerTwoName);
+            state.names = { ...state.names, player: playerName, ai: playerTwoName };
+            return { playerName, playerTwoName };
+        }
+
+        els.modalRoot.querySelector("#multiPlayerOne").addEventListener("change", saveMultiplayerNames);
+        els.modalRoot.querySelector("#multiPlayerTwo").addEventListener("change", saveMultiplayerNames);
+
         els.modalRoot.querySelector('[data-modal="start-pass"]').addEventListener("pointerup", () => {
             unlockAudioFromGesture();
-            const playerName = els.modalRoot.querySelector("#multiPlayerOne").value || "Player 1";
-            const playerTwoName = els.modalRoot.querySelector("#multiPlayerTwo").value || "Player 2";
+            const { playerName, playerTwoName } = saveMultiplayerNames();
             els.modalRoot.innerHTML = "";
             initGame({ mode: "pass", playerName, playerTwoName });
         }, { once: true });
 
         els.modalRoot.querySelector('[data-modal="host-online"]').addEventListener("pointerup", () => {
-            const playerName = els.modalRoot.querySelector("#multiPlayerOne").value || "Player 1";
+            const { playerName } = saveMultiplayerNames();
             hostOnlineGame(playerName);
         });
 
@@ -5029,8 +5045,10 @@
                         <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline">Resume Game</span></button>
                         ${matchButton}
                         <button type="button" class="menu-primary" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules / Help</span></button>
-                        <button type="button" class="menu-half audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
-                        <button type="button" class="menu-half audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
+                        <div class="menu-audio-row">
+                            <button type="button" class="menu-half audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
+                            <button type="button" class="menu-half audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
+                        </div>
                         ${audioControlHtml("music")}
                         ${audioControlHtml("sfx")}
                     </div>
@@ -5162,7 +5180,7 @@
         let extraButton = "";
         if (state.mode === "story" && isVictory) {
             const chapterNumber = (state.story.chapterIndex || 0) + 1;
-            setStoryProgress(Math.min(STORY_CHAPTERS.length, chapterNumber + 1));
+            setStoryProgress(chapterNumber + 1);
             const nextChapter = STORY_CHAPTERS[chapterNumber];
             if (nextChapter) {
                 extraButton = `<button type="button" class="btn-orange" data-modal="next-story-chapter"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Next Chapter</span></button>`;
@@ -6163,7 +6181,7 @@
                     <div class="start-art"></div>
                     <h2>Arcane Spell Craft</h2>
                     <div class="name-grid">
-                        <input id="startPlayerOne" maxlength="18" value="Player 1" aria-label="Player name" />
+                        <input id="startPlayerOne" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_NAME_KEY) || state.names?.player || "Player 1")}" aria-label="Player name" />
                     </div>
                     <div class="start-menu-list">
                         <button type="button" class="mode-choice story-entry" data-modal="story-mode"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Story Mode</span></button>
@@ -6181,24 +6199,29 @@
         bindInstallButtons(els.modalRoot);
 
         const playerOneInput = els.modalRoot.querySelector("#startPlayerOne");
+        function saveStartPlayerName() {
+            const savedName = playerOneInput.value.trim() || "Player 1";
+            localStorage.setItem(PLAYER_NAME_KEY, savedName);
+            state.names = { ...state.names, player: savedName };
+            return savedName;
+        }
+        playerOneInput.addEventListener("change", saveStartPlayerName);
 
         els.modalRoot.querySelector('[data-modal="story-mode"]').addEventListener("pointerup", () => {
-            const playerName = playerOneInput.value.trim() || "Player 1";
-            state.names = { ...state.names, player: playerName };
+            const playerName = saveStartPlayerName();
             playSfx("uiTap");
             showStoryMap();
         });
 
         els.modalRoot.querySelector('[data-modal="start-solo"]').addEventListener("pointerup", () => {
             unlockAudioFromGesture();
-            const playerName = playerOneInput.value;
+            const playerName = saveStartPlayerName();
             els.modalRoot.innerHTML = "";
             initGame({ mode: "ai", playerName });
         }, { once: true });
 
         els.modalRoot.querySelector('[data-modal="multiplayer-menu"]').addEventListener("pointerup", () => {
-            const playerName = playerOneInput.value.trim() || "Player 1";
-            state.names = { ...state.names, player: playerName };
+            const playerName = saveStartPlayerName();
             playSfx("uiTap");
             showMultiplayerMenu();
         });
