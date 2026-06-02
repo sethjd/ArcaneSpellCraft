@@ -1145,6 +1145,97 @@
             box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 18px 42px rgba(0,0,0,0.35);
         }
 
+
+
+        .start-menu-list {
+            display: grid;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .start-menu-list button {
+            width: 100%;
+            min-height: 48px;
+            justify-content: center;
+        }
+
+        .start-menu-list .story-entry {
+            grid-column: auto;
+            --btn-bg: url('assets/ui/button_orange.webp');
+            min-height: 52px;
+        }
+
+        .start-menu-list .settings-entry,
+        .start-menu-list .rules-entry {
+            --btn-bg: url('assets/ui/button_small_blue.webp');
+        }
+
+        .settings-panel {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .settings-panel .audio-toggle {
+            width: 100%;
+        }
+
+
+        .start-help-note {
+            margin: 8px 0 4px;
+            padding: 9px 11px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 215, 106, 0.20);
+            background: rgba(255, 215, 106, 0.07);
+            color: #ffe7a8;
+            font-weight: 850;
+            font-size: 0.82rem;
+            line-height: 1.25;
+        }
+
+        .mode-choice.rules-entry {
+            --btn-bg: url('assets/ui/button_small_blue.webp');
+            grid-column: 1 / -1;
+        }
+
+        .rules-scroll {
+            max-height: min(66dvh, 620px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: left;
+            padding-right: 4px;
+        }
+
+        .rules-section {
+            margin: 10px 0;
+            padding: 10px 11px;
+            border-radius: 16px;
+            border: 1px solid rgba(124, 92, 255, 0.22);
+            background: rgba(0,0,0,0.22);
+        }
+
+        .rules-section h3 {
+            margin: 0 0 5px;
+            color: #fff4d2;
+            font-size: 0.98rem;
+        }
+
+        .rules-section p {
+            margin: 0;
+            color: #d8d0f8;
+            font-size: 0.82rem;
+            line-height: 1.35;
+        }
+
+        .rules-section ul {
+            margin: 5px 0 0;
+            padding-left: 18px;
+            color: #d8d0f8;
+            font-size: 0.82rem;
+            line-height: 1.35;
+        }
+
+
         .mode-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -4767,6 +4858,155 @@
         pointerStart = null;
     }
 
+
+
+
+    function showMultiplayerMenu() {
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <h2>Multiplayer</h2>
+                    <p>Choose local pass-and-play on one device, or play online with a room code.</p>
+                    <div class="name-grid">
+                        <input id="multiPlayerOne" maxlength="18" value="${escapeHtml(state.names?.player || "Player 1")}" aria-label="Player 1 name" />
+                        <input id="multiPlayerTwo" maxlength="18" value="Player 2" aria-label="Player 2 name" />
+                    </div>
+                    <div class="start-menu-list">
+                        <button type="button" class="mode-choice" data-modal="start-pass"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_passplay.webp" alt="" /> Pass &amp; Play</span></button>
+                        <button type="button" class="mode-choice" data-modal="host-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Host Online</span></button>
+                        <button type="button" class="mode-choice" data-modal="join-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Join Online</span></button>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-orange" data-modal="multiplayer-back"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Back</span></button>
+                    </div>
+                </div>
+            </div>`;
+
+        els.modalRoot.querySelector('[data-modal="start-pass"]').addEventListener("pointerup", () => {
+            unlockAudioFromGesture();
+            const playerName = els.modalRoot.querySelector("#multiPlayerOne").value || "Player 1";
+            const playerTwoName = els.modalRoot.querySelector("#multiPlayerTwo").value || "Player 2";
+            els.modalRoot.innerHTML = "";
+            initGame({ mode: "pass", playerName, playerTwoName });
+        }, { once: true });
+
+        els.modalRoot.querySelector('[data-modal="host-online"]').addEventListener("pointerup", () => {
+            const playerName = els.modalRoot.querySelector("#multiPlayerOne").value || "Player 1";
+            hostOnlineGame(playerName);
+        });
+
+        els.modalRoot.querySelector('[data-modal="join-online"]').addEventListener("pointerup", showJoinOnlineModal);
+
+        els.modalRoot.querySelector('[data-modal="multiplayer-back"]').addEventListener("pointerup", () => {
+            playSfx("uiTap");
+            showStartModal();
+        }, { once: true });
+    }
+
+    function showSettingsModal(returnToStart = false) {
+        const backAction = returnToStart ? "settings-back-start" : "settings-back-menu";
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <h2>Settings</h2>
+                    <p>Adjust music, game sounds, and app install options.</p>
+                    <div class="settings-panel">
+                        <button type="button" class="audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
+                        <button type="button" class="audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Game Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
+                        ${audioControlHtml("music")}
+                        ${audioControlHtml("sfx")}
+                        ${installButtonHtml("btn-wide")}
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-orange" data-modal="${backAction}"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Back</span></button>
+                    </div>
+                </div>
+            </div>`;
+
+        updateAudioButtons();
+        bindAudioVolumeControls(els.modalRoot);
+        bindInstallButtons(els.modalRoot);
+        els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
+        els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+        els.modalRoot.querySelector(`[data-modal="${backAction}"]`).addEventListener("pointerup", () => {
+            playSfx("uiTap");
+            if (returnToStart || !state.active) showStartModal();
+            else showMainMenu();
+        }, { once: true });
+    }
+
+    function showRulesModal(returnToStart = false) {
+        const backAction = returnToStart ? "rules-back-start" : "rules-back-menu";
+        els.modalRoot.innerHTML = `
+            <div class="modal" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <h2>Rules / Help</h2>
+                    <div class="rules-scroll">
+                        <div class="rules-section">
+                            <h3>Goal</h3>
+                            <p>Reduce your opponent's health to 0 before they reduce yours to 0.</p>
+                        </div>
+                        <div class="rules-section">
+                            <h3>Turn Flow</h3>
+                            <ul>
+                                <li>Draw cards at the start of your turn.</li>
+                                <li>Play Shards to gain temporary currency.</li>
+                                <li>Play creatures and spells from your hand.</li>
+                                <li>Buy cards from the Market.</li>
+                                <li>Attack with your creatures.</li>
+                                <li>Press End Turn when finished.</li>
+                            </ul>
+                        </div>
+                        <div class="rules-section">
+                            <h3>Shards</h3>
+                            <p>Shards are temporary money for the current turn. Use them to buy Market cards or Arcane Clusters. Unspent shards disappear when your turn ends.</p>
+                        </div>
+                        <div class="rules-section">
+                            <h3>Market</h3>
+                            <p>Tap a Market card to buy it if you have enough shards. Bought cards go to your discard pile and become available after your deck reshuffles.</p>
+                        </div>
+                        <div class="rules-section">
+                            <h3>Creatures</h3>
+                            <p>Creature cards enter your creature area. Each creature has attack and health. If its health reaches 0, it is destroyed.</p>
+                        </div>
+                        <div class="rules-section">
+                            <h3>Attacking</h3>
+                            <p>Tap one of your creatures, then tap an enemy creature or the enemy hero. Each creature can attack once per turn.</p>
+                        </div>
+                        <div class="rules-section">
+                            <h3>Defender</h3>
+                            <p>If the opponent has a Defender creature, you must deal with the Defender before attacking the opponent directly.</p>
+                        </div>
+                        <div class="rules-section">
+                            <h3>Spells</h3>
+                            <p>Spells create instant effects such as damage, healing, drawing cards, protection, stealing creatures, or reviving creatures.</p>
+                        </div>
+                        <div class="rules-section">
+                            <h3>Card Info</h3>
+                            <p>Push and hold any card to view its full card information. This is the best way to learn new cards.</p>
+                        </div>
+                        <div class="rules-section">
+                            <h3>Deck and Discard</h3>
+                            <p>Played and bought cards usually go to your discard pile. When your deck runs out, your discard pile is shuffled into a new deck.</p>
+                        </div>
+                        <div class="rules-section">
+                            <h3>Online Play</h3>
+                            <p>One player hosts a room and shares the code. The second player joins with that code. Use Forfeit if you need to leave an online match.</p>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-orange" data-modal="${backAction}"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Back</span></button>
+                    </div>
+                </div>
+            </div>`;
+
+        els.modalRoot.querySelector(`[data-modal="${backAction}"]`).addEventListener("pointerup", () => {
+            playSfx("uiTap");
+            if (returnToStart || !state.active) showStartModal();
+            else showMainMenu();
+        }, { once: true });
+    }
+
     function showMainMenu() {
         updateAudioButtons();
 
@@ -4788,6 +5028,7 @@
                     <div class="settings-row menu-compact">
                         <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline">Resume Game</span></button>
                         ${matchButton}
+                        <button type="button" class="menu-primary" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules / Help</span></button>
                         <button type="button" class="menu-half audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
                         <button type="button" class="menu-half audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
                         ${audioControlHtml("music")}
@@ -4807,6 +5048,14 @@
 
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+
+        const rulesBtn = els.modalRoot.querySelector('[data-modal="rules"]');
+        if (rulesBtn) {
+            rulesBtn.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                showRulesModal(false);
+            });
+        }
 
         const mainMenuBtn = els.modalRoot.querySelector('[data-modal="main-menu-new-game"]');
         if (mainMenuBtn) {
@@ -5913,68 +6162,56 @@
                 <div class="modal-card">
                     <div class="start-art"></div>
                     <h2>Arcane Spell Craft</h2>
-                    <p>Choose Story Mode to learn cards chapter by chapter, or jump straight into a duel.</p>
-                    <div class="mode-grid">
-                        <button type="button" class="mode-choice story-entry" data-modal="story-mode"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Story Mode</span></button>
-                        <button type="button" class="mode-choice selected" data-start-mode="ai"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_helmet.webp" alt="" /> Solo vs AI</span></button>
-                        <button type="button" class="mode-choice" data-start-mode="pass"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_passplay.webp" alt="" /> Pass &amp; Play</span></button>
-                        <button type="button" class="mode-choice" data-modal="host-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Host Online</span></button>
-                        <button type="button" class="mode-choice" data-modal="join-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Join Online</span></button>
-                    </div>
                     <div class="name-grid">
-                        <input id="startPlayerOne" maxlength="18" value="Player 1" aria-label="Player 1 name" />
-                        <input id="startPlayerTwo" maxlength="18" value="Player 2" aria-label="Player 2 name" />
+                        <input id="startPlayerOne" maxlength="18" value="Player 1" aria-label="Player name" />
                     </div>
-                    <div class="settings-row audio-compact">
-                        <button type="button" class="audio-toggle" data-modal="toggle-music"><span class="button-inline">Music On</span></button>
-                        <button type="button" class="audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Game Sounds On</span></button>
-                        ${audioControlHtml("music")}
-                        ${audioControlHtml("sfx")}
-                    </div>
-                    <div class="start-action-row">
-                        ${installButtonHtml("btn-wide")}
-                        <button type="button" class="btn-wide" data-modal="start-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Game</span></button>
+                    <div class="start-menu-list">
+                        <button type="button" class="mode-choice story-entry" data-modal="story-mode"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Story Mode</span></button>
+                        <button type="button" class="mode-choice" data-modal="start-solo"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_helmet.webp" alt="" /> Solo vs AI</span></button>
+                        <button type="button" class="mode-choice" data-modal="multiplayer-menu"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_passplay.webp" alt="" /> Multiplayer</span></button>
+                        <button type="button" class="mode-choice rules-entry" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules</span></button>
+                        <button type="button" class="mode-choice settings-entry" data-modal="settings"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Settings</span></button>
+                        ${installButtonHtml("mode-choice")}
                     </div>
                 </div>
             </div>`;
 
-        let selectedMode = "ai";
-        const modeButtons = [...els.modalRoot.querySelectorAll("[data-start-mode]")];
-        const p2Input = els.modalRoot.querySelector("#startPlayerTwo");
-        function updateMode(mode) {
-            selectedMode = mode;
-            modeButtons.forEach(btn => btn.classList.toggle("selected", btn.dataset.startMode === mode));
-            p2Input.disabled = mode === "ai";
-            p2Input.style.opacity = mode === "ai" ? "0.45" : "1";
-        }
-        modeButtons.forEach(btn => btn.addEventListener("pointerup", () => {
-            playSfx("uiTap");
-            updateMode(btn.dataset.startMode);
-        }));
-        updateMode("ai");
         updateAudioButtons();
         bindAudioVolumeControls(els.modalRoot);
         bindInstallButtons(els.modalRoot);
-        els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
-        els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+
+        const playerOneInput = els.modalRoot.querySelector("#startPlayerOne");
+
         els.modalRoot.querySelector('[data-modal="story-mode"]').addEventListener("pointerup", () => {
-            const playerName = els.modalRoot.querySelector("#startPlayerOne").value.trim() || "Player 1";
+            const playerName = playerOneInput.value.trim() || "Player 1";
             state.names = { ...state.names, player: playerName };
             playSfx("uiTap");
             showStoryMap();
         });
-        els.modalRoot.querySelector('[data-modal="host-online"]').addEventListener("pointerup", () => {
-            const playerName = els.modalRoot.querySelector("#startPlayerOne").value;
-            hostOnlineGame(playerName);
-        });
-        els.modalRoot.querySelector('[data-modal="join-online"]').addEventListener("pointerup", showJoinOnlineModal);
-        els.modalRoot.querySelector('[data-modal="start-game"]').addEventListener("pointerup", () => {
+
+        els.modalRoot.querySelector('[data-modal="start-solo"]').addEventListener("pointerup", () => {
             unlockAudioFromGesture();
-            const playerName = els.modalRoot.querySelector("#startPlayerOne").value;
-            const playerTwoName = p2Input.value;
+            const playerName = playerOneInput.value;
             els.modalRoot.innerHTML = "";
-            initGame({ mode: selectedMode, playerName, playerTwoName });
+            initGame({ mode: "ai", playerName });
         }, { once: true });
+
+        els.modalRoot.querySelector('[data-modal="multiplayer-menu"]').addEventListener("pointerup", () => {
+            const playerName = playerOneInput.value.trim() || "Player 1";
+            state.names = { ...state.names, player: playerName };
+            playSfx("uiTap");
+            showMultiplayerMenu();
+        });
+
+        els.modalRoot.querySelector('[data-modal="rules"]').addEventListener("pointerup", () => {
+            playSfx("uiTap");
+            showRulesModal(true);
+        });
+
+        els.modalRoot.querySelector('[data-modal="settings"]').addEventListener("pointerup", () => {
+            playSfx("uiTap");
+            showSettingsModal(true);
+        });
     }
 
     function showPassPrompt(ownerId) {
