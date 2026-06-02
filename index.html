@@ -1490,6 +1490,89 @@
             color: #b9adc9;
         }
 
+
+        .chapter-detail-modal {
+            padding: 0;
+            place-items: stretch;
+            background: #03040a;
+        }
+
+        .chapter-detail-card {
+            width: 100vw;
+            max-width: none;
+            height: 100dvh;
+            max-height: none;
+            overflow: hidden;
+            border: 0;
+            border-radius: 0;
+            padding: 0;
+            position: relative;
+            text-align: left;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            box-shadow: inset 0 0 70px rgba(0,0,0,0.56);
+        }
+
+        .chapter-detail-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(180deg, rgba(3,4,10,0.16) 0%, rgba(3,4,10,0.28) 34%, rgba(3,4,10,0.78) 72%, rgba(3,4,10,0.94) 100%),
+                radial-gradient(circle at 50% 28%, transparent 0 34%, rgba(0,0,0,0.28) 72%, rgba(0,0,0,0.58) 100%);
+        }
+
+        .chapter-detail-content {
+            position: absolute;
+            z-index: 1;
+            left: 12px;
+            right: 12px;
+            bottom: max(16px, var(--safe-bottom));
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 14px;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 215, 106, 0.34);
+            background: linear-gradient(180deg, rgba(8, 9, 18, 0.70), rgba(8, 9, 18, 0.48));
+            box-shadow: 0 18px 54px rgba(0,0,0,0.44);
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+
+        .chapter-detail-content h2 {
+            margin: 0 0 6px;
+            color: #fff4d2;
+            font-size: clamp(1.25rem, 6vw, 1.8rem);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.72);
+        }
+
+        .chapter-detail-content p {
+            margin: 0 0 10px;
+            color: #e2dbff;
+            font-size: 0.88rem;
+            line-height: 1.35;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.72);
+        }
+
+        .chapter-detail-content .story-detail-grid {
+            background: rgba(0,0,0,0.16);
+            border-radius: 14px;
+            padding: 8px 10px;
+        }
+
+        @media (min-width: 720px) {
+            .chapter-detail-content {
+                left: 50%;
+                right: auto;
+                width: min(560px, calc(100vw - 32px));
+                transform: translateX(-50%);
+                bottom: max(24px, var(--safe-bottom));
+            }
+        }
+
+
         .chapter-hero {
             min-height: 230px;
             border-radius: 20px;
@@ -6186,20 +6269,21 @@
     function showStoryChapterDetail(chapterId) {
         const chapter = storyChapterById(chapterId);
         els.modalRoot.innerHTML = `
-            <div class="modal" role="dialog" aria-modal="true">
-                <div class="modal-card">
-                    <div class="chapter-hero" style="background-image:linear-gradient(180deg, rgba(4,7,15,0.05), rgba(4,7,15,0.66)), url('${chapter.locationImage}')"></div>
-                    <h2>${escapeHtml(chapter.title)}</h2>
-                    <p>${escapeHtml(chapter.intro)}</p>
-                    <div class="story-detail-grid">
-                        <div><strong>Enemy:</strong> ${escapeHtml(chapter.enemyName)}</div>
-                        <div><strong>Health:</strong> You ${chapter.playerHp || STARTING_HP} / Enemy ${chapter.enemyHp || STARTING_HP}</div>
-                        <div><strong>Focus:</strong> ${escapeHtml(chapter.theme)}</div>
-                        <div class="story-unlocks">Reward: ${escapeHtml(storyListText(chapter.unlocks))}</div>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="button" class="btn-dark" data-modal="story-map-back"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Map</span></button>
-                        <button type="button" class="btn-orange" data-modal="start-story-chapter"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Chapter</span></button>
+            <div class="modal chapter-detail-modal" role="dialog" aria-modal="true">
+                <div class="modal-card chapter-detail-card" style="background-image:url('${chapter.locationImage}')">
+                    <div class="chapter-detail-content">
+                        <h2>${escapeHtml(chapter.title)}</h2>
+                        <p>${escapeHtml(chapter.intro)}</p>
+                        <div class="story-detail-grid">
+                            <div><strong>Enemy:</strong> ${escapeHtml(chapter.enemyName)}</div>
+                            <div><strong>Health:</strong> You ${chapter.playerHp || STARTING_HP} / Enemy ${chapter.enemyHp || STARTING_HP}</div>
+                            <div><strong>Focus:</strong> ${escapeHtml(chapter.theme)}</div>
+                            <div class="story-unlocks">Reward: ${escapeHtml(storyListText(chapter.unlocks))}</div>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-dark" data-modal="story-map-back"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Map</span></button>
+                            <button type="button" class="btn-orange" data-modal="start-story-chapter"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Chapter</span></button>
+                        </div>
                     </div>
                 </div>
             </div>`;
