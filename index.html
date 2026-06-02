@@ -1179,10 +1179,11 @@
             margin: 0 auto;
             padding: 12px 12px 14px;
             border-radius: 24px;
-            border: 1px solid rgba(255, 215, 106, 0.28);
-            background: linear-gradient(180deg, rgba(8, 9, 18, 0.62), rgba(8, 9, 18, 0.34));
-            box-shadow: 0 18px 54px rgba(0,0,0,0.42);
-            backdrop-filter: blur(4px);
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
         }
 
         .start-screen-card h2 {
@@ -1848,57 +1849,8 @@
         }
 
 
-        /* MOBILE PERFORMANCE + CLEAN FIT OVERRIDE
-           Replaces the older stacked phone overrides with one final, predictable layer.
-           Goal: smoother mobile scrolling/tapping while keeping the same visual style. */
-        @media (max-width: 700px) {
-            body {
-                background:
-                    linear-gradient(180deg, rgba(2, 4, 10, 0.34), rgba(4, 7, 14, 0.88)),
-                    radial-gradient(circle at 12% 0%, rgba(124, 92, 255, 0.22), transparent 34%),
-                    radial-gradient(circle at 85% 18%, rgba(255, 135, 79, 0.12), transparent 30%),
-                    url('assets/ui/bg_board.webp') center top / cover scroll no-repeat,
-                    linear-gradient(145deg, #060912 0%, #101426 100%);
-            }
-
-            .top-bar,
-            .action-dock,
-            .floating-targets,
-            .modal,
-            .start-menu-panel,
-            .story-map-header,
-            .chapter-detail-content,
-            body.story-board-active .zone {
-                backdrop-filter: none;
-                -webkit-backdrop-filter: none;
-            }
-
-            .top-bar,
-            .zone,
-            .shop-zone,
-            .card,
-            .shop-pill,
-            .modal-card,
-            .action-dock,
-            .floating-targets {
-                box-shadow: 0 6px 18px rgba(0,0,0,0.26);
-            }
-
-            .zone.cloak-active {
-                box-shadow: 0 0 0 1px rgba(177, 142, 255, 0.22), 0 0 18px rgba(124, 92, 255, 0.18);
-            }
-
-            .card {
-                will-change: auto;
-            }
-        }
-
+        /* FINAL MOBILE FIT OVERRIDE */
         @media (max-width: 430px) {
-            :root {
-                --card-w: clamp(88px, 27vw, 104px);
-                --card-h: clamp(118px, 36vw, 146px);
-            }
-
             body {
                 padding-left: 8px;
                 padding-right: 8px;
@@ -1914,12 +1866,17 @@
             }
 
             .title {
-                font-size: clamp(1.18rem, 6.6vw, 1.55rem);
+                font-size: clamp(1.25rem, 7vw, 1.65rem);
                 letter-spacing: 0.03em;
             }
 
             .subtitle {
-                font-size: 0.8rem;
+                font-size: 0.82rem;
+            }
+
+            .turn-pill {
+                padding: 8px 12px;
+                font-size: clamp(0.9rem, 4.8vw, 1.15rem);
             }
 
             .zone-head {
@@ -1955,6 +1912,31 @@
             .player-zone .hp-target,
             .ai-zone .stat,
             .ai-zone .hp-target {
+                min-width: 0;
+                width: 100%;
+                min-height: 36px;
+                padding: 0 6px;
+                justify-content: center;
+                gap: 3px;
+                font-size: 0.95rem;
+                line-height: 1;
+                white-space: nowrap;
+            }
+
+            .player-zone .stat .ui-icon,
+            .player-zone .hp-target .ui-icon,
+            .ai-zone .stat .ui-icon,
+            .ai-zone .hp-target .ui-icon {
+                width: 18px;
+                height: 18px;
+                flex: 0 0 auto;
+            }
+
+
+            .player-zone .stat,
+            .player-zone .hp-target,
+            .ai-zone .stat,
+            .ai-zone .hp-target {
                 display: grid;
                 grid-template-columns: auto auto;
                 grid-template-rows: auto auto;
@@ -1963,13 +1945,8 @@
                 justify-content: center;
                 column-gap: 3px;
                 row-gap: 1px;
-                min-width: 0;
-                width: 100%;
                 min-height: 42px;
                 padding: 3px 4px 4px;
-                font-size: 0.92rem;
-                line-height: 1;
-                white-space: nowrap;
             }
 
             .player-zone .stat > .ui-icon,
@@ -1979,9 +1956,6 @@
                 grid-column: 1;
                 grid-row: 1;
                 justify-self: end;
-                width: 18px;
-                height: 18px;
-                flex: 0 0 auto;
             }
 
             .player-zone .stat > span:not(.stat-word),
@@ -2009,19 +1983,23 @@
                 text-overflow: ellipsis;
             }
 
-            .player-zone .lane-count,
-            .ai-zone .lane-count {
-                display: none;
-            }
-
             .market .card {
-                --card-w: clamp(96px, 30vw, 108px);
-                --card-h: clamp(138px, 42vw, 158px);
+                --card-w: 112px;
+                --card-h: 170px;
             }
 
             .lane-label {
                 padding: 8px 12px 4px;
                 font-size: 0.74rem;
+            }
+
+            .hint-card {
+                padding: 12px 14px;
+            }
+
+            .hint-main {
+                font-size: 1rem;
+                line-height: 1.18;
             }
 
             .utility-row {
@@ -2034,7 +2012,9 @@
                 font-size: 0.82rem;
                 padding: 8px 10px;
             }
+        }
 
+        @media (max-width: 430px) {
             .action-dock {
                 grid-template-columns: 1fr auto;
                 gap: 6px;
@@ -2054,11 +2034,6 @@
         }
 
         @media (max-width: 370px) {
-            :root {
-                --card-w: 88px;
-                --card-h: 122px;
-            }
-
             .player-zone .stat,
             .player-zone .hp-target,
             .ai-zone .stat,
@@ -2083,7 +2058,7 @@
         }
 
 
-                .game-over-card {
+        .game-over-card {
             width: min(94vw, 520px);
             text-align: left;
         }
@@ -3331,7 +3306,7 @@
         if (!audioState.musicElement) {
             audioState.musicElement = new Audio();
             audioState.musicElement.loop = true;
-            audioState.musicElement.preload = "none";
+            audioState.musicElement.preload = "auto";
         }
 
         const resolvedSrc = new URL(src, window.location.href).href;
@@ -3583,12 +3558,11 @@
     const DEFAULT_GAME_BACKGROUND = "assets/ui/bg_board.webp";
 
     function gameBackgroundCss(imageUrl = DEFAULT_GAME_BACKGROUND) {
-        const attachment = window.matchMedia && window.matchMedia("(max-width: 700px)").matches ? "scroll" : "fixed";
         return `
                 linear-gradient(180deg, rgba(2, 4, 10, 0.34), rgba(4, 7, 14, 0.88)),
                 radial-gradient(circle at 12% 0%, rgba(124, 92, 255, 0.28), transparent 34%),
                 radial-gradient(circle at 85% 18%, rgba(255, 135, 79, 0.16), transparent 30%),
-                url('${imageUrl}') center top / cover ${attachment} no-repeat,
+                url('${imageUrl}') center top / cover fixed no-repeat,
                 linear-gradient(145deg, #060912 0%, #101426 100%)`;
     }
 
@@ -4641,6 +4615,7 @@
         renderShop();
         renderLogs();
         renderHint();
+        updateAudioButtons();
     }
 
     function renderHeroTargetState() {
