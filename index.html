@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#090d18" />
     <title>Arcane Spell Craft — Mobile Optimized</title>
+    <!-- Safe first-screen image preloads. No service-worker card-art caching. -->
+    <link rel="preload" as="image" href="assets/ui/cover_art.webp" type="image/webp" fetchpriority="high">
+    <link rel="preload" as="image" href="assets/ui/bg_menu.webp" type="image/webp">
+    <link rel="preload" as="image" href="assets/ui/bg_board.webp" type="image/webp">
+    <link rel="preload" as="image" href="assets/ui/card_back.webp" type="image/webp">
     <style>
         :root {
             color-scheme: dark;
