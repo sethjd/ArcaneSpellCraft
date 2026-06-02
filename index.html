@@ -1419,60 +1419,60 @@
             top: var(--pin-y);
             transform: translate(-50%, -50%);
             pointer-events: auto;
-            width: clamp(145px, 39vw, 185px);
-            min-height: 44px;
-            padding: 5px 10px;
-            border-radius: 14px;
+            width: clamp(130px, 36vw, 170px);
+            min-height: 40px;
+            padding: 4px 6px;
+            border-radius: 8px;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 2px;
+            gap: 1px;
             align-content: center;
             text-align: center;
-            --btn-bg: url('assets/ui/button_small_dark.webp');
-            background-image:
-                linear-gradient(180deg, rgba(5,7,14,0.58), rgba(5,7,14,0.34)),
-                var(--btn-bg);
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            background-position: center;
-            border: 1px solid rgba(255, 215, 106, 0.22);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.38), 0 0 18px rgba(124,92,255,0.10);
-            backdrop-filter: blur(2px);
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .chapter-pin.available {
-            --btn-bg: url('assets/ui/button_small_blue.webp');
-            border-color: rgba(90, 183, 255, 0.28);
+            opacity: 1;
         }
 
         .chapter-pin.completed {
-            --btn-bg: url('assets/ui/button_small_orange.webp');
-            border-color: rgba(255, 215, 106, 0.34);
+            opacity: 0.96;
         }
 
         .chapter-pin.locked {
             filter: grayscale(0.7);
-            opacity: 0.62;
+            opacity: 0.58;
         }
 
         .chapter-pin-title {
             color: #fff7e6;
             font-weight: 1000;
-            font-size: clamp(0.68rem, 2.7vw, 0.78rem);
+            font-size: clamp(0.72rem, 3vw, 0.86rem);
             line-height: 1.05;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.78);
+            text-shadow:
+                0 2px 3px rgba(0,0,0,0.95),
+                0 0 8px rgba(0,0,0,0.95),
+                0 0 12px rgba(124,92,255,0.55);
         }
 
         .chapter-pin-action {
             color: #ffeaa6;
-            font-size: clamp(0.56rem, 2.25vw, 0.66rem);
+            font-size: clamp(0.58rem, 2.35vw, 0.68rem);
             font-weight: 950;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.08em;
+            text-shadow:
+                0 2px 3px rgba(0,0,0,0.95),
+                0 0 8px rgba(0,0,0,0.95),
+                0 0 10px rgba(255,215,106,0.42);
         }
 
         .chapter-pin.locked .chapter-pin-action {
-            color: #b9adc9;
+            color: #c7bdd8;
         }
 
 
