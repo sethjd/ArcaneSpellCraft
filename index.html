@@ -1249,6 +1249,11 @@
             background-size: 100% 100%;
         }
 
+        .start-screen-card .start-menu-list {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
         @media (max-width: 390px) {
             .start-menu-list {
                 width: min(62vw, 210px);
@@ -6359,10 +6364,6 @@
             <div class="modal start-screen-modal" role="dialog" aria-modal="true">
                 <div class="modal-card start-screen-card">
                     <div class="start-menu-panel">
-                        <h2>Arcane Spell Craft</h2>
-                        <div class="name-grid">
-                            <input id="startPlayerOne" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_NAME_KEY) || state.names?.player || "Player 1")}" aria-label="Player name" />
-                        </div>
                         <div class="start-menu-list">
                             <button type="button" class="mode-choice story-entry" data-modal="story-mode"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Story Mode</span></button>
                             <button type="button" class="mode-choice" data-modal="start-solo"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_helmet.webp" alt="" /> Solo vs AI</span></button>
@@ -6379,30 +6380,27 @@
         bindAudioVolumeControls(els.modalRoot);
         bindInstallButtons(els.modalRoot);
 
-        const playerOneInput = els.modalRoot.querySelector("#startPlayerOne");
-        function saveStartPlayerName() {
-            const savedName = playerOneInput.value.trim() || "Player 1";
-            localStorage.setItem(PLAYER_NAME_KEY, savedName);
+        function getStartPlayerName() {
+            const savedName = (localStorage.getItem(PLAYER_NAME_KEY) || state.names?.player || "Player 1").trim() || "Player 1";
             state.names = { ...state.names, player: savedName };
             return savedName;
         }
-        playerOneInput.addEventListener("change", saveStartPlayerName);
 
         els.modalRoot.querySelector('[data-modal="story-mode"]').addEventListener("pointerup", () => {
-            const playerName = saveStartPlayerName();
+            const playerName = getStartPlayerName();
             playSfx("uiTap");
             showStoryMap();
         });
 
         els.modalRoot.querySelector('[data-modal="start-solo"]').addEventListener("pointerup", () => {
             unlockAudioFromGesture();
-            const playerName = saveStartPlayerName();
+            const playerName = getStartPlayerName();
             els.modalRoot.innerHTML = "";
             initGame({ mode: "ai", playerName });
         }, { once: true });
 
         els.modalRoot.querySelector('[data-modal="multiplayer-menu"]').addEventListener("pointerup", () => {
-            const playerName = saveStartPlayerName();
+            const playerName = getStartPlayerName();
             playSfx("uiTap");
             showMultiplayerMenu();
         });
