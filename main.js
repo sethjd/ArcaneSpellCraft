@@ -1,15 +1,13 @@
-const { app, BrowserWindow, Menu, shell } = require("electron");
+const { app, BrowserWindow, Menu, shell, ipcMain } = require("electron");
 const path = require("path");
-
-const isDev = !app.isPackaged;
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1080,
-    height: 1600,
-    minWidth: 900,
-    minHeight: 900,
-    backgroundColor: "#090d18",
+    width: 1280,
+    height: 900,
+    minWidth: 980,
+    minHeight: 720,
+    backgroundColor: "#11182c",
     title: "Arcane Spell Craft",
     autoHideMenuBar: true,
     fullscreenable: true,
@@ -24,9 +22,7 @@ function createWindow() {
 
   Menu.setApplicationMenu(null);
 
-  win.once("ready-to-show", () => {
-    win.show();
-  });
+  win.once("ready-to-show", () => win.show());
 
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
@@ -41,18 +37,16 @@ function createWindow() {
   });
 
   win.loadFile(path.join(__dirname, "www", "index.html"));
-
-  if (isDev) {
-    // Uncomment while debugging:
-    // win.webContents.openDevTools({ mode: "detach" });
-  }
 }
+
+ipcMain.on("arcane-quit-game", () => {
+  app.quit();
+});
 
 app.setName("Arcane Spell Craft");
 
 app.whenReady().then(() => {
   createWindow();
-
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
