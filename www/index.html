@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#090d18" />
-    <title>Arcane Spell Craft — Mobile Optimized</title>
+    <title>Arcane Spell Craft — Desktop Edition</title>
+    <link rel="icon" type="image/png" sizes="384x384" href="assets/ui/app_icon.png">
     <!-- Safe first-screen image preloads. No service-worker card-art caching. -->
     <link rel="preload" as="image" href="assets/ui/cover_art.webp" type="image/webp" fetchpriority="high">
     <link rel="preload" as="image" href="assets/ui/bg_menu.webp" type="image/webp">
@@ -3258,6 +3259,579 @@
             }
         }
 
+    
+        /* v0.5.9 story map button press fix.
+           Keep chapter pins locked to their map coordinates while pressed/focused. */
+        .story-map-card .chapter-pin,
+        .story-map-card .chapter-pin:hover,
+        .story-map-card .chapter-pin:active,
+        .story-map-card .chapter-pin:focus,
+        .story-map-card .chapter-pin:focus-visible,
+        .story-map-card .chapter-pin.available:active,
+        .story-map-card .chapter-pin.completed:active,
+        .story-map-card .chapter-pin.locked:active {
+            transform: translate(-50%, -50%) !important;
+        }
+
+        .story-map-card .chapter-pin {
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .story-map-card .chapter-pin * {
+            pointer-events: none;
+        }
+
+        .story-map-card .chapter-pin:active {
+            filter: brightness(1.08);
+        }
+
+        .story-map-back-button,
+        .story-map-back-button:hover,
+        .story-map-back-button:active,
+        .story-map-back-button:focus,
+        .story-map-back-button:focus-visible {
+            transform: none !important;
+        }
+
+    
+        /* v0.6.0 PC polish */
+        body.desktop-build button,
+        body.desktop-build .mode-choice,
+        body.desktop-build .menu-primary,
+        body.desktop-build .audio-toggle,
+        body.desktop-build .btn-dark,
+        body.desktop-build .btn-orange,
+        body.desktop-build .btn-wide {
+            transition:
+                filter 0.14s ease,
+                box-shadow 0.16s ease,
+                border-color 0.16s ease,
+                background-color 0.16s ease,
+                opacity 0.16s ease !important;
+        }
+
+        body.desktop-build button:hover,
+        body.desktop-build .mode-choice:hover,
+        body.desktop-build .menu-primary:hover,
+        body.desktop-build .audio-toggle:hover,
+        body.desktop-build .btn-dark:hover,
+        body.desktop-build .btn-orange:hover,
+        body.desktop-build .btn-wide:hover {
+            transform: none !important;
+            filter: brightness(1.08);
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 8px 18px rgba(0,0,0,0.28);
+        }
+
+        body.desktop-build button:active,
+        body.desktop-build .mode-choice:active,
+        body.desktop-build .menu-primary:active,
+        body.desktop-build .audio-toggle:active,
+        body.desktop-build .btn-dark:active,
+        body.desktop-build .btn-orange:active,
+        body.desktop-build .btn-wide:active {
+            transform: none !important;
+            filter: brightness(0.98);
+        }
+
+        body.desktop-build .card,
+        body.desktop-build .hp-target,
+        body.desktop-build .stat,
+        body.desktop-build .floating-hero-button {
+            transition:
+                transform 0.16s ease,
+                box-shadow 0.16s ease,
+                border-color 0.16s ease,
+                filter 0.16s ease;
+        }
+
+        body.desktop-build .card:hover:not(.disabled):not(.attacked):not(.selected) {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.08),
+                0 0 22px rgba(124, 92, 255, 0.25),
+                0 18px 28px rgba(0,0,0,0.42);
+        }
+
+        body.desktop-build .card.selected {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        body.desktop-build .card.targetable:hover,
+        body.desktop-build .hp-target.targetable:hover,
+        body.desktop-build .floating-hero-button:hover {
+            border-color: rgba(255, 204, 105, 0.95);
+            box-shadow:
+                0 0 0 2px rgba(255, 204, 105, 0.18),
+                0 0 24px rgba(255, 168, 84, 0.32),
+                0 14px 28px rgba(0,0,0,0.36);
+        }
+
+        .pc-card-preview {
+            position: fixed;
+            right: 12px;
+            top: 76px;
+            z-index: 88;
+            width: 264px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background:
+                linear-gradient(180deg, rgba(10,12,22,0.94), rgba(6,8,15,0.97)),
+                rgba(10,12,22,0.96);
+            box-shadow: 0 20px 48px rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity 0.14s ease, transform 0.14s ease;
+        }
+
+        .pc-card-preview.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pc-card-preview-art {
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .pc-card-preview-body {
+            padding: 12px 12px 14px;
+        }
+
+        .pc-card-preview-title {
+            font-size: 1rem;
+            font-weight: 900;
+            color: #fff7e7;
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+
+        .pc-card-preview-type {
+            color: #c5b9e3;
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+        }
+
+        .pc-card-preview-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 9px;
+        }
+
+        .pc-card-preview-stats span {
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: #f6f2ff;
+            font-size: 0.76rem;
+            font-weight: 850;
+        }
+
+        .pc-card-preview-desc {
+            color: #e8ddff;
+            font-size: 0.82rem;
+            line-height: 1.36;
+        }
+
+        .pc-card-preview-tip {
+            margin-top: 10px;
+            color: #a89acb;
+            font-size: 0.7rem;
+            font-weight: 750;
+            letter-spacing: 0.03em;
+        }
+
+        .pc-splash-screen .modal-card {
+            width: min(92vw, 960px);
+            padding: 0;
+            overflow: hidden;
+            border-radius: 26px;
+            background:
+                linear-gradient(180deg, rgba(5,6,12,0.3), rgba(5,6,12,0.65)),
+                linear-gradient(145deg, #080b15 0%, #171d33 100%);
+        }
+
+        .pc-splash-shell {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            min-height: min(72vh, 640px);
+        }
+
+        .pc-splash-art {
+            position: relative;
+            background:
+                linear-gradient(180deg, rgba(5,7,14,0.28), rgba(5,7,14,0.76)),
+                url('assets/ui/bg_menu.webp') center / cover no-repeat;
+            min-height: 320px;
+        }
+
+        .pc-splash-art::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 50% 18%, rgba(124,92,255,0.3), transparent 34%),
+                radial-gradient(circle at 84% 24%, rgba(255,148,88,0.18), transparent 24%);
+        }
+
+        .pc-splash-copy {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 22px;
+            gap: 8px;
+        }
+
+        .pc-splash-kicker {
+            color: #d6c8ff;
+            font-size: 0.76rem;
+            font-weight: 850;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .pc-splash-copy h2 {
+            margin: 0;
+            font-size: clamp(1.55rem, 3vw, 2.4rem);
+            color: #fff7e7;
+            text-shadow: 0 4px 16px rgba(0,0,0,0.44);
+        }
+
+        .pc-splash-copy p {
+            margin: 0;
+            color: #e7defc;
+            font-size: 0.9rem;
+            line-height: 1.42;
+            max-width: 34ch;
+        }
+
+        .pc-splash-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 14px;
+            padding: 26px 24px;
+            background:
+                radial-gradient(circle at top right, rgba(124,92,255,0.2), transparent 32%),
+                linear-gradient(180deg, rgba(7,8,15,0.84), rgba(7,8,15,0.96));
+        }
+
+        .pc-splash-icon {
+            width: min(220px, 52vw);
+            aspect-ratio: 1;
+            align-self: center;
+            border-radius: 24px;
+            background: url('assets/ui/app_icon.png') center / cover no-repeat;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.12),
+                0 24px 48px rgba(0,0,0,0.44);
+        }
+
+        .pc-splash-title {
+            text-align: center;
+            font-size: 1.18rem;
+            font-weight: 900;
+            color: #fff7e7;
+            letter-spacing: 0.03em;
+        }
+
+        .pc-splash-sub {
+            text-align: center;
+            color: #c7bce6;
+            font-size: 0.84rem;
+            line-height: 1.45;
+        }
+
+        .pc-shortcut-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .pc-shortcut-chip {
+            padding: 9px 10px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: #f6f2ff;
+            font-size: 0.76rem;
+            line-height: 1.35;
+        }
+
+        .pc-shortcut-chip strong {
+            display: block;
+            margin-bottom: 2px;
+            color: #ffdd9d;
+            font-size: 0.74rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .pc-splash-cta {
+            margin-top: 2px;
+            text-align: center;
+            color: #fff1d4;
+            font-weight: 900;
+            font-size: 0.88rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .pc-mode-panel {
+            padding: 10px 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+        }
+
+        .pc-mode-title {
+            color: #f7f0ff;
+            font-weight: 900;
+            font-size: 0.82rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .pc-mode-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        @media (max-width: 980px) {
+            .pc-card-preview {
+                width: 228px;
+                right: 10px;
+            }
+
+            .pc-splash-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .pc-splash-art {
+                min-height: 220px;
+            }
+
+            .pc-splash-panel {
+                padding: 20px 18px 22px;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .pc-card-preview {
+                display: none !important;
+            }
+
+            .pc-shortcut-grid,
+            .pc-mode-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    
+        /* v0.6.1 PC polish plus */
+        body.desktop-build .modal-card {
+            box-shadow:
+                0 28px 76px rgba(0,0,0,0.62),
+                inset 0 1px rgba(255,255,255,0.08);
+        }
+
+        body.desktop-build .pause-menu-panel {
+            width: min(78vw, 360px);
+            margin-left: auto;
+            margin-right: auto;
+            gap: 10px;
+        }
+
+        body.desktop-build .pause-menu-panel .menu-primary,
+        body.desktop-build .pause-menu-panel .audio-toggle {
+            min-height: 44px;
+            font-size: 0.82rem;
+        }
+
+        body.desktop-build .menu-audio-grid,
+        body.desktop-build .settings-audio-grid {
+            border-radius: 18px;
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.18);
+        }
+
+        body.desktop-build .settings-panel {
+            width: min(86vw, 680px);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        body.desktop-build .settings-panel .mode-choice,
+        body.desktop-build .settings-panel .btn-wide {
+            min-height: 42px;
+        }
+
+        body.desktop-build .card-info-card {
+            width: min(94vw, 1040px);
+            max-height: min(92dvh, 820px);
+            overflow: auto;
+            padding: clamp(16px, 2vw, 24px);
+        }
+
+        body.desktop-build .card-info-card h2 {
+            font-size: clamp(1.45rem, 2vw, 2.1rem);
+            margin-bottom: 14px;
+        }
+
+        body.desktop-build .card-info-layout {
+            display: grid;
+            grid-template-columns: minmax(260px, 380px) minmax(260px, 1fr);
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        body.desktop-build .card-info-art {
+            min-height: 460px;
+            border-radius: 20px;
+            background-size: cover;
+            background-position: center;
+            box-shadow:
+                0 20px 42px rgba(0,0,0,0.42),
+                inset 0 0 0 1px rgba(255,255,255,0.10);
+        }
+
+        body.desktop-build .card-info-meta {
+            align-self: stretch;
+            display: grid;
+            gap: 10px;
+            align-content: start;
+        }
+
+        body.desktop-build .card-info-row {
+            min-height: 48px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.075);
+        }
+
+        body.desktop-build .card-info-label {
+            color: #ffe3a4;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        body.desktop-build .card-info-value {
+            font-size: 0.98rem;
+        }
+
+        body.desktop-build .card-info-rules {
+            margin-top: 16px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(124,92,255,0.10);
+            border: 1px solid rgba(156,124,255,0.16);
+            color: #efe8ff;
+            line-height: 1.48;
+        }
+
+        body.desktop-build .card-info-tip {
+            margin-top: 10px;
+            text-align: center;
+            color: #cfc3eb;
+        }
+
+        body.desktop-build .pc-card-preview {
+            border-color: rgba(255, 220, 143, 0.18);
+        }
+
+        body.desktop-build .pc-card-preview.visible {
+            animation: pcPreviewPop 0.18s ease-out;
+        }
+
+        @keyframes pcPreviewPop {
+            from { opacity: 0; transform: translateY(14px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .pc-match-transition {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            display: grid;
+            place-items: center;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 50% 48%, rgba(124,92,255,0.28), transparent 34%),
+                radial-gradient(circle at 50% 62%, rgba(255,180,95,0.16), transparent 28%),
+                rgba(4, 6, 13, 0.58);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.18s ease;
+        }
+
+        .pc-match-transition.visible {
+            opacity: 1;
+        }
+
+        .pc-match-transition-box {
+            display: grid;
+            gap: 8px;
+            justify-items: center;
+            padding: 22px 28px;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(6,8,16,0.78);
+            box-shadow: 0 22px 54px rgba(0,0,0,0.48);
+        }
+
+        .pc-match-transition-title {
+            color: #fff3d4;
+            font-size: clamp(1rem, 1.6vw, 1.35rem);
+            font-weight: 950;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .pc-match-transition-sub {
+            color: #cfc3eb;
+            font-size: 0.84rem;
+            font-weight: 760;
+        }
+
+        body.desktop-build .end-turn:hover {
+            filter: brightness(1.12);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.10),
+                0 0 22px rgba(255,180,95,0.22),
+                0 12px 26px rgba(0,0,0,0.34);
+        }
+
+        @media (max-width: 820px) {
+            body.desktop-build .card-info-layout {
+                grid-template-columns: 1fr;
+            }
+
+            body.desktop-build .card-info-art {
+                min-height: 320px;
+            }
+        }
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -3602,7 +4176,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.5.8 PC Auto Fit + Story Map";
+    const BUILD_VERSION = "v0.6.1 PC Polish Plus";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -5850,7 +6424,7 @@
                         void exitOnlineToMenu();
                     });
                 } else {
-                    showConfirm("Restart the match?", initGame);
+                    showConfirm("Restart the match?", () => startGameWithTransition());
                 }
                 break;
             case "forfeit-online-action":
@@ -5954,8 +6528,8 @@
                         </div>
                     </div>
                     <div class="card-info-rules">${escapeHtml(full)}</div>
-                    <button type="button" class="btn-wide" data-modal="close-card-info"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Close</span></button>
-                    <div class="card-info-tip">Press and hold any card to view this full info.</div>
+                    <button type="button" class="btn-wide" data-modal="close-card-info"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Close Card Info</span></button>
+                    <div class="card-info-tip">Right click any card on PC, or press and hold, to view this full info.</div>
                 </div>
             </div>`;
         const close = els.modalRoot.querySelector('[data-modal="close-card-info"]');
@@ -6022,7 +6596,7 @@
             unlockAudioFromGesture();
             const { playerName, playerTwoName } = saveMultiplayerNames();
             els.modalRoot.innerHTML = "";
-            initGame({ mode: "pass", playerName, playerTwoName });
+            startGameWithTransition({ mode: "pass", playerName, playerTwoName });
         }, { once: true });
 
         els.modalRoot.querySelector('[data-modal="host-online"]').addEventListener("pointerup", () => {
@@ -6044,7 +6618,7 @@
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
                     <h2>Settings</h2>
-                    <p>Adjust music, game sounds, and app install options.</p>
+                    <p>Adjust music, game sounds, and desktop options.</p>
                     <div class="settings-panel">
                         <div class="settings-audio-grid">
                             <div class="settings-audio-column">
@@ -6057,6 +6631,13 @@
                             </div>
                         </div>
                         ${installButtonHtml("btn-wide")}
+                        <div class="desktop-only-menu-button pc-mode-panel">
+                            <div class="pc-mode-title">PC Window Mode</div>
+                            <div class="pc-mode-grid">
+                                <button type="button" class="mode-choice" data-display-mode="fullscreen"><span class="button-inline">Fullscreen</span></button>
+                                <button type="button" class="mode-choice" data-display-mode="windowed"><span class="button-inline">Windowed</span></button>
+                            </div>
+                        </div>
                         <button type="button" class="mode-choice desktop-only-menu-button" data-modal="settings-toggle-fullscreen"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Toggle Fullscreen</span></button>
                         <div class="desktop-only-menu-button pc-scale-panel">
                             <div class="pc-scale-title">PC Display Scale</div>
@@ -6070,6 +6651,7 @@
                         </div>
                         <button type="button" class="mode-choice" data-modal="reset-chapter-one-tutorial"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Reset Chapter 1 Tutorial</span></button>
                         <p class="menu-note" id="tutorialResetNote">Replay the guided tutorial next time you start Story Mode Chapter 1.</p>
+                        <p class="menu-note">Desktop controls: Esc = menu, F11 = fullscreen, Enter / Space = end turn, Right Click = inspect or cancel.</p>
                         <div class="build-version">${BUILD_VERSION}</div>
                     </div>
                     <div class="modal-actions">
@@ -6082,13 +6664,17 @@
         bindAudioVolumeControls(els.modalRoot);
         bindInstallButtons(els.modalRoot);
         bindPcScaleButtons(els.modalRoot);
+        bindPcWindowModeButtons(els.modalRoot);
+
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+
         const settingsFullscreenBtn = els.modalRoot.querySelector('[data-modal="settings-toggle-fullscreen"]');
         if (settingsFullscreenBtn) {
             settingsFullscreenBtn.addEventListener("pointerup", () => {
                 playSfx("uiTap");
                 toggleDesktopFullscreen();
+                updatePcWindowModeButtons(els.modalRoot);
             });
         }
 
@@ -6104,6 +6690,7 @@
                 if (note) note.textContent = "Done. Start Story Mode Chapter 1 to see the tutorial again.";
             });
         }
+
         els.modalRoot.querySelector(`[data-modal="${backAction}"]`).addEventListener("pointerup", () => {
             playSfx("uiTap");
             if (returnToStart || !state.active) showStartModal();
@@ -6134,12 +6721,23 @@
                             </ul>
                         </div>
                         <div class="rules-section">
+                            <h3>PC Controls</h3>
+                            <ul>
+                                <li><strong>Left Click:</strong> play, buy, select, and attack.</li>
+                                <li><strong>Right Click:</strong> inspect a card, or cancel targeting / attack mode.</li>
+                                <li><strong>Esc:</strong> open or close the game menu. If you are targeting something, Esc cancels the action first.</li>
+                                <li><strong>Enter / Space:</strong> end your turn when no menu is open.</li>
+                                <li><strong>F11:</strong> toggle fullscreen.</li>
+                                <li><strong>Hover:</strong> preview cards and highlight targets.</li>
+                            </ul>
+                        </div>
+                        <div class="rules-section">
                             <h3>Shards</h3>
                             <p>Shards are temporary money for the current turn. Use them to buy Market cards or Arcane Clusters. Unspent shards disappear when your turn ends.</p>
                         </div>
                         <div class="rules-section">
                             <h3>Market</h3>
-                            <p>Tap a Market card to buy it if you have enough shards. Bought cards go to your discard pile and become available after your deck reshuffles.</p>
+                            <p>Click a Market card to buy it if you have enough shards. Bought cards go to your discard pile and become available after your deck reshuffles.</p>
                         </div>
                         <div class="rules-section">
                             <h3>Creatures</h3>
@@ -6147,7 +6745,7 @@
                         </div>
                         <div class="rules-section">
                             <h3>Attacking</h3>
-                            <p>Tap one of your creatures, then tap an enemy creature or the enemy hero. Each creature can attack once per turn.</p>
+                            <p>Click one of your creatures, then click an enemy creature or the enemy hero. Each creature can attack once per turn.</p>
                         </div>
                         <div class="rules-section">
                             <h3>Defender</h3>
@@ -6159,7 +6757,7 @@
                         </div>
                         <div class="rules-section">
                             <h3>Card Info</h3>
-                            <p>Press and hold any card to view its full card information. This is the best way to learn new cards.</p>
+                            <p>Right click any visible card to inspect it on PC. Hover cards for a quick preview. You can still press and hold if you prefer.</p>
                         </div>
                         <div class="rules-section">
                             <h3>Deck and Discard</h3>
@@ -6182,11 +6780,6 @@
             else showMainMenu();
         }, { once: true });
     }
-
-
-
-
-    const PC_SCALE_KEY = "arcane_pc_scale_mode";
 
     function getPcScaleMode() {
         return localStorage.getItem(PC_SCALE_KEY) || "auto";
@@ -6254,18 +6847,210 @@
         updatePcScaleButtons(root);
     }
 
-    function toggleDesktopFullscreen() {
-        if (window.ArcaneDesktop?.toggleFullscreen) {
-            window.ArcaneDesktop.toggleFullscreen();
+    const PC_WINDOW_MODE_KEY = "arcaneSpellCraftPcWindowMode";
+    let pcHoverPreviewEl = null;
+    let pcHoverCardId = "";
+
+    function isDesktopBuild() {
+        return document.body.classList.contains("desktop-build") || Boolean(window.ArcaneDesktop?.isDesktopWrapper);
+    }
+
+    function getPcWindowMode() {
+        return localStorage.getItem(PC_WINDOW_MODE_KEY) || "fullscreen";
+    }
+
+    function updatePcWindowModeButtons(root = document) {
+        const mode = getPcWindowMode();
+        root.querySelectorAll("[data-display-mode]").forEach(button => {
+            button.classList.toggle("selected", button.dataset.displayMode === mode);
+        });
+    }
+
+    function applyPcWindowMode(mode = getPcWindowMode()) {
+        if (!isDesktopBuild()) return;
+        const safeMode = mode === "windowed" ? "windowed" : "fullscreen";
+        localStorage.setItem(PC_WINDOW_MODE_KEY, safeMode);
+        const wantsFullscreen = safeMode === "fullscreen";
+
+        if (window.ArcaneDesktop?.setFullscreen) {
+            window.ArcaneDesktop.setFullscreen(wantsFullscreen);
             return;
         }
 
         const doc = document;
-        if (!doc.fullscreenElement && doc.documentElement.requestFullscreen) {
-            doc.documentElement.requestFullscreen().catch(() => addLog("Fullscreen was blocked by the browser."));
-        } else if (doc.exitFullscreen) {
+        if (wantsFullscreen) {
+            if (!doc.fullscreenElement && doc.documentElement.requestFullscreen) {
+                doc.documentElement.requestFullscreen().catch(() => addLog("Fullscreen was blocked by the browser."));
+            }
+        } else if (doc.fullscreenElement && doc.exitFullscreen) {
             doc.exitFullscreen().catch(() => addLog("Could not leave fullscreen."));
         }
+    }
+
+    function bindPcWindowModeButtons(root = document) {
+        root.querySelectorAll("[data-display-mode]").forEach(button => {
+            if (button.dataset.boundDisplayMode === "true") return;
+            button.dataset.boundDisplayMode = "true";
+            button.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                const mode = button.dataset.displayMode === "windowed" ? "windowed" : "fullscreen";
+                applyPcWindowMode(mode);
+                updatePcWindowModeButtons(root);
+            });
+        });
+        updatePcWindowModeButtons(root);
+    }
+
+    function ensurePcHoverPreview() {
+        if (pcHoverPreviewEl) return pcHoverPreviewEl;
+        pcHoverPreviewEl = document.createElement("div");
+        pcHoverPreviewEl.id = "pcCardPreview";
+        pcHoverPreviewEl.className = "pc-card-preview";
+        document.body.appendChild(pcHoverPreviewEl);
+        return pcHoverPreviewEl;
+    }
+
+    function hidePcHoverPreview() {
+        if (!pcHoverPreviewEl) return;
+        pcHoverPreviewEl.classList.remove("visible");
+        pcHoverCardId = "";
+    }
+
+    function renderPcHoverPreview(cardId) {
+        if (!isDesktopBuild()) return;
+        if (els.modalRoot && els.modalRoot.innerHTML.trim() && !els.modalRoot.querySelector(".start-screen-modal")) {
+            hidePcHoverPreview();
+            return;
+        }
+
+        const card = lookupInfoCard(cardId);
+        if (!card) {
+            hidePcHoverPreview();
+            return;
+        }
+
+        const preview = ensurePcHoverPreview();
+        const rules = CARD_RULES[card.id] || {};
+        const effect = rules.effect || card.desc || "No special effect.";
+        const stats = [];
+        if (card.shopCost != null) stats.push(`Cost ${card.shopCost}`);
+        if (card.atk != null || card.hp != null) stats.push(`${card.atk ?? 0} / ${card.hp ?? 0}`);
+        if (card.element) stats.push(`${String(card.element).charAt(0).toUpperCase()}${String(card.element).slice(1)}`);
+        preview.innerHTML = `
+            <div class="pc-card-preview-art" style="background-image:url('${escapeAttr(card.image || "assets/ui/card_back.webp")}')"></div>
+            <div class="pc-card-preview-body">
+                <div class="pc-card-preview-title">${escapeHtml(card.name)}</div>
+                <div class="pc-card-preview-type">${escapeHtml(typeLabel(card))}</div>
+                <div class="pc-card-preview-stats">${stats.map(item => `<span>${escapeHtml(item)}</span>`).join("")}</div>
+                <div class="pc-card-preview-desc">${escapeHtml(effect)}</div>
+                <div class="pc-card-preview-tip">Right Click for full details</div>
+            </div>`;
+        preview.classList.add("visible");
+        pcHoverCardId = cardId;
+    }
+
+    function handlePcHoverIn(event) {
+        if (!isDesktopBuild()) return;
+        const cardEl = event.target.closest("[data-card-id]");
+        if (!cardEl || cardEl.classList.contains("face-down")) return;
+        renderPcHoverPreview(cardEl.dataset.cardId);
+    }
+
+    function handlePcHoverOut(event) {
+        if (!isDesktopBuild()) return;
+        const fromCard = event.target.closest("[data-card-id]");
+        if (!fromCard) return;
+        const toCard = event.relatedTarget && event.relatedTarget.closest ? event.relatedTarget.closest("[data-card-id]") : null;
+        if (toCard && toCard.dataset.cardId === fromCard.dataset.cardId) return;
+        hidePcHoverPreview();
+    }
+
+    function cancelCurrentAction(message = "Action cancelled.") {
+        if (!state.pendingSpell && !state.selectedAttackerUid) return false;
+        state.pendingSpell = null;
+        state.selectedAttackerUid = null;
+        addLog(message);
+        hapticFeedback("cancel");
+        queueRender();
+        return true;
+    }
+
+    function isTextInputFocused() {
+        const active = document.activeElement;
+        if (!active) return false;
+        const tag = active.tagName;
+        return tag === "INPUT" || tag === "TEXTAREA" || active.isContentEditable;
+    }
+
+    function isSimpleClosableModalOpen() {
+        if (!els.modalRoot || !els.modalRoot.innerHTML.trim()) return false;
+        if (els.modalRoot.querySelector(".start-screen-modal")) return false;
+        return true;
+    }
+
+    function dismissPcSplash() {
+        if (!els.modalRoot.querySelector(".pc-splash-screen")) return;
+        els.modalRoot.innerHTML = "";
+        unlockAudioFromGesture();
+        showStartModal();
+    }
+
+    function showPcSplashScreen() {
+        applyGameBackground(true);
+        ensurePcHoverPreview();
+        els.modalRoot.innerHTML = `
+            <div class="modal pc-splash-screen" role="dialog" aria-modal="true">
+                <div class="modal-card">
+                    <div class="pc-splash-shell">
+                        <div class="pc-splash-art">
+                            <div class="pc-splash-copy">
+                                <div class="pc-splash-kicker">Desktop Edition</div>
+                                <h2>Arcane Spell Craft</h2>
+                                <p>Full-screen card battles with hover previews, smoother menus, and desktop controls.</p>
+                            </div>
+                        </div>
+                        <div class="pc-splash-panel">
+                            <div class="pc-splash-icon" aria-hidden="true"></div>
+                            <div class="pc-splash-title">Ready to Begin</div>
+                            <div class="pc-splash-sub">Use your mouse and keyboard for faster play. You can change fullscreen and display scale later in Settings.</div>
+                            <div class="pc-shortcut-grid">
+                                <div class="pc-shortcut-chip"><strong>Esc</strong> Open or close the menu</div>
+                                <div class="pc-shortcut-chip"><strong>F11</strong> Toggle fullscreen</div>
+                                <div class="pc-shortcut-chip"><strong>Enter / Space</strong> End your turn</div>
+                                <div class="pc-shortcut-chip"><strong>Right Click</strong> Inspect a card or cancel</div>
+                            </div>
+                            <div class="pc-splash-cta">Press Any Key or Click to Begin</div>
+                            <div class="build-version">${BUILD_VERSION}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        const startFromSplash = (event) => {
+            if (event) {
+                event.preventDefault?.();
+                event.stopPropagation?.();
+            }
+            dismissPcSplash();
+        };
+
+        const splashCard = els.modalRoot.querySelector(".pc-splash-screen");
+        if (splashCard) {
+            splashCard.addEventListener("pointerup", startFromSplash, { once: true });
+        }
+    }
+
+    function bootGameUi() {
+        ensurePcHoverPreview();
+        applyPcWindowMode(getPcWindowMode());
+        applyPcScaleMode();
+        if (isDesktopBuild()) showPcSplashScreen();
+        else showStartModal();
+    }
+
+    function toggleDesktopFullscreen() {
+        const nextMode = getPcWindowMode() === "fullscreen" ? "windowed" : "fullscreen";
+        applyPcWindowMode(nextMode);
     }
 
     function quitDesktopGame() {
@@ -6281,12 +7066,149 @@
         }
     }
 
+    function handleDesktopKeyboard(event) {
+        if (!isDesktopBuild()) return;
+        if (isTextInputFocused()) return;
+
+        if (event.key === "F11") {
+            event.preventDefault();
+            playSfx("uiTap");
+            toggleDesktopFullscreen();
+            return;
+        }
+
+        if (els.modalRoot.querySelector(".pc-splash-screen")) {
+            if (event.key.length === 1 || ["Enter", "Escape", " "].includes(event.key)) {
+                event.preventDefault();
+                dismissPcSplash();
+            }
+            return;
+        }
+
+        if (event.key === "Escape") {
+            event.preventDefault();
+
+            if (cancelCurrentAction()) return;
+
+            if (isSimpleClosableModalOpen()) {
+                els.modalRoot.innerHTML = "";
+                if (audioState.musicEnabled) startMusic();
+                return;
+            }
+
+            if (state.active) {
+                playSfx("uiTap");
+                showMainMenu();
+            }
+            return;
+        }
+
+        if (["Enter", "NumpadEnter", " "].includes(event.key)) {
+            if (els.modalRoot.innerHTML.trim()) return;
+            if (state.active && isHumanOwner(state.turn) && !state.awaitingPass && !state.pendingSpell && !state.selectedAttackerUid && !els.endTurnBtn.disabled) {
+                event.preventDefault();
+                hapticFeedback("endTurn");
+                void handleEndTurn();
+            }
+        }
+    }
+
+    function handleDesktopContextMenu(event) {
+        if (!isDesktopBuild()) return;
+
+        const cardEl = event.target.closest("[data-card-id]");
+        if (cardEl && !cardEl.classList.contains("face-down")) {
+            event.preventDefault();
+            showCardInfo(cardEl.dataset.cardId);
+            return;
+        }
+
+        if (els.modalRoot.querySelector(".card-info-card")) {
+            event.preventDefault();
+            els.modalRoot.innerHTML = "";
+            hidePcHoverPreview();
+            return;
+        }
+
+        if (cancelCurrentAction()) {
+            event.preventDefault();
+        }
+    }
+
+
+    let pcHoverSoundAt = 0;
+
+    function playPcHoverSound() {
+        if (!isDesktopBuild() || !audioState.sfxEnabled) return;
+        const now = performance.now();
+        if (now - pcHoverSoundAt < 95) return;
+        pcHoverSoundAt = now;
+
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const gain = masterGain(0.045);
+        if (!gain) return;
+
+        const osc = ctx.createOscillator();
+        const env = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1180, ctx.currentTime + 0.055);
+        env.gain.setValueAtTime(0.0001, ctx.currentTime);
+        env.gain.exponentialRampToValueAtTime(0.055, ctx.currentTime + 0.012);
+        env.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.075);
+        osc.connect(env);
+        env.connect(gain);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.09);
+    }
+
+    function handlePcHoverSound(event) {
+        if (!isDesktopBuild()) return;
+        const hoverable = event.target.closest("button, .card, .hp-target.targetable, .floating-hero-button");
+        if (!hoverable || hoverable.dataset.pcHoverSound === "1") return;
+        hoverable.dataset.pcHoverSound = "1";
+        playPcHoverSound();
+    }
+
+    function ensureMatchTransition() {
+        let overlay = document.getElementById("pcMatchTransition");
+        if (overlay) return overlay;
+
+        overlay = document.createElement("div");
+        overlay.id = "pcMatchTransition";
+        overlay.className = "pc-match-transition";
+        overlay.innerHTML = `
+            <div class="pc-match-transition-box">
+                <div class="pc-match-transition-title">Opening the Grimoire</div>
+                <div class="pc-match-transition-sub">Preparing the duel...</div>
+            </div>`;
+        document.body.appendChild(overlay);
+        return overlay;
+    }
+
+    function startGameWithTransition(options = {}) {
+        if (!isDesktopBuild()) {
+            initGame(options);
+            return;
+        }
+
+        const overlay = ensureMatchTransition();
+        overlay.classList.add("visible");
+        playSfx("uiTap");
+        window.setTimeout(() => {
+            initGame(options);
+            overlay.classList.remove("visible");
+        }, 170);
+    }
+
     function showMainMenu() {
         updateAudioButtons();
 
         const onlineStatus = state.online.enabled
             ? `<p class="menu-note"><strong>Online Room:</strong> ${escapeHtml(state.online.roomCode)} · You are ${escapeHtml(labelFor(state.online.localOwner))}${state.active ? ` · ${escapeHtml(labelFor(state.turn))}'s turn` : " · Match ended"}</p>`
             : "";
+
         const matchButton = state.online.enabled
             ? (state.active
                 ? `<button type="button" class="btn-dark menu-primary" data-modal="copy-online-code"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Copy Code</span></button>`
@@ -6297,14 +7219,15 @@
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
                     <h2>Game Menu</h2>
-                    <p>${state.online.enabled ? "Online match options and audio settings." : "Pause, audio settings, or return to the main menu."}</p>
+                    <p>${state.online.enabled ? "Online match options and desktop settings." : "Pause, inspect settings, or return to the main menu."}</p>
                     ${onlineStatus}
                     <div class="pause-menu-panel">
                         <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Resume Game</span></button>
-                        ${matchButton}
-                        <button type="button" class="menu-primary desktop-only-menu-button" data-modal="toggle-fullscreen"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Fullscreen</span></button>
-                        <button type="button" class="menu-primary desktop-only-menu-button" data-modal="quit-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Quit Game</span></button>
+                        <button type="button" class="menu-primary" data-modal="open-settings"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Settings</span></button>
                         <button type="button" class="menu-primary" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules / Help</span></button>
+                        ${matchButton}
+                        <button type="button" class="menu-primary desktop-only-menu-button" data-modal="toggle-fullscreen"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Toggle Fullscreen</span></button>
+                        <button type="button" class="menu-primary desktop-only-menu-button" data-modal="quit-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Quit Game</span></button>
                         <div class="menu-audio-grid">
                             <div class="menu-audio-column">
                                 <button type="button" class="audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
@@ -6316,9 +7239,10 @@
                             </div>
                         </div>
                     </div>
-                    <p class="menu-note">${state.online.enabled && state.active ? "Use the Forfeit button on the board if you need to concede the online match." : "Music starts after a tap because mobile browsers block autoplay."}</p>
+                    <p class="menu-note">PC Controls: Esc = menu, F11 = fullscreen, Enter / Space = end turn, Right Click = inspect or cancel.</p>
                 </div>
             </div>`;
+
         updateAudioButtons();
         bindAudioVolumeControls(els.modalRoot);
         bindInstallButtons(els.modalRoot);
@@ -6330,6 +7254,14 @@
 
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+
+        const settingsBtn = els.modalRoot.querySelector('[data-modal="open-settings"]');
+        if (settingsBtn) {
+            settingsBtn.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                showSettingsModal(false);
+            });
+        }
 
         const fullscreenBtn = els.modalRoot.querySelector('[data-modal="toggle-fullscreen"]');
         if (fullscreenBtn) {
@@ -6343,7 +7275,9 @@
         if (quitBtn) {
             quitBtn.addEventListener("pointerup", () => {
                 playSfx("uiTap");
-                quitDesktopGame();
+                showConfirm("Quit Arcane Spell Craft?", () => {
+                    quitDesktopGame();
+                }, showMainMenu);
             }, { once: true });
         }
 
@@ -6358,12 +7292,17 @@
         const mainMenuBtn = els.modalRoot.querySelector('[data-modal="main-menu-new-game"]');
         if (mainMenuBtn) {
             mainMenuBtn.addEventListener("pointerup", () => {
+                playSfx("uiTap");
                 if (state.online.enabled) {
-                    void exitOnlineToMenu();
+                    showConfirm("Leave this online match and return to the main menu?", () => {
+                        void exitOnlineToMenu();
+                    }, showMainMenu);
                 } else {
-                    stopMusic();
-                    state.active = false;
-                    showStartModal();
+                    showConfirm("Leave this match and return to the main menu?", () => {
+                        stopMusic();
+                        state.active = false;
+                        showStartModal();
+                    }, showMainMenu);
                 }
             }, { once: true });
         }
@@ -6381,7 +7320,7 @@
         }
     }
 
-    function showConfirm(message, onConfirm) {
+    function showConfirm(message, onConfirm, onCancel = null) {
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
@@ -6395,7 +7334,10 @@
             </div>`;
         const cancel = els.modalRoot.querySelector('[data-modal="cancel"]');
         const confirm = els.modalRoot.querySelector('[data-modal="confirm"]');
-        cancel.addEventListener("pointerup", () => { els.modalRoot.innerHTML = ""; }, { once: true });
+        cancel.addEventListener("pointerup", () => {
+            els.modalRoot.innerHTML = "";
+            if (typeof onCancel === "function") onCancel();
+        }, { once: true });
         confirm.addEventListener("pointerup", () => {
             els.modalRoot.innerHTML = "";
             onConfirm();
@@ -6498,7 +7440,7 @@
                 const chapter = storyChapterById(state.story.chapterId);
                 stopMusic();
                 els.modalRoot.innerHTML = "";
-                initGame({ mode: "story", chapterId: chapter.id, playerName: state.names?.player || "Player 1" });
+                startGameWithTransition({ mode: "story", chapterId: chapter.id, playerName: state.names?.player || "Player 1" });
             }, { once: true });
         }
         const mainMenu = els.modalRoot.querySelector('[data-modal="main-menu-after-game"]');
@@ -7434,10 +8376,14 @@
             </div>`;
 
         els.modalRoot.querySelectorAll("[data-story-chapter]").forEach(button => {
-            button.addEventListener("pointerup", () => {
+            const openChapter = (event) => {
+                event.preventDefault();
                 playSfx("uiTap");
                 showStoryChapterDetail(button.dataset.storyChapter);
-            });
+            };
+
+            button.addEventListener("pointerup", openChapter);
+            button.addEventListener("click", openChapter);
         });
         els.modalRoot.querySelector('[data-modal="back-start"]').addEventListener("pointerup", showStartModal, { once: true });
     }
@@ -7472,7 +8418,7 @@
         els.modalRoot.querySelector('[data-modal="start-story-chapter"]').addEventListener("pointerup", () => {
             unlockAudioFromGesture();
             els.modalRoot.innerHTML = "";
-            initGame({ mode: "story", chapterId: chapter.id, playerName: state.names?.player || "Player 1" });
+            startGameWithTransition({ mode: "story", chapterId: chapter.id, playerName: state.names?.player || "Player 1" });
         }, { once: true });
     }
 
@@ -7518,7 +8464,7 @@
             unlockAudioFromGesture();
             const playerName = getStartPlayerName();
             els.modalRoot.innerHTML = "";
-            initGame({ mode: "ai", playerName });
+            startGameWithTransition({ mode: "ai", playerName });
         }, { once: true });
 
         els.modalRoot.querySelector('[data-modal="multiplayer-menu"]').addEventListener("pointerup", () => {
@@ -7541,7 +8487,9 @@
         if (quitDesktopStartBtn) {
             quitDesktopStartBtn.addEventListener("pointerup", () => {
                 playSfx("uiTap");
-                quitDesktopGame();
+                showConfirm("Quit Arcane Spell Craft?", () => {
+                    quitDesktopGame();
+                }, showStartModal);
             }, { once: true });
         }
     }
@@ -7591,8 +8539,22 @@
     document.addEventListener("pointermove", handlePointerMove, { passive: true });
     document.addEventListener("pointercancel", handlePointerCancel, { passive: true });
     document.addEventListener("pointerup", handleTap, { passive: false });
-    window.addEventListener("resize", queueRender, { passive: true });
-    showStartModal();
+    document.addEventListener("keydown", handleDesktopKeyboard, { passive: false });
+    document.addEventListener("contextmenu", handleDesktopContextMenu);
+    document.addEventListener("mouseover", handlePcHoverIn, { passive: true });
+    document.addEventListener("mouseover", handlePcHoverSound, { passive: true });
+    document.addEventListener("mouseout", handlePcHoverOut, { passive: true });
+    window.addEventListener("resize", () => {
+        queueRender();
+        applyPcAutoFit();
+    }, { passive: true });
+    document.addEventListener("fullscreenchange", () => {
+        if (!isDesktopBuild()) return;
+        const mode = document.fullscreenElement ? "fullscreen" : "windowed";
+        localStorage.setItem(PC_WINDOW_MODE_KEY, mode);
+        updatePcWindowModeButtons(document);
+    });
+    bootGameUi();
 })();
 </script>
 

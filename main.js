@@ -1,20 +1,31 @@
-const { app, BrowserWindow, Menu, shell, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
+const fs = require("fs");
 
 let mainWindow = null;
 
+function resolveIconPath() {
+  const icoPath = path.join(__dirname, "build", "icon.ico");
+  const pngPath = path.join(__dirname, "www", "assets", "ui", "app_icon.png");
+  if (fs.existsSync(icoPath)) return icoPath;
+  if (fs.existsSync(pngPath)) return pngPath;
+  return undefined;
+}
+
 function createWindow() {
+  const iconPath = resolveIconPath();
+
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 900,
-    minWidth: 980,
-    minHeight: 720,
-    backgroundColor: "#11182c",
     title: "Arcane Spell Craft",
+    width: 1600,
+    height: 900,
+    minWidth: 1280,
+    minHeight: 720,
+    backgroundColor: "#090d18",
     autoHideMenuBar: true,
-    fullscreenable: true,
     fullscreen: true,
     show: false,
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -23,40 +34,44 @@ function createWindow() {
     }
   });
 
-  Menu.setApplicationMenu(null);
-
-  mainWindow.once("ready-to-show", () => mainWindow.show());
-
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
-    return { action: "deny" };
-  });
-
-  mainWindow.webContents.on("will-navigate", (event, url) => {
-    if (!url.startsWith("file://")) {
-      event.preventDefault();
-      shell.openExternal(url);
-    }
-  });
-
+  mainWindow.removeMenu();
   mainWindow.loadFile(path.join(__dirname, "www", "index.html"));
+
+  mainWindow.once("ready-to-show", () => {
+    if (mainWindow) mainWindow.show();
+  });
 }
 
-ipcMain.on("arcane-quit-game", () => app.quit());
-ipcMain.on("arcane-toggle-fullscreen", () => {
-  if (!mainWindow) return;
-  mainWindow.setFullScreen(!mainWindow.isFullScreen());
-});
-
-app.setName("Arcane Spell Craft");
-
 app.whenReady().then(() => {
+  app.setName("Arcane Spell Craft");
   createWindow();
+
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
+ipcMain.on("arcane-toggle-fullscreen", () => {
+  if (!mainWindow) return;
+  mainWindow.setFullScreen(!mainWindow.isFullScreen());
+});
+
+ipcMain.on("arcane-set-fullscreen", (_event, enabled) => {
+  if (!mainWindow) return;
+  mainWindow.setFullScreen(Boolean(enabled));
+});
+
+ipcMain.handle("arcane-is-fullscreen", () => {
+  if (!mainWindow) return false;
+  return mainWindow.isFullScreen();
+});
+
+ipcMain.on("arcane-quit-game", () => {
+  app.quit();
+});
+
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
 });
