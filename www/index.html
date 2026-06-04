@@ -2899,6 +2899,136 @@
         }
 
 
+    
+        /* PC desktop board refinement: slightly zoomed out, log left, main panels center, controls right. */
+        body.desktop-build {
+            --card-w: clamp(70px, 6.2vw, 94px);
+            --card-h: clamp(94px, 8.1vw, 124px);
+            padding: 6px 10px 68px;
+        }
+
+        @media (min-width: 1100px) {
+            body.desktop-build .app {
+                width: min(100%, 1440px);
+                min-height: calc(100vh - 76px);
+                display: grid;
+                grid-template-columns: minmax(190px, 250px) minmax(620px, 1fr) minmax(130px, 170px);
+                grid-template-rows: auto auto auto auto;
+                grid-template-areas:
+                    "top top top"
+                    "logs enemy utility"
+                    "logs shop utility"
+                    "logs player utility";
+                gap: 6px 8px;
+                align-items: stretch;
+            }
+
+            body.desktop-build .top-bar {
+                grid-area: top;
+            }
+
+            body.desktop-build #aiZone {
+                grid-area: enemy;
+            }
+
+            body.desktop-build .shop-zone {
+                grid-area: shop;
+            }
+
+            body.desktop-build #playerZone {
+                grid-area: player;
+            }
+
+            body.desktop-build .log-panel {
+                grid-area: logs;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                height: 100%;
+                align-self: stretch;
+            }
+
+            body.desktop-build .log {
+                flex: 1 1 auto;
+                max-height: none;
+                min-height: 0;
+                overflow-y: auto;
+            }
+
+            body.desktop-build .utility-row {
+                grid-area: utility;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: stretch;
+                gap: 8px;
+                padding: 8px;
+                border-radius: 16px;
+                background: rgba(6, 9, 17, 0.34);
+                border: 1px solid rgba(255,255,255,0.08);
+            }
+
+            body.desktop-build .utility-row button {
+                width: 100%;
+                min-width: 0;
+                max-width: none;
+                min-height: 38px;
+                padding: 7px 8px;
+                font-size: 0.72rem;
+            }
+        }
+
+        body.desktop-build .zone-head {
+            padding: 4px 8px;
+        }
+
+        body.desktop-build .scroll-lane {
+            min-height: calc(var(--card-h) + 8px);
+            padding: 4px 6px 6px;
+            gap: 5px;
+        }
+
+        body.desktop-build .scroll-lane.compact {
+            min-height: 50px;
+        }
+
+        body.desktop-build .scroll-lane.shop {
+            min-height: calc(var(--card-h) + 7px);
+        }
+
+        body.desktop-build .card {
+            padding: 5px;
+            gap: 3px;
+        }
+
+        body.desktop-build .card-name {
+            font-size: clamp(0.58rem, 0.64vw, 0.70rem);
+        }
+
+        body.desktop-build .card-body {
+            font-size: clamp(0.62rem, 0.64vw, 0.76rem);
+        }
+
+        body.desktop-build .action-dock {
+            bottom: 5px;
+            width: min(100% - 20px, 1440px);
+            padding: 5px 8px;
+        }
+
+        body.desktop-build .hint {
+            font-size: 0.68rem;
+        }
+
+        body.desktop-build .end-turn {
+            min-height: 36px;
+            min-width: 112px;
+        }
+
+        body.desktop-build .desktop-only-menu-button {
+            display: inline-grid;
+        }
+
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -3243,7 +3373,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.5.5 PC Background Fit";
+    const BUILD_VERSION = "v0.5.6 PC Layout Fullscreen";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -5698,6 +5828,7 @@
                             </div>
                         </div>
                         ${installButtonHtml("btn-wide")}
+                        <button type="button" class="mode-choice desktop-only-menu-button" data-modal="settings-toggle-fullscreen"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Toggle Fullscreen</span></button>
                         <button type="button" class="mode-choice" data-modal="reset-chapter-one-tutorial"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Reset Chapter 1 Tutorial</span></button>
                         <p class="menu-note" id="tutorialResetNote">Replay the guided tutorial next time you start Story Mode Chapter 1.</p>
                         <div class="build-version">${BUILD_VERSION}</div>
@@ -5713,6 +5844,14 @@
         bindInstallButtons(els.modalRoot);
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+        const settingsFullscreenBtn = els.modalRoot.querySelector('[data-modal="settings-toggle-fullscreen"]');
+        if (settingsFullscreenBtn) {
+            settingsFullscreenBtn.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                toggleDesktopFullscreen();
+            });
+        }
+
         const resetTutorialBtn = els.modalRoot.querySelector('[data-modal="reset-chapter-one-tutorial"]');
         if (resetTutorialBtn) {
             resetTutorialBtn.addEventListener("pointerup", () => {
@@ -7035,6 +7174,7 @@
                             <button type="button" class="mode-choice rules-entry" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules</span></button>
                             <button type="button" class="mode-choice settings-entry" data-modal="settings"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Settings</span></button>
                             ${installButtonHtml("mode-choice")}
+                            <button type="button" class="mode-choice desktop-only-menu-button" data-modal="quit-desktop-start"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Quit Game</span></button>
                         </div>
                         <div class="build-version">${BUILD_VERSION}</div>
                     </div>
@@ -7079,6 +7219,14 @@
             playSfx("uiTap");
             showSettingsModal(true);
         });
+
+        const quitDesktopStartBtn = els.modalRoot.querySelector('[data-modal="quit-desktop-start"]');
+        if (quitDesktopStartBtn) {
+            quitDesktopStartBtn.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                quitDesktopGame();
+            }, { once: true });
+        }
     }
 
     function showPassPrompt(ownerId) {

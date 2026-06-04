@@ -13,6 +13,7 @@ function createWindow() {
     title: "Arcane Spell Craft",
     autoHideMenuBar: true,
     fullscreenable: true,
+    fullscreen: true,
     show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -47,12 +48,7 @@ ipcMain.on("arcane-quit-game", () => {
 
 ipcMain.on("arcane-toggle-fullscreen", () => {
   if (!mainWindow) return;
-
-  if (mainWindow.isFullScreen()) {
-    mainWindow.setFullScreen(false);
-  } else {
-    mainWindow.setFullScreen(true);
-  }
+  mainWindow.setFullScreen(!mainWindow.isFullScreen());
 });
 
 app.setName("Arcane Spell Craft");
