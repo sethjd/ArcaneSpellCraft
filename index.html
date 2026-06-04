@@ -1353,6 +1353,20 @@
             .pause-menu-panel .audio-control label {
                 font-size: 0.62rem;
             }
+
+            .polish-menu-panel {
+                width: min(86vw, 250px);
+            }
+
+            .polish-menu-panel.two-buttons {
+                gap: 6px;
+            }
+
+            .polish-menu-panel button {
+                font-size: 0.72rem;
+                padding-left: 7px;
+                padding-right: 7px;
+            }
         }
 
         .start-menu-list .story-entry {
@@ -1489,6 +1503,41 @@
 
         .pause-menu-panel .audio-control input[type="range"] {
             height: 20px;
+        }
+
+        .polish-menu-panel {
+            display: grid;
+            gap: 9px;
+            margin: 10px auto 0;
+            width: min(76vw, 270px);
+            justify-items: stretch;
+        }
+
+        .polish-menu-panel button,
+        .polish-menu-panel .mode-choice,
+        .polish-menu-panel .btn-dark,
+        .polish-menu-panel .btn-orange,
+        .polish-menu-panel .btn-wide {
+            width: 100%;
+            max-width: 270px;
+            min-height: 42px;
+            padding-left: 10px;
+            padding-right: 10px;
+            font-size: 0.78rem;
+            justify-self: center;
+            box-shadow: none;
+        }
+
+        .polish-menu-panel.two-buttons {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .polish-menu-panel.two-buttons button {
+            min-width: 0;
+        }
+
+        .modal-card .polish-title-note {
+            margin-bottom: 10px;
         }
 
 
@@ -2918,7 +2967,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.4.2 Icon and Menu Polish";
+    const BUILD_VERSION = "v0.4.3 Menu Text Polish";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -5307,17 +5356,15 @@
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
                     <h2>Multiplayer</h2>
-                    <p>Choose local pass-and-play on one device, or play online with a room code.</p>
+                    <p class="polish-title-note">Play on one device, or create a room code for online play.</p>
                     <div class="name-grid">
-                        <input id="multiPlayerOne" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_NAME_KEY) || state.names?.player || "Player 1")}" aria-label="Player 1 name" />
-                        <input id="multiPlayerTwo" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_TWO_NAME_KEY) || state.names?.ai || "Player 2")}" aria-label="Player 2 name" />
+                        <input id="multiPlayerOne" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_NAME_KEY) || state.names?.player || "Player 1")}" aria-label="Player 1 name" placeholder="Player 1" />
+                        <input id="multiPlayerTwo" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_TWO_NAME_KEY) || state.names?.ai || "Player 2")}" aria-label="Player 2 name" placeholder="Player 2" />
                     </div>
-                    <div class="start-menu-list">
+                    <div class="polish-menu-panel">
                         <button type="button" class="mode-choice" data-modal="start-pass"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_passplay.webp" alt="" /> Pass &amp; Play</span></button>
-                        <button type="button" class="mode-choice" data-modal="host-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Host Online</span></button>
-                        <button type="button" class="mode-choice" data-modal="join-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Join Online</span></button>
-                    </div>
-                    <div class="modal-actions">
+                        <button type="button" class="mode-choice" data-modal="host-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Host Room</span></button>
+                        <button type="button" class="mode-choice" data-modal="join-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Join Room</span></button>
                         <button type="button" class="btn-orange" data-modal="multiplayer-back"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Back</span></button>
                     </div>
                 </div>
@@ -5456,7 +5503,7 @@
                         </div>
                         <div class="rules-section">
                             <h3>Card Info</h3>
-                            <p>Push and hold any card to view its full card information. This is the best way to learn new cards.</p>
+                            <p>Press and hold any card to view its full card information. This is the best way to learn new cards.</p>
                         </div>
                         <div class="rules-section">
                             <h3>Deck and Discard</h3>
@@ -5464,7 +5511,7 @@
                         </div>
                         <div class="rules-section">
                             <h3>Online Play</h3>
-                            <p>One player hosts a room and shares the code. The second player joins with that code. Use Forfeit if you need to leave an online match.</p>
+                            <p>One player hosts a room and shares the code. The second player joins with that code. Use Forfeit if you need to concede an online match.</p>
                         </div>
                     </div>
                     <div class="modal-actions">
@@ -5566,9 +5613,9 @@
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
-                    <h2>Confirm</h2>
-                    <p>${escapeHtml(message)}</p>
-                    <div class="modal-actions">
+                    <h2>Confirm Action</h2>
+                    <p class="polish-title-note">${escapeHtml(message)}</p>
+                    <div class="polish-menu-panel two-buttons">
                         <button type="button" class="btn-dark" data-modal="cancel"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Cancel</span></button>
                         <button type="button" class="btn-orange" data-modal="confirm"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Confirm</span></button>
                     </div>
@@ -6181,12 +6228,12 @@
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card online-waiting">
                     <h2>Online Room</h2>
-                    <p>Send this code to your friend.</p>
+                    <p class="polish-title-note">Share this room code with Player 2.</p>
                     <div class="turn-chip" style="font-size:1.4rem;margin:10px auto;width:max-content;">${escapeHtml(roomCode)}</div>
                     <p>Waiting for Player 2 to join...</p>
-                    <div class="modal-actions">
-                        <button type="button" class="btn-dark" data-modal="copy-room-code">Copy Code</button>
-                        <button type="button" class="btn-dark" data-modal="cancel-online">Cancel</button>
+                    <div class="polish-menu-panel two-buttons">
+                        <button type="button" class="btn-dark" data-modal="copy-room-code"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Copy</span></button>
+                        <button type="button" class="btn-dark" data-modal="cancel-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Cancel</span></button>
                     </div>
                 </div>
             </div>`;
@@ -6217,15 +6264,15 @@
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
-                    <h2>Join Online Game</h2>
-                    <p>Enter the 5-character room code from your friend.</p>
+                    <h2>Join Room</h2>
+                    <p class="polish-title-note">Enter your name and the 5-character room code from the host.</p>
                     <div class="name-grid" style="grid-template-columns:1fr;">
-                        <input id="joinPlayerName" maxlength="18" value="Player 2" aria-label="Your name" />
+                        <input id="joinPlayerName" maxlength="18" value="Player 2" aria-label="Your name" placeholder="Your name" />
                         <input id="joinRoomCode" maxlength="5" placeholder="ROOM CODE" aria-label="Room code" style="text-transform:uppercase;" />
                     </div>
-                    <div class="modal-actions">
-                        <button type="button" class="btn-dark" data-modal="back-start">Back</button>
-                        <button type="button" class="btn-orange" data-modal="join-online-room">Join</button>
+                    <div class="polish-menu-panel two-buttons">
+                        <button type="button" class="btn-dark" data-modal="back-start"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Back</span></button>
+                        <button type="button" class="btn-orange" data-modal="join-online-room"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Join</span></button>
                     </div>
                 </div>
             </div>`;
@@ -6353,8 +6400,10 @@
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
                     <h2>Online Play</h2>
-                    <p>${escapeHtml(message)}</p>
-                    <button type="button" class="btn-wide" data-modal="online-back">Back</button>
+                    <p class="polish-title-note">${escapeHtml(message)}</p>
+                    <div class="polish-menu-panel">
+                        <button type="button" class="btn-orange" data-modal="online-back"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Back</span></button>
+                    </div>
                 </div>
             </div>`;
         const back = els.modalRoot.querySelector('[data-modal="online-back"]');
@@ -6713,8 +6762,10 @@
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
                     <h2>Pass to ${escapeHtml(name)}</h2>
-                    <p>Hand is hidden for pass play. Pass the device, then press Start Turn.</p>
-                    <button type="button" class="btn-wide" data-modal="start-turn"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Start ${escapeHtml(name)} Turn</span></button>
+                    <p class="polish-title-note">The hand is hidden. Pass the device, then start the next turn.</p>
+                    <div class="polish-menu-panel">
+                        <button type="button" class="btn-orange" data-modal="start-turn"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Start ${escapeHtml(name)} Turn</span></button>
+                    </div>
                 </div>
             </div>`;
         els.modalRoot.querySelector('[data-modal="start-turn"]').addEventListener("pointerup", () => {
