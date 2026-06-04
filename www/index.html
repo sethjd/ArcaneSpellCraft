@@ -2624,11 +2624,490 @@
 
 
     
-        /* Story map landscape update */
+        /* PC / Steam desktop build overrides.
+           Safe version: keeps original menu/story backgrounds and only compacts the board. */
+        body.desktop-build {
+            --card-w: clamp(78px, 7.2vw, 104px);
+            --card-h: clamp(104px, 9.2vw, 138px);
+            padding: 6px 10px 74px;
+            overflow-x: hidden;
+        }
+
+        body.desktop-build .app {
+            width: min(100%, 1240px);
+            gap: 6px;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-areas:
+                "top top"
+                "enemy enemy"
+                "shop shop"
+                "player player"
+                "logs utility";
+            align-items: stretch;
+        }
+
+        body.desktop-build .top-bar {
+            grid-area: top;
+            position: relative;
+            top: auto;
+            padding: 6px 10px;
+            border-radius: 16px;
+        }
+
+        body.desktop-build #aiZone {
+            grid-area: enemy;
+        }
+
+        body.desktop-build .shop-zone {
+            grid-area: shop;
+        }
+
+        body.desktop-build #playerZone {
+            grid-area: player;
+        }
+
+        body.desktop-build .log-panel {
+            grid-area: logs;
+            min-width: 0;
+            margin: 0;
+        }
+
+        body.desktop-build .utility-row {
+            grid-area: utility;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 7px;
+            flex-wrap: nowrap;
+            margin: 0;
+            padding: 0;
+        }
+
+        body.desktop-build .title {
+            font-size: clamp(1rem, 1.25vw, 1.35rem);
+        }
+
+        body.desktop-build .subtitle {
+            font-size: 0.74rem;
+        }
+
+        body.desktop-build .turn-chip {
+            min-height: 34px;
+            padding: 6px 12px;
+            font-size: 0.78rem;
+        }
+
+        body.desktop-build .zone {
+            border-radius: 15px;
+        }
+
+        body.desktop-build .zone-head {
+            padding: 5px 8px;
+            gap: 6px;
+        }
+
+        body.desktop-build .zone-name {
+            font-size: 0.78rem;
+        }
+
+        body.desktop-build .stats {
+            gap: 4px;
+        }
+
+        body.desktop-build .stat,
+        body.desktop-build .hp-target {
+            min-height: 30px;
+            padding: 2px 6px;
+            font-size: 0.82rem;
+        }
+
+        body.desktop-build .stat-word {
+            font-size: 0.52rem;
+        }
+
+        body.desktop-build .lane-label {
+            padding: 4px 8px 0;
+            font-size: 0.64rem;
+        }
+
+        body.desktop-build .scroll-lane {
+            min-height: calc(var(--card-h) + 10px);
+            padding: 5px 7px 7px;
+            gap: 6px;
+        }
+
+        body.desktop-build .scroll-lane.compact {
+            min-height: 56px;
+            padding-top: 4px;
+            padding-bottom: 5px;
+        }
+
+        body.desktop-build .scroll-lane.shop {
+            min-height: calc(var(--card-h) + 8px);
+            padding-bottom: 7px;
+        }
+
+        body.desktop-build .card {
+            border-radius: 12px;
+            padding: 6px;
+            gap: 4px;
+        }
+
+        body.desktop-build .card-name {
+            font-size: clamp(0.62rem, 0.72vw, 0.76rem);
+            min-height: 1.78em;
+        }
+
+        body.desktop-build .card-body {
+            font-size: clamp(0.66rem, 0.72vw, 0.82rem);
+        }
+
+        body.desktop-build .card-stat-icon {
+            width: 1em;
+            height: 1em;
+        }
+
+        body.desktop-build .shop-meta {
+            font-size: 0.62rem;
+        }
+
+        body.desktop-build .utility-row button {
+            min-width: 96px;
+            max-width: 132px;
+            min-height: 36px;
+            padding: 6px 10px;
+            font-size: 0.72rem;
+        }
+
+        body.desktop-build .log-head {
+            padding: 5px 8px;
+            font-size: 0.66rem;
+        }
+
+        body.desktop-build .log {
+            max-height: 54px;
+            padding: 5px 8px;
+            font-size: 0.70rem;
+            line-height: 1.22;
+        }
+
+        body.desktop-build .debug {
+            display: none !important;
+        }
+
+        body.desktop-build .action-dock {
+            left: 10px;
+            right: 10px;
+            bottom: 6px;
+            width: min(100% - 20px, 1240px);
+            padding: 6px 9px;
+            border-radius: 16px;
+        }
+
+        body.desktop-build .hint {
+            font-size: 0.72rem;
+            line-height: 1.15;
+        }
+
+        body.desktop-build .hint small {
+            display: inline;
+            margin-left: 8px;
+            font-size: 0.64rem;
+        }
+
+        body.desktop-build .end-turn {
+            min-width: 118px;
+            max-width: 150px;
+            min-height: 38px;
+            padding: 7px 14px;
+        }
+
+        body:not(.desktop-build) .desktop-only-menu-button {
+            display: none;
+        }
+
+        @media (max-width: 980px) {
+            body.desktop-build .app {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "top"
+                    "enemy"
+                    "shop"
+                    "player"
+                    "utility"
+                    "logs";
+            }
+
+            body.desktop-build .utility-row {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+
+
+    
+        body.desktop-build .install-app-button {
+            display: none !important;
+        }
+
+    
+        /* PC background scale fix.
+           Desktop screens are wider than phone screens, so use contain instead of cover on menu/story art. */
+        body.desktop-build.menu-bg-active {
+            background:
+                linear-gradient(180deg, rgba(2, 4, 10, 0.20), rgba(4, 7, 14, 0.54)),
+                radial-gradient(circle at 12% 0%, rgba(124, 92, 255, 0.22), transparent 34%),
+                radial-gradient(circle at 85% 18%, rgba(255, 135, 79, 0.14), transparent 30%),
+                url('assets/ui/bg_menu.webp') center center / contain no-repeat fixed,
+                linear-gradient(145deg, #070a13 0%, #12182e 100%) !important;
+            background-color: #070a13;
+        }
+
+        body.desktop-build.story-map-active,
+        body.desktop-build.story-board-active {
+            background-size: contain, auto, auto, contain, auto !important;
+            background-position: center center, center, center, center center, center !important;
+            background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+            background-color: #070a13;
+        }
+
+        body.desktop-build .start-screen-card {
+            background-size: contain !important;
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
+            background-color: #050814;
+        }
+
+        body.desktop-build .story-map-card {
+            background-size: contain !important;
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
+            background-color: #050814;
+        }
+
+        body.desktop-build .chapter-detail-card {
+            background-size: contain !important;
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
+            background-color: #050814;
+        }
+
+        body.desktop-build .modal.story-map-modal,
+        body.desktop-build .modal.start-screen-modal,
+        body.desktop-build .chapter-detail-modal {
+            background: rgba(0,0,0,0.28);
+        }
+
+
+    
+        /* PC desktop board refinement: slightly zoomed out, log left, main panels center, controls right. */
+        body.desktop-build {
+            --card-w: clamp(70px, 6.2vw, 94px);
+            --card-h: clamp(94px, 8.1vw, 124px);
+            padding: 6px 10px 68px;
+        }
+
+        @media (min-width: 1100px) {
+            body.desktop-build .app {
+                width: min(100%, 1440px);
+                min-height: calc(100vh - 76px);
+                display: grid;
+                grid-template-columns: minmax(190px, 250px) minmax(620px, 1fr) minmax(130px, 170px);
+                grid-template-rows: auto auto auto auto;
+                grid-template-areas:
+                    "top top top"
+                    "logs enemy utility"
+                    "logs shop utility"
+                    "logs player utility";
+                gap: 6px 8px;
+                align-items: stretch;
+            }
+
+            body.desktop-build .top-bar {
+                grid-area: top;
+            }
+
+            body.desktop-build #aiZone {
+                grid-area: enemy;
+            }
+
+            body.desktop-build .shop-zone {
+                grid-area: shop;
+            }
+
+            body.desktop-build #playerZone {
+                grid-area: player;
+            }
+
+            body.desktop-build .log-panel {
+                grid-area: logs;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                height: 100%;
+                align-self: stretch;
+            }
+
+            body.desktop-build .log {
+                flex: 1 1 auto;
+                max-height: none;
+                min-height: 0;
+                overflow-y: auto;
+            }
+
+            body.desktop-build .utility-row {
+                grid-area: utility;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: stretch;
+                gap: 8px;
+                padding: 8px;
+                border-radius: 16px;
+                background: rgba(6, 9, 17, 0.34);
+                border: 1px solid rgba(255,255,255,0.08);
+            }
+
+            body.desktop-build .utility-row button {
+                width: 100%;
+                min-width: 0;
+                max-width: none;
+                min-height: 38px;
+                padding: 7px 8px;
+                font-size: 0.72rem;
+            }
+        }
+
+        body.desktop-build .zone-head {
+            padding: 4px 8px;
+        }
+
+        body.desktop-build .scroll-lane {
+            min-height: calc(var(--card-h) + 8px);
+            padding: 4px 6px 6px;
+            gap: 5px;
+        }
+
+        body.desktop-build .scroll-lane.compact {
+            min-height: 50px;
+        }
+
+        body.desktop-build .scroll-lane.shop {
+            min-height: calc(var(--card-h) + 7px);
+        }
+
+        body.desktop-build .card {
+            padding: 5px;
+            gap: 3px;
+        }
+
+        body.desktop-build .card-name {
+            font-size: clamp(0.58rem, 0.64vw, 0.70rem);
+        }
+
+        body.desktop-build .card-body {
+            font-size: clamp(0.62rem, 0.64vw, 0.76rem);
+        }
+
+        body.desktop-build .action-dock {
+            bottom: 5px;
+            width: min(100% - 20px, 1440px);
+            padding: 5px 8px;
+        }
+
+        body.desktop-build .hint {
+            font-size: 0.68rem;
+        }
+
+        body.desktop-build .end-turn {
+            min-height: 36px;
+            min-width: 112px;
+        }
+
+        body.desktop-build .desktop-only-menu-button {
+            display: inline-grid;
+        }
+
+
+    
+        /* PC auto-fit scaling: fit the full in-game board on one screen with no page scroll. */
+        :root {
+            --pc-auto-scale: 1;
+            --pc-user-scale: 1;
+            --pc-final-scale: min(var(--pc-auto-scale), var(--pc-user-scale));
+        }
+
+        body.desktop-build {
+            overflow: hidden !important;
+        }
+
+        body.desktop-build .app {
+            transform: scale(var(--pc-final-scale));
+            transform-origin: top center;
+            width: min(100%, 1440px);
+        }
+
+        body.desktop-build .action-dock {
+            transform: scale(var(--pc-final-scale));
+            transform-origin: bottom center;
+        }
+
+        body.desktop-build[data-pc-scale="100"] .app,
+        body.desktop-build[data-pc-scale="90"] .app,
+        body.desktop-build[data-pc-scale="80"] .app,
+        body.desktop-build[data-pc-scale="70"] .app {
+            transform: scale(var(--pc-user-scale));
+        }
+
+        body.desktop-build[data-pc-scale="100"] .action-dock,
+        body.desktop-build[data-pc-scale="90"] .action-dock,
+        body.desktop-build[data-pc-scale="80"] .action-dock,
+        body.desktop-build[data-pc-scale="70"] .action-dock {
+            transform: scale(var(--pc-user-scale));
+        }
+
+        body.desktop-build .pc-scale-panel {
+            display: grid;
+            gap: 6px;
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.20);
+        }
+
+        body.desktop-build .pc-scale-title {
+            color: #ffe4a8;
+            font-size: 0.72rem;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+
+        body.desktop-build .pc-scale-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+        }
+
+        body.desktop-build .pc-scale-grid button {
+            min-height: 34px;
+            padding-left: 6px;
+            padding-right: 6px;
+            font-size: 0.64rem;
+        }
+
+        body.desktop-build .pc-scale-grid button.selected {
+            --btn-bg: url('assets/ui/button_small_blue.webp');
+        }
+
+
+    
+        /* v0.5.8 story map landscape update on top of PC Auto Fit Scale */
         .story-map-card {
             background:
                 linear-gradient(180deg, rgba(3,4,10,0.18) 0%, rgba(3,4,10,0.22) 48%, rgba(3,4,10,0.32) 78%, rgba(3,4,10,0.42) 100%),
-                linear-gradient(145deg, #080b16 0%, #131a2f 100%);
+                linear-gradient(145deg, #080b16 0%, #131a2f 100%) !important;
             box-shadow: inset 0 0 42px rgba(0,0,0,0.42);
         }
 
@@ -2680,13 +3159,13 @@
         .chapter-pin,
         .chapter-pin:active,
         .chapter-pin:focus-visible {
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%) !important;
         }
 
         .chapter-pin.available:active,
         .chapter-pin.completed:active,
         .story-map-back-button:active {
-            transform: none;
+            transform: none !important;
         }
 
         .chapter-pin-title {
@@ -2731,7 +3210,7 @@
         .story-map-back-button,
         .story-map-back-button:active,
         .story-map-back-button:focus-visible {
-            transform: none;
+            transform: none !important;
         }
 
         @media (max-width: 900px) {
@@ -2790,12 +3269,12 @@
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/app-icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/app-icon-512.png">
 </head>
-<body>
+<body class="desktop-build">
     <main class="app" id="app">
         <header class="top-bar">
             <div class="title-block">
                 <h1 class="title">Arcane Spell Craft</h1>
-                <div class="subtitle" id="subtitle">Mobile optimized build</div>
+                <div class="subtitle" id="subtitle">PC desktop build</div>
             </div>
             <div class="turn-chip" id="turnChip">Your Turn</div>
         </header>
@@ -3123,7 +3602,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.4.5 Story Map Landscape";
+    const BUILD_VERSION = "v0.5.8 PC Auto Fit + Story Map";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -4205,6 +4684,7 @@
         state.logs = [];
         state.debugLines = [];
         els.modalRoot.innerHTML = "";
+        document.body.classList.remove("menu-bg-active", "story-map-active");
         unlockAudioFromGesture();
         if (audioState.musicEnabled) {
             stopMusic();
@@ -5577,6 +6057,17 @@
                             </div>
                         </div>
                         ${installButtonHtml("btn-wide")}
+                        <button type="button" class="mode-choice desktop-only-menu-button" data-modal="settings-toggle-fullscreen"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Toggle Fullscreen</span></button>
+                        <div class="desktop-only-menu-button pc-scale-panel">
+                            <div class="pc-scale-title">PC Display Scale</div>
+                            <div class="pc-scale-grid">
+                                <button type="button" class="mode-choice" data-pc-scale="auto"><span class="button-inline">Auto Fit</span></button>
+                                <button type="button" class="mode-choice" data-pc-scale="100"><span class="button-inline">100%</span></button>
+                                <button type="button" class="mode-choice" data-pc-scale="90"><span class="button-inline">90%</span></button>
+                                <button type="button" class="mode-choice" data-pc-scale="80"><span class="button-inline">80%</span></button>
+                                <button type="button" class="mode-choice" data-pc-scale="70"><span class="button-inline">70%</span></button>
+                            </div>
+                        </div>
                         <button type="button" class="mode-choice" data-modal="reset-chapter-one-tutorial"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Reset Chapter 1 Tutorial</span></button>
                         <p class="menu-note" id="tutorialResetNote">Replay the guided tutorial next time you start Story Mode Chapter 1.</p>
                         <div class="build-version">${BUILD_VERSION}</div>
@@ -5590,8 +6081,17 @@
         updateAudioButtons();
         bindAudioVolumeControls(els.modalRoot);
         bindInstallButtons(els.modalRoot);
+        bindPcScaleButtons(els.modalRoot);
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+        const settingsFullscreenBtn = els.modalRoot.querySelector('[data-modal="settings-toggle-fullscreen"]');
+        if (settingsFullscreenBtn) {
+            settingsFullscreenBtn.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                toggleDesktopFullscreen();
+            });
+        }
+
         const resetTutorialBtn = els.modalRoot.querySelector('[data-modal="reset-chapter-one-tutorial"]');
         if (resetTutorialBtn) {
             resetTutorialBtn.addEventListener("pointerup", () => {
@@ -5683,6 +6183,104 @@
         }, { once: true });
     }
 
+
+
+
+    const PC_SCALE_KEY = "arcane_pc_scale_mode";
+
+    function getPcScaleMode() {
+        return localStorage.getItem(PC_SCALE_KEY) || "auto";
+    }
+
+    function setPcScaleMode(mode) {
+        const allowed = new Set(["auto", "100", "90", "80", "70"]);
+        const safeMode = allowed.has(mode) ? mode : "auto";
+        localStorage.setItem(PC_SCALE_KEY, safeMode);
+        applyPcScaleMode();
+    }
+
+    function applyPcScaleMode() {
+        if (!document.body.classList.contains("desktop-build")) return;
+        const mode = getPcScaleMode();
+        document.body.dataset.pcScale = mode;
+        const manualScale = { "100": "1", "90": "0.9", "80": "0.8", "70": "0.7" }[mode];
+        document.documentElement.style.setProperty("--pc-user-scale", manualScale || "1");
+        requestAnimationFrame(applyPcAutoFit);
+    }
+
+    function applyPcAutoFit() {
+        if (!document.body.classList.contains("desktop-build")) return;
+        const appEl = document.getElementById("app");
+        const dockEl = document.querySelector(".action-dock");
+        if (!appEl) return;
+
+        if (getPcScaleMode() !== "auto") {
+            document.documentElement.style.setProperty("--pc-auto-scale", "1");
+            return;
+        }
+
+        document.documentElement.style.setProperty("--pc-auto-scale", "1");
+
+        requestAnimationFrame(() => {
+            const rect = appEl.getBoundingClientRect();
+            const dockHeight = dockEl ? dockEl.getBoundingClientRect().height : 0;
+            const availableWidth = Math.max(320, window.innerWidth - 18);
+            const availableHeight = Math.max(320, window.innerHeight - dockHeight - 20);
+            const widthScale = rect.width > 0 ? availableWidth / rect.width : 1;
+            const heightScale = rect.height > 0 ? availableHeight / rect.height : 1;
+            const scale = Math.min(1, widthScale, heightScale);
+            const clamped = Math.max(0.62, Math.min(1, scale));
+            document.documentElement.style.setProperty("--pc-auto-scale", String(clamped));
+        });
+    }
+
+    function updatePcScaleButtons(root = document) {
+        const mode = getPcScaleMode();
+        root.querySelectorAll("[data-pc-scale]").forEach(button => {
+            button.classList.toggle("selected", button.dataset.pcScale === mode);
+        });
+    }
+
+    function bindPcScaleButtons(root = document) {
+        root.querySelectorAll("[data-pc-scale]").forEach(button => {
+            if (button.dataset.boundPcScale === "true") return;
+            button.dataset.boundPcScale = "true";
+            button.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                setPcScaleMode(button.dataset.pcScale);
+                updatePcScaleButtons(root);
+            });
+        });
+        updatePcScaleButtons(root);
+    }
+
+    function toggleDesktopFullscreen() {
+        if (window.ArcaneDesktop?.toggleFullscreen) {
+            window.ArcaneDesktop.toggleFullscreen();
+            return;
+        }
+
+        const doc = document;
+        if (!doc.fullscreenElement && doc.documentElement.requestFullscreen) {
+            doc.documentElement.requestFullscreen().catch(() => addLog("Fullscreen was blocked by the browser."));
+        } else if (doc.exitFullscreen) {
+            doc.exitFullscreen().catch(() => addLog("Could not leave fullscreen."));
+        }
+    }
+
+    function quitDesktopGame() {
+        if (window.ArcaneDesktop?.quitGame) {
+            window.ArcaneDesktop.quitGame();
+            return;
+        }
+
+        try {
+            window.close();
+        } catch {
+            addLog("Close the game window to quit.");
+        }
+    }
+
     function showMainMenu() {
         updateAudioButtons();
 
@@ -5704,6 +6302,8 @@
                     <div class="pause-menu-panel">
                         <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Resume Game</span></button>
                         ${matchButton}
+                        <button type="button" class="menu-primary desktop-only-menu-button" data-modal="toggle-fullscreen"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Fullscreen</span></button>
+                        <button type="button" class="menu-primary desktop-only-menu-button" data-modal="quit-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Quit Game</span></button>
                         <button type="button" class="menu-primary" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules / Help</span></button>
                         <div class="menu-audio-grid">
                             <div class="menu-audio-column">
@@ -5730,6 +6330,22 @@
 
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+
+        const fullscreenBtn = els.modalRoot.querySelector('[data-modal="toggle-fullscreen"]');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                toggleDesktopFullscreen();
+            });
+        }
+
+        const quitBtn = els.modalRoot.querySelector('[data-modal="quit-game"]');
+        if (quitBtn) {
+            quitBtn.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                quitDesktopGame();
+            }, { once: true });
+        }
 
         const rulesBtn = els.modalRoot.querySelector('[data-modal="rules"]');
         if (rulesBtn) {
@@ -6764,11 +7380,17 @@
 
     window.addEventListener("resize", () => {
         if (state.tutorial.active) renderTutorialStep();
+        applyPcScaleMode();
     });
+
+    window.addEventListener("orientationchange", applyPcScaleMode);
+    window.addEventListener("load", applyPcScaleMode);
 
     function showStoryMap() {
         state.active = false;
         applyGameBackground(true);
+        document.body.classList.add("story-map-active");
+        document.body.classList.remove("menu-bg-active");
         const progress = getStoryProgress();
         const pinPositions = [
             { x: 50, y: 88 },  // Moonlit Market - bottom city
@@ -6799,7 +7421,7 @@
                         <p>Choose a chapter. Win each duel to recover a lost page and unlock the next location.</p>
                     </div>
                     <div class="story-map-stage">
-                        <div class="story-map-frame" aria-hidden="true">
+                        <div class="story-map-frame">
                             <div class="chapter-pin-layer">${chapterButtons}</div>
                         </div>
                     </div>
@@ -6869,6 +7491,7 @@
                             <button type="button" class="mode-choice rules-entry" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules</span></button>
                             <button type="button" class="mode-choice settings-entry" data-modal="settings"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Settings</span></button>
                             ${installButtonHtml("mode-choice")}
+                            <button type="button" class="mode-choice desktop-only-menu-button" data-modal="quit-desktop-start"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Quit Game</span></button>
                         </div>
                         <div class="build-version">${BUILD_VERSION}</div>
                     </div>
@@ -6913,6 +7536,14 @@
             playSfx("uiTap");
             showSettingsModal(true);
         });
+
+        const quitDesktopStartBtn = els.modalRoot.querySelector('[data-modal="quit-desktop-start"]');
+        if (quitDesktopStartBtn) {
+            quitDesktopStartBtn.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                quitDesktopGame();
+            }, { once: true });
+        }
     }
 
     function showPassPrompt(ownerId) {
