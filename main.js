@@ -1,8 +1,10 @@
 const { app, BrowserWindow, Menu, shell, ipcMain } = require("electron");
 const path = require("path");
 
+let mainWindow = null;
+
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1280,
     height: 900,
     minWidth: 980,
@@ -22,25 +24,35 @@ function createWindow() {
 
   Menu.setApplicationMenu(null);
 
-  win.once("ready-to-show", () => win.show());
+  mainWindow.once("ready-to-show", () => mainWindow.show());
 
-  win.webContents.setWindowOpenHandler(({ url }) => {
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: "deny" };
   });
 
-  win.webContents.on("will-navigate", (event, url) => {
+  mainWindow.webContents.on("will-navigate", (event, url) => {
     if (!url.startsWith("file://")) {
       event.preventDefault();
       shell.openExternal(url);
     }
   });
 
-  win.loadFile(path.join(__dirname, "www", "index.html"));
+  mainWindow.loadFile(path.join(__dirname, "www", "index.html"));
 }
 
 ipcMain.on("arcane-quit-game", () => {
   app.quit();
+});
+
+ipcMain.on("arcane-toggle-fullscreen", () => {
+  if (!mainWindow) return;
+
+  if (mainWindow.isFullScreen()) {
+    mainWindow.setFullScreen(false);
+  } else {
+    mainWindow.setFullScreen(true);
+  }
 });
 
 app.setName("Arcane Spell Craft");

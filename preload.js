@@ -4,5 +4,6 @@ contextBridge.exposeInMainWorld("ArcaneDesktop", {
   platform: process.platform,
   isDesktopWrapper: true,
   build: "pc",
-  quitGame: () => ipcRenderer.send("arcane-quit-game")
+  quitGame: () => ipcRenderer.send("arcane-quit-game"),
+  toggleFullscreen: () => ipcRenderer.send("arcane-toggle-fullscreen")
 });

@@ -2850,6 +2850,55 @@
             display: none !important;
         }
 
+    
+        /* PC background scale fix.
+           Desktop screens are wider than phone screens, so use contain instead of cover on menu/story art. */
+        body.desktop-build.menu-bg-active {
+            background:
+                linear-gradient(180deg, rgba(2, 4, 10, 0.20), rgba(4, 7, 14, 0.54)),
+                radial-gradient(circle at 12% 0%, rgba(124, 92, 255, 0.22), transparent 34%),
+                radial-gradient(circle at 85% 18%, rgba(255, 135, 79, 0.14), transparent 30%),
+                url('assets/ui/bg_menu.webp') center center / contain no-repeat fixed,
+                linear-gradient(145deg, #070a13 0%, #12182e 100%) !important;
+            background-color: #070a13;
+        }
+
+        body.desktop-build.story-map-active,
+        body.desktop-build.story-board-active {
+            background-size: contain, auto, auto, contain, auto !important;
+            background-position: center center, center, center, center center, center !important;
+            background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+            background-color: #070a13;
+        }
+
+        body.desktop-build .start-screen-card {
+            background-size: contain !important;
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
+            background-color: #050814;
+        }
+
+        body.desktop-build .story-map-card {
+            background-size: contain !important;
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
+            background-color: #050814;
+        }
+
+        body.desktop-build .chapter-detail-card {
+            background-size: contain !important;
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
+            background-color: #050814;
+        }
+
+        body.desktop-build .modal.story-map-modal,
+        body.desktop-build .modal.start-screen-modal,
+        body.desktop-build .chapter-detail-modal {
+            background: rgba(0,0,0,0.28);
+        }
+
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -3194,7 +3243,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.5.3 PC No Install Button";
+    const BUILD_VERSION = "v0.5.5 PC Background Fit";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -4276,6 +4325,7 @@
         state.logs = [];
         state.debugLines = [];
         els.modalRoot.innerHTML = "";
+        document.body.classList.remove("menu-bg-active", "story-map-active");
         unlockAudioFromGesture();
         if (audioState.musicEnabled) {
             stopMusic();
@@ -5755,6 +5805,21 @@
     }
 
 
+
+    function toggleDesktopFullscreen() {
+        if (window.ArcaneDesktop?.toggleFullscreen) {
+            window.ArcaneDesktop.toggleFullscreen();
+            return;
+        }
+
+        const doc = document;
+        if (!doc.fullscreenElement && doc.documentElement.requestFullscreen) {
+            doc.documentElement.requestFullscreen().catch(() => addLog("Fullscreen was blocked by the browser."));
+        } else if (doc.exitFullscreen) {
+            doc.exitFullscreen().catch(() => addLog("Could not leave fullscreen."));
+        }
+    }
+
     function quitDesktopGame() {
         if (window.ArcaneDesktop?.quitGame) {
             window.ArcaneDesktop.quitGame();
@@ -5789,6 +5854,7 @@
                     <div class="pause-menu-panel">
                         <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Resume Game</span></button>
                         ${matchButton}
+                        <button type="button" class="menu-primary desktop-only-menu-button" data-modal="toggle-fullscreen"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Fullscreen</span></button>
                         <button type="button" class="menu-primary desktop-only-menu-button" data-modal="quit-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Quit Game</span></button>
                         <button type="button" class="menu-primary" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules / Help</span></button>
                         <div class="menu-audio-grid">
@@ -5816,6 +5882,14 @@
 
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+
+        const fullscreenBtn = els.modalRoot.querySelector('[data-modal="toggle-fullscreen"]');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                toggleDesktopFullscreen();
+            });
+        }
 
         const quitBtn = els.modalRoot.querySelector('[data-modal="quit-game"]');
         if (quitBtn) {
@@ -6863,6 +6937,8 @@
     function showStoryMap() {
         state.active = false;
         applyGameBackground(true);
+        document.body.classList.add("story-map-active");
+        document.body.classList.remove("menu-bg-active");
         const progress = getStoryProgress();
         const pinPositions = [
             { x: 76, y: 91 },  // Moonlit Market text on lower right
