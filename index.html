@@ -2755,7 +2755,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.3 Mobile Polish Build";
+    const BUILD_VERSION = "v0.4 Tutorial Polish Build";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -5205,6 +5205,8 @@
                         ${audioControlHtml("music")}
                         ${audioControlHtml("sfx")}
                         ${installButtonHtml("btn-wide")}
+                        <button type="button" class="mode-choice" data-modal="reset-chapter-one-tutorial"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Reset Chapter 1 Tutorial</span></button>
+                        <p class="menu-note" id="tutorialResetNote">Replay the guided tutorial next time you start Story Mode Chapter 1.</p>
                         <div class="build-version">${BUILD_VERSION}</div>
                     </div>
                     <div class="modal-actions">
@@ -5218,6 +5220,18 @@
         bindInstallButtons(els.modalRoot);
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
+        const resetTutorialBtn = els.modalRoot.querySelector('[data-modal="reset-chapter-one-tutorial"]');
+        if (resetTutorialBtn) {
+            resetTutorialBtn.addEventListener("pointerup", () => {
+                playSfx("uiTap");
+                hapticFeedback("select");
+                localStorage.removeItem(CHAPTER_ONE_TUTORIAL_KEY);
+                resetTutorialBtn.innerHTML = `<span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Tutorial Reset ✓</span>`;
+                resetTutorialBtn.classList.add("selected");
+                const note = els.modalRoot.querySelector("#tutorialResetNote");
+                if (note) note.textContent = "Done. Start Story Mode Chapter 1 to see the tutorial again.";
+            });
+        }
         els.modalRoot.querySelector(`[data-modal="${backAction}"]`).addEventListener("pointerup", () => {
             playSfx("uiTap");
             if (returnToStart || !state.active) showStartModal();
@@ -6243,39 +6257,49 @@
 
     const CHAPTER_ONE_TUTORIAL_STEPS = Object.freeze([
         {
-            selector: ".shop-zone",
-            title: "This is the Shop",
-            text: "Buy monsters and spells here using shards. Bought cards go to your discard pile first, then come back later when your deck reshuffles."
+            selector: ".player-zone",
+            title: "Welcome to Chapter 1",
+            text: "This short guide pauses the duel while it explains the board. Press Next through the steps, then you can play normally."
         },
         {
             selector: "#playerHand",
-            title: "This is Your Hand",
-            text: "Tap cards to play them. Push and hold any card to see the full card info before you decide what to do."
+            title: "Your Hand",
+            text: "These are the cards you can play this turn. Tap a card to play it. Press and hold any card to read its full rules."
         },
         {
             selector: "#playerZone .stats",
-            title: "Your Health, Shards, Deck and Discard",
-            text: "Your life is the heart number. Shards are your temporary money for this turn. Deck and discard show how many cards you have left."
+            title: "Life, Shards, Deck and Discard",
+            text: "Life is the heart. Shards are temporary money for this turn. Your deck and discard show how many cards are left before a reshuffle."
         },
         {
-            selector: "#aiZone .stats",
-            title: "Opponent Health",
-            text: "Reduce the opponent's life to zero to win the chapter. You can attack the opponent directly when no Defender is blocking."
+            selector: "#playerHand",
+            title: "Play Shards First",
+            text: "Shard cards give you money for the current turn. Play Shards before buying cards from the Market."
+        },
+        {
+            selector: ".shop-zone",
+            title: "The Market",
+            text: "Spend Shards here to buy monsters and spells. Bought cards go to your discard pile first, then return later when your deck reshuffles."
         },
         {
             selector: "#playerBattlefield",
             title: "Your Creatures",
-            text: "Monsters you play go here. Tap one of your creatures, then tap an enemy creature or the opponent to attack."
+            text: "Creatures you play appear here. On your turn, tap one of your creatures, then tap an enemy creature or enemy Life to attack."
+        },
+        {
+            selector: "#aiZone",
+            title: "Enemy Side",
+            text: "The enemy's Life, hand, and creatures are at the top. Reduce enemy Life to zero to win the chapter."
         },
         {
             selector: "#aiBattlefield",
-            title: "Enemy Creatures",
-            text: "Enemy monsters appear here. Some creatures have Defender, which means you must defeat them before attacking the opponent."
+            title: "Defenders Block Attacks",
+            text: "If an enemy has Defender, you must attack or damage the Defender before hitting enemy Life or other creatures."
         },
         {
             selector: "#endTurnBtn",
-            title: "End Your Turn",
-            text: "When you have played cards, attacked, and spent your shards, press End Turn. Any unspent shards disappear at the end of the turn."
+            title: "End Turn",
+            text: "When you have played cards, attacked, and spent your Shards, press End Turn. Any unspent Shards disappear."
         }
     ]);
 
@@ -6334,7 +6358,7 @@
                         <h2>${escapeHtml(step.title)}</h2>
                         <p>${escapeHtml(step.text)}</p>
                         <div class="tutorial-actions">
-                            <button type="button" class="btn-dark" data-tutorial="skip"><span class="button-inline">Skip</span></button>
+                            <button type="button" class="btn-dark" data-tutorial="skip"><span class="button-inline">Skip Tutorial</span></button>
                             <button type="button" class="btn-orange" data-tutorial="next"><span class="button-inline">${isLast ? "Start Playing" : "Next"}</span></button>
                         </div>
                     </div>
@@ -6345,6 +6369,7 @@
             if (next) {
                 next.addEventListener("pointerup", () => {
                     playSfx("uiTap");
+                    hapticFeedback("tap");
                     state.tutorial.index += 1;
                     renderTutorialStep();
                 }, { once: true });
@@ -6352,6 +6377,7 @@
             if (skip) {
                 skip.addEventListener("pointerup", () => {
                     playSfx("uiTap");
+                    hapticFeedback("cancel");
                     finishChapterOneTutorial(true);
                 }, { once: true });
             }
