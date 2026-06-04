@@ -2967,7 +2967,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.4.3 Menu Text Polish";
+    const BUILD_VERSION = "v0.4.4 Story Text Polish";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -2985,9 +2985,9 @@
             enemyName: "Apprentice Shade",
             playerHp: 45,
             enemyHp: 35,
-            theme: "Basics, shards, market buying, simple attacks.",
-            intro: "The first page of the Grimoire is hidden in the Moonlit Market, where enchanted cards trade themselves after midnight. A shadow apprentice guards the page and tests your first spell duel.",
-            victory: "The market lanterns flare purple as the first page returns to the Grimoire.",
+            theme: "Learn the basics: play Shards, buy from the Market, and make simple attacks.",
+            intro: "The first lost page of the Grimoire is hidden in the Moonlit Market, where enchanted cards trade themselves after midnight. A shadow apprentice guards the page and challenges you to your first spell duel.",
+            victory: "The market lanterns flare with purple light as the first page returns to the Grimoire.",
             playerDeck: ["shard","shard","shard","shard","shard","surge","surge","inferno","panther","panther","frostwolf","frostwolf"],
             enemyDeck: ["shard","shard","shard","shard","shard","surge","surge","inferno","panther","panther","frostwolf"],
             marketPool: [
@@ -3011,9 +3011,9 @@
             enemyName: "Tidal Oracle",
             playerHp: 52,
             enemyHp: 38,
-            theme: "Healing, sustain, Water Elemental, and learning to finish through defense.",
-            intro: "The second page drifted into the Tidal Sanctum. Moonlit water now guards it, teaching patience, healing, and careful target choices.",
-            victory: "The tide calms. The second page rises from the waves and binds itself to your deck.",
+            theme: "Learn healing, sustain, Water Elementals, and how to break through defense.",
+            intro: "The second page has drifted into the Tidal Sanctum. Moonlit water protects it, and the Tidal Oracle tests your patience, healing, and target choices.",
+            victory: "The tide grows still. The second page rises from the waves and binds itself to your deck.",
             playerDeck: [
                 "shard","shard","shard","shard","shard",
                 "cluster",
@@ -3058,9 +3058,9 @@
             enemyName: "Venomous Hydra",
             playerHp: 55,
             enemyHp: 50,
-            theme: "Fast enemy pressure, cheap creatures, creature removal.",
-            intro: "The third page has sunk into a toxic marsh. A many-headed hydra has swallowed it, and every turn it threatens to flood the board.",
-            victory: "The hydra sinks beneath the green water. The third page breaks free from its jaws.",
+            theme: "Survive fast pressure, cheap creatures, and creature removal.",
+            intro: "The third page has sunk into the toxic Venomfen Marsh. A many-headed hydra has swallowed it, and every turn it threatens to flood the board with danger.",
+            victory: "The hydra sinks beneath the green water, and the third page breaks free from its jaws.",
             playerDeck: ["shard","shard","shard","shard","shard","cluster","cluster","surge","surge","inferno","healwave","arcanestudy","water_ele","panther","panther","frostwolf","hydra"],
             enemyDeck: ["shard","shard","shard","shard","shard","cluster","hydra","hydra","hydra","panther","panther","frostwolf","frostwolf","surge","surge","inferno","cloak"],
             marketPool: [
@@ -3089,9 +3089,9 @@
             enemyName: "Rootbound Guardian",
             playerHp: 62,
             enemyHp: 55,
-            theme: "Defenders, high-health walls, Earth Golem draw pressure.",
-            intro: "The fourth page is sealed beneath a living valley. The forest does not rush; it roots, waits, and forces you to break through its defenses.",
-            victory: "The great guardian lowers its head. The fourth page opens like a leaf of blue fire.",
+            theme: "Break through Defenders, high-health walls, and Earth Golem draw pressure.",
+            intro: "The fourth page is sealed beneath a living valley. The forest does not rush; it roots itself, waits, and forces you to break through its defenses.",
+            victory: "The great guardian lowers its head, and the fourth page opens like a leaf of blue fire.",
             playerDeck: [
                 "shard","shard","shard","shard","shard",
                 "cluster","cluster",
@@ -3149,9 +3149,9 @@
             enemyName: "The Grimoire Horror",
             playerHp: 78,
             enemyHp: 68,
-            theme: "Final boss using control, burst damage, resurrection, and big threats.",
-            intro: "The final page did not hide. It became something terrible. At the top of the Umbral Citadel, the last page feeds on every spell cast before it.",
-            victory: "The Horror collapses into ink and starlight. The Shattered Grimoire is whole again.",
+            theme: "Face the final boss: control magic, burst damage, resurrection, and massive threats.",
+            intro: "The final page did not hide. It became something terrible. At the top of the Umbral Citadel, the Grimoire Horror feeds on every spell that came before it.",
+            victory: "The Horror collapses into ink and starlight. The Shattered Grimoire is whole once more.",
             playerDeck: [
                 "shard","shard","shard","shard","shard",
                 "cluster","cluster","cluster",
@@ -6640,7 +6640,7 @@
                 <div class="modal-card story-map-card">
                     <div class="story-map-header">
                         <h2>The Shattered Grimoire</h2>
-                        <p>Choose a chapter. Win duels to unlock the next location.</p>
+                        <p>Choose a chapter. Win each duel to recover a lost page and unlock the next location.</p>
                     </div>
                     <div class="chapter-pin-layer">${chapterButtons}</div>
                     <div class="story-map-overlay">
@@ -6676,7 +6676,7 @@
                             <div><strong>Enemy:</strong> ${escapeHtml(chapter.enemyName)}</div>
                             <div><strong>Health:</strong> You ${chapter.playerHp || STARTING_HP} / Enemy ${chapter.enemyHp || STARTING_HP}</div>
                             <div><strong>Focus:</strong> ${escapeHtml(chapter.theme)}</div>
-                            <div class="story-unlocks">Reward: ${escapeHtml(storyListText(chapter.unlocks))}</div>
+                            <div class="story-unlocks">Unlocks: ${escapeHtml(storyListText(chapter.unlocks))}</div>
                         </div>
                         <div class="modal-actions">
                             <button type="button" class="btn-dark" data-modal="story-map-back"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Map</span></button>
