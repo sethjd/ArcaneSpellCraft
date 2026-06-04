@@ -462,17 +462,19 @@
         }
 
         .card.attacked::after {
-            content: "✓";
+            content: "DONE";
             position: absolute;
             top: 7px;
             right: 7px;
             display: grid;
             place-items: center;
-            width: 21px;
+            min-width: 34px;
             height: 21px;
             border-radius: 50%;
             background: rgba(0,0,0,0.62);
             color: #ffb4b4;
+            font-size: 0.54rem;
+            letter-spacing: 0.04em;
             font-weight: 950;
             z-index: 2;
         }
@@ -1328,6 +1330,29 @@
             .settings-panel .audio-control label {
                 font-size: 0.62rem;
             }
+
+            .pause-menu-panel {
+                width: min(86vw, 250px);
+            }
+
+            .pause-menu-panel .menu-audio-grid {
+                gap: 6px;
+            }
+
+            .pause-menu-panel .audio-toggle {
+                font-size: 0.70rem;
+                padding-left: 6px;
+                padding-right: 6px;
+            }
+
+            .pause-menu-panel .audio-control {
+                padding-left: 6px;
+                padding-right: 6px;
+            }
+
+            .pause-menu-panel .audio-control label {
+                font-size: 0.62rem;
+            }
         }
 
         .start-menu-list .story-entry {
@@ -1401,6 +1426,69 @@
             margin: 0;
             font-size: 0.72rem;
             text-align: center;
+        }
+
+        .pause-menu-panel {
+            display: grid;
+            gap: 10px;
+            margin: 10px auto 0;
+            width: min(76vw, 270px);
+            justify-items: stretch;
+        }
+
+        .pause-menu-panel .menu-primary {
+            width: 100%;
+            max-width: 270px;
+            min-height: 42px;
+            padding-left: 10px;
+            padding-right: 10px;
+            font-size: 0.78rem;
+            justify-self: center;
+            box-shadow: none;
+        }
+
+        .pause-menu-panel .menu-audio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            align-items: start;
+            width: 100%;
+        }
+
+        .pause-menu-panel .menu-audio-column {
+            display: grid;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .pause-menu-panel .audio-toggle {
+            width: 100%;
+            min-height: 42px;
+            padding-left: 8px;
+            padding-right: 8px;
+            font-size: 0.76rem;
+            box-shadow: none;
+        }
+
+        .pause-menu-panel .audio-control {
+            width: 100%;
+            padding: 7px 8px;
+            gap: 4px 8px;
+            min-width: 0;
+        }
+
+        .pause-menu-panel .audio-control label {
+            font-size: 0.68rem;
+            line-height: 1.1;
+        }
+
+        .pause-menu-panel .audio-control output {
+            font-size: 0.66rem;
+            min-width: 30px;
+        }
+
+        .pause-menu-panel .audio-control input[type="range"] {
+            height: 20px;
         }
 
 
@@ -2536,7 +2624,7 @@
 
         <section class="zone player-zone" id="playerZone">
             <div class="zone-head">
-                <div class="zone-name" id="playerZoneName">✨ You</div>
+                <div class="zone-name" id="playerZoneName"><img class="ai-avatar-icon" src="assets/ui/icon_player_wizard.webp" alt="" /> You</div>
                 <div class="stats">
                     <div class="hp-target" data-action="target-hero" data-owner="player"><img class="ui-icon" src="assets/ui/icon_heart.webp" alt="" /> <span id="playerHp">80</span><span class="stat-word">Life</span></div>
                     <div class="stat small"><img class="ui-icon" src="assets/ui/icon_crystal.webp" alt="" /> <span id="playerShards">0</span><span class="stat-word">Shards</span></div>
@@ -2830,7 +2918,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.4.1 Settings Layout Polish";
+    const BUILD_VERSION = "v0.4.2 Icon and Menu Polish";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -4655,11 +4743,11 @@
     }
 
     function typeIcon(card) {
-        if (card.type === "creature") return "⚔️";
-        if (card.type === "spell") return "✦";
-        if (card.type === "oneshot") return "☄";
+        if (card.type === "creature") return iconHtml("sword");
+        if (card.type === "spell") return iconHtml("arcaneSpark");
+        if (card.type === "oneshot") return iconHtml("target");
         if (card.type === "economy") return iconHtml("crystal");
-        return "◆";
+        return iconHtml("crystal");
     }
 
     function cardHtml(card, opts = {}) {
@@ -5307,7 +5395,7 @@
                 playSfx("uiTap");
                 hapticFeedback("select");
                 localStorage.removeItem(CHAPTER_ONE_TUTORIAL_KEY);
-                resetTutorialBtn.innerHTML = `<span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Tutorial Reset ✓</span>`;
+                resetTutorialBtn.innerHTML = `<span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Tutorial Reset Done</span>`;
                 resetTutorialBtn.classList.add("selected");
                 const note = els.modalRoot.querySelector("#tutorialResetNote");
                 if (note) note.textContent = "Done. Start Story Mode Chapter 1 to see the tutorial again.";
@@ -5402,24 +5490,28 @@
             ? (state.active
                 ? `<button type="button" class="btn-dark menu-primary" data-modal="copy-online-code"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Copy Code</span></button>`
                 : `<button type="button" class="btn-orange menu-primary" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Main Menu</span></button>`)
-            : `<button type="button" class="btn-orange menu-primary" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> New Game</span></button>`;
+            : `<button type="button" class="btn-orange menu-primary" data-modal="main-menu-new-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Main Menu</span></button>`;
 
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card">
-                    <h2>Arcane Spell Craft</h2>
-                    <p>${state.online.enabled ? "Online match options and audio settings." : "Pause, audio settings, or start a new match."}</p>
+                    <h2>Game Menu</h2>
+                    <p>${state.online.enabled ? "Online match options and audio settings." : "Pause, audio settings, or return to the main menu."}</p>
                     ${onlineStatus}
-                    <div class="settings-row menu-compact">
-                        <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline">Resume Game</span></button>
+                    <div class="pause-menu-panel">
+                        <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Resume Game</span></button>
                         ${matchButton}
                         <button type="button" class="menu-primary" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules / Help</span></button>
-                        <div class="menu-audio-row">
-                            <button type="button" class="menu-half audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
-                            <button type="button" class="menu-half audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
+                        <div class="menu-audio-grid">
+                            <div class="menu-audio-column">
+                                <button type="button" class="audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
+                                ${audioControlHtml("music")}
+                            </div>
+                            <div class="menu-audio-column">
+                                <button type="button" class="audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
+                                ${audioControlHtml("sfx")}
+                            </div>
                         </div>
-                        ${audioControlHtml("music")}
-                        ${audioControlHtml("sfx")}
                     </div>
                     <p class="menu-note">${state.online.enabled && state.active ? "Use the Forfeit button on the board if you need to concede the online match." : "Music starts after a tap because mobile browsers block autoplay."}</p>
                 </div>
