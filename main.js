@@ -42,10 +42,7 @@ function createWindow() {
   mainWindow.loadFile(path.join(__dirname, "www", "index.html"));
 }
 
-ipcMain.on("arcane-quit-game", () => {
-  app.quit();
-});
-
+ipcMain.on("arcane-quit-game", () => app.quit());
 ipcMain.on("arcane-toggle-fullscreen", () => {
   if (!mainWindow) return;
   mainWindow.setFullScreen(!mainWindow.isFullScreen());
