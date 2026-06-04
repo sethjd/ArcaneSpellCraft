@@ -1305,6 +1305,29 @@
                 min-height: 42px;
                 font-size: 0.8rem;
             }
+
+            .settings-panel {
+                width: min(86vw, 250px);
+            }
+
+            .settings-audio-grid {
+                gap: 6px;
+            }
+
+            .settings-panel .audio-toggle {
+                font-size: 0.70rem;
+                padding-left: 6px;
+                padding-right: 6px;
+            }
+
+            .settings-panel .audio-control {
+                padding-left: 6px;
+                padding-right: 6px;
+            }
+
+            .settings-panel .audio-control label {
+                font-size: 0.62rem;
+            }
         }
 
         .start-menu-list .story-entry {
@@ -1321,11 +1344,63 @@
         .settings-panel {
             display: grid;
             gap: 10px;
-            margin-top: 10px;
+            margin: 10px auto 0;
+            width: min(76vw, 270px);
+            justify-items: stretch;
         }
 
-        .settings-panel .audio-toggle {
+        .settings-audio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            align-items: start;
             width: 100%;
+        }
+
+        .settings-audio-column {
+            display: grid;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .settings-panel .audio-toggle,
+        .settings-panel .install-app-button,
+        .settings-panel [data-modal="reset-chapter-one-tutorial"] {
+            width: 100%;
+            max-width: 270px;
+            min-height: 42px;
+            padding-left: 10px;
+            padding-right: 10px;
+            font-size: 0.78rem;
+            justify-self: center;
+            box-shadow: none;
+        }
+
+        .settings-panel .audio-control {
+            width: 100%;
+            padding: 7px 8px;
+            gap: 4px 8px;
+            min-width: 0;
+        }
+
+        .settings-panel .audio-control label {
+            font-size: 0.68rem;
+            line-height: 1.1;
+        }
+
+        .settings-panel .audio-control output {
+            font-size: 0.66rem;
+            min-width: 30px;
+        }
+
+        .settings-panel .audio-control input[type="range"] {
+            height: 20px;
+        }
+
+        .settings-panel .menu-note {
+            margin: 0;
+            font-size: 0.72rem;
+            text-align: center;
         }
 
 
@@ -2755,7 +2830,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.4 Tutorial Polish Build";
+    const BUILD_VERSION = "v0.4.1 Settings Layout Polish";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -5200,10 +5275,16 @@
                     <h2>Settings</h2>
                     <p>Adjust music, game sounds, and app install options.</p>
                     <div class="settings-panel">
-                        <button type="button" class="audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
-                        <button type="button" class="audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Game Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
-                        ${audioControlHtml("music")}
-                        ${audioControlHtml("sfx")}
+                        <div class="settings-audio-grid">
+                            <div class="settings-audio-column">
+                                <button type="button" class="audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
+                                ${audioControlHtml("music")}
+                            </div>
+                            <div class="settings-audio-column">
+                                <button type="button" class="audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Game Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
+                                ${audioControlHtml("sfx")}
+                            </div>
+                        </div>
                         ${installButtonHtml("btn-wide")}
                         <button type="button" class="mode-choice" data-modal="reset-chapter-one-tutorial"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Reset Chapter 1 Tutorial</span></button>
                         <p class="menu-note" id="tutorialResetNote">Replay the guided tutorial next time you start Story Mode Chapter 1.</p>
