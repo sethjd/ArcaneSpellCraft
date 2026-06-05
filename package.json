@@ -1,6 +1,6 @@
 {
   "name": "arcane-spell-craft",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "Arcane Spell Craft desktop build for PC and Steam testing.",
   "main": "main.js",
   "author": "sethjd",

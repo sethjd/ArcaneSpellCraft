@@ -4682,6 +4682,142 @@
             }
         }
 
+    
+        /* v0.7.5 cleaner menu + log preview */
+        body.desktop-build .pause-menu-panel {
+            width: min(82vw, 300px) !important;
+            gap: 8px !important;
+        }
+
+        body.desktop-build .pause-menu-panel .menu-primary {
+            max-width: 255px !important;
+            min-height: 38px !important;
+            font-size: 0.74rem !important;
+        }
+
+        body.desktop-build .compact-menu-note {
+            margin: 2px auto 0 !important;
+            max-width: 260px !important;
+            text-align: center !important;
+            font-size: 0.68rem !important;
+            color: #bfb4dc !important;
+        }
+
+        @media (min-width: 1100px) {
+            body.desktop-build .log-panel {
+                display: grid !important;
+                grid-template-rows: auto minmax(150px, 1fr) auto !important;
+                gap: 8px !important;
+                overflow: hidden !important;
+                min-height: 0 !important;
+            }
+
+            body.desktop-build .log-panel .log {
+                min-height: 110px !important;
+                max-height: none !important;
+                overflow-y: auto !important;
+            }
+
+            body.desktop-build .log-card-preview {
+                position: relative !important;
+                left: auto !important;
+                right: auto !important;
+                top: auto !important;
+                bottom: auto !important;
+                width: 100% !important;
+                max-width: none !important;
+                z-index: 3 !important;
+                opacity: 1;
+                transform: none !important;
+                pointer-events: none !important;
+                border-radius: 16px !important;
+                overflow: hidden !important;
+                background:
+                    linear-gradient(180deg, rgba(10,12,22,0.94), rgba(6,8,15,0.98)),
+                    rgba(10,12,22,0.96) !important;
+                box-shadow: 0 12px 26px rgba(0,0,0,0.34) !important;
+            }
+
+            body.desktop-build .log-card-preview:not(.visible) {
+                display: block !important;
+                min-height: 152px !important;
+                opacity: 0.62 !important;
+            }
+
+            body.desktop-build .log-card-preview:not(.visible)::before {
+                content: "Hover a card";
+                display: grid;
+                place-items: center;
+                min-height: 152px;
+                color: #9589bd;
+                font-size: 0.72rem;
+                font-weight: 850;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+
+            body.desktop-build .log-card-preview.visible {
+                display: block !important;
+                opacity: 1 !important;
+                transform: none !important;
+            }
+
+            body.desktop-build .log-card-preview .pc-card-preview-art {
+                aspect-ratio: 16 / 10 !important;
+                background-size: cover !important;
+                background-position: center top !important;
+            }
+
+            body.desktop-build .log-card-preview .pc-card-preview-body {
+                padding: 8px 9px 10px !important;
+            }
+
+            body.desktop-build .log-card-preview .pc-card-preview-title {
+                font-size: 0.8rem !important;
+                margin-bottom: 3px !important;
+            }
+
+            body.desktop-build .log-card-preview .pc-card-preview-type {
+                font-size: 0.58rem !important;
+                margin-bottom: 5px !important;
+            }
+
+            body.desktop-build .log-card-preview .pc-card-preview-stats {
+                gap: 4px !important;
+                margin-bottom: 5px !important;
+            }
+
+            body.desktop-build .log-card-preview .pc-card-preview-stats span {
+                font-size: 0.58rem !important;
+                padding: 3px 6px !important;
+            }
+
+            body.desktop-build .log-card-preview .pc-card-preview-desc {
+                font-size: 0.66rem !important;
+                line-height: 1.24 !important;
+                max-height: 58px !important;
+                overflow: hidden !important;
+            }
+
+            body.desktop-build .log-card-preview .pc-card-preview-tip {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 1099px) {
+            body.desktop-build .pc-card-preview {
+                left: 50% !important;
+                right: auto !important;
+                top: 58px !important;
+                width: min(300px, 72vw) !important;
+                transform: translateX(-50%) translateY(10px) !important;
+            }
+
+            body.desktop-build .pc-card-preview.visible {
+                transform: translateX(-50%) translateY(0) !important;
+            }
+        }
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -5031,7 +5167,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.7.4 PC Layout + Settings Fix";
+    const BUILD_VERSION = "v0.7.5 Cleaner Menu + Log Preview";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -8035,11 +8171,22 @@
     }
 
     function ensurePcHoverPreview() {
-        if (pcHoverPreviewEl) return pcHoverPreviewEl;
+        if (pcHoverPreviewEl) {
+            const logPanel = document.querySelector(".log-panel");
+            if (logPanel && pcHoverPreviewEl.parentElement !== logPanel) {
+                logPanel.appendChild(pcHoverPreviewEl);
+            }
+            return pcHoverPreviewEl;
+        }
+
         pcHoverPreviewEl = document.createElement("div");
         pcHoverPreviewEl.id = "pcCardPreview";
-        pcHoverPreviewEl.className = "pc-card-preview";
-        document.body.appendChild(pcHoverPreviewEl);
+        pcHoverPreviewEl.className = "pc-card-preview log-card-preview";
+
+        const logPanel = document.querySelector(".log-panel");
+        if (logPanel) logPanel.appendChild(pcHoverPreviewEl);
+        else document.body.appendChild(pcHoverPreviewEl);
+
         return pcHoverPreviewEl;
     }
 
@@ -8628,23 +8775,13 @@
                         ${matchButton}
                         <button type="button" class="menu-primary desktop-only-menu-button" data-modal="toggle-fullscreen"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Toggle Fullscreen</span></button>
                         <button type="button" class="menu-primary desktop-only-menu-button" data-modal="quit-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Quit Game</span></button>
-                        <div class="menu-audio-grid">
-                            <div class="menu-audio-column">
-                                <button type="button" class="audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
-                                ${audioControlHtml("music")}
-                            </div>
-                            <div class="menu-audio-column">
-                                <button type="button" class="audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
-                                ${audioControlHtml("sfx")}
-                            </div>
-                        </div>
+                        <p class="menu-note compact-menu-note">Audio and display options are in Settings.</p>
                     </div>
                     <p class="menu-note">PC Controls: Esc = menu, F11 = fullscreen, Enter / Space = end turn, Right Click = inspect or cancel.</p>
                 </div>
             </div>`;
 
         updateAudioButtons();
-        bindAudioVolumeControls(els.modalRoot);
         bindInstallButtons(els.modalRoot);
 
         els.modalRoot.querySelector('[data-modal="resume-game"]').addEventListener("pointerup", () => {
@@ -8652,8 +8789,6 @@
             if (audioState.musicEnabled) startMusic();
         }, { once: true });
 
-        els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
-        els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
 
         const settingsBtn = els.modalRoot.querySelector('[data-modal="open-settings"]');
         if (settingsBtn) {
