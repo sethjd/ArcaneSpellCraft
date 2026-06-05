@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#090d18" />
-    <title>Arcane Spell Craft — Desktop Edition</title>
+    <title>Arcane Spell Craft</title>
     <link rel="icon" type="image/png" sizes="384x384" href="assets/ui/app_icon.png">
     <!-- Safe first-screen image preloads. No service-worker card-art caching. -->
     <link rel="preload" as="image" href="assets/ui/cover_art.webp" type="image/webp" fetchpriority="high">
@@ -3832,6 +3832,101 @@
             }
         }
 
+    
+        /* v0.6.2 Controller + Steam Deck polish */
+        body.desktop-build .controller-focused {
+            outline: 3px solid rgba(255, 226, 143, 0.98) !important;
+            outline-offset: 3px;
+            border-color: rgba(255, 226, 143, 0.98) !important;
+            box-shadow:
+                0 0 0 2px rgba(255, 180, 95, 0.22),
+                0 0 28px rgba(255, 180, 95, 0.42),
+                0 16px 30px rgba(0,0,0,0.42) !important;
+            filter: brightness(1.12);
+        }
+
+        body.desktop-build .card.controller-focused {
+            transform: translateY(-7px) scale(1.035);
+        }
+
+        body.desktop-build .chapter-pin.controller-focused,
+        body.desktop-build .chapter-pin.controller-focused:active {
+            transform: translate(-50%, -50%) !important;
+        }
+
+        .controller-status-chip {
+            position: fixed;
+            left: 12px;
+            bottom: 12px;
+            z-index: 95;
+            display: none;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(7, 9, 18, 0.74);
+            color: #f6f2ff;
+            font-size: 0.72rem;
+            font-weight: 850;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.38);
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+        }
+
+        body.desktop-build.controller-active .controller-status-chip {
+            display: inline-flex;
+        }
+
+        .controller-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #7dffb2;
+            box-shadow: 0 0 12px rgba(125,255,178,0.7);
+        }
+
+        body.desktop-build.controller-active .hint small::after {
+            content: "  •  Controller: A select · B cancel · X inspect · Y end turn · Start menu";
+        }
+
+        .controller-help-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .controller-help-chip {
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            padding: 8px 10px;
+            color: #efe8ff;
+            font-size: 0.76rem;
+            line-height: 1.35;
+        }
+
+        .controller-help-chip strong {
+            display: block;
+            color: #ffdf9d;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 2px;
+        }
+
+        .steam-note {
+            margin-top: 10px;
+            padding: 9px 11px;
+            border-radius: 14px;
+            border: 1px solid rgba(124,92,255,0.18);
+            background: rgba(124,92,255,0.08);
+            color: #d8cefb;
+            font-size: 0.78rem;
+            line-height: 1.42;
+        }
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -3918,8 +4013,13 @@
     </div>
 
     <div class="action-dock">
-        <div class="hint" id="actionHint">Tap cards to play. Tap one of your creatures, then tap an enemy to attack.<small>Swipe lanes sideways to view more cards.</small></div>
+        <div class="hint" id="actionHint">Click cards to play. Select one of your creatures, then select an enemy to attack.<small>Mouse, keyboard, and controller supported.</small></div>
         <button class="end-turn" type="button" data-action="end-turn" id="endTurnBtn"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> End Turn</span></button>
+    </div>
+
+    <div class="controller-status-chip" id="controllerStatusChip">
+        <span class="controller-status-dot"></span>
+        <span id="controllerStatusText">Controller Ready</span>
     </div>
 
     <div id="modalRoot"></div>
@@ -4176,7 +4276,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.6.1 PC Polish Plus";
+    const BUILD_VERSION = "v0.6.2 Controller + Steam Cleanup";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -6248,7 +6348,7 @@
 
     function renderHint() {
         let main = "Tap cards to play. Tap one of your creatures, then tap an enemy to attack.";
-        let small = "Swipe lanes sideways to view more cards.";
+        let small = "Use mouse wheel, drag, or controller shoulders to move across lanes.";
         if (!state.active) {
             main = "Game over.";
             small = "Use Main Menu to start another match.";
@@ -6652,6 +6752,7 @@
                         <button type="button" class="mode-choice" data-modal="reset-chapter-one-tutorial"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Reset Chapter 1 Tutorial</span></button>
                         <p class="menu-note" id="tutorialResetNote">Replay the guided tutorial next time you start Story Mode Chapter 1.</p>
                         <p class="menu-note">Desktop controls: Esc = menu, F11 = fullscreen, Enter / Space = end turn, Right Click = inspect or cancel.</p>
+                        <p class="steam-note">Online note: multiplayer rooms use Firebase connection services to create and sync room codes. Solo and Story Mode can be played without creating an online room.</p>
                         <div class="build-version">${BUILD_VERSION}</div>
                     </div>
                     <div class="modal-actions">
@@ -6732,6 +6833,19 @@
                             </ul>
                         </div>
                         <div class="rules-section">
+                            <h3>Controller / Steam Deck</h3>
+                            <div class="controller-help-grid">
+                                <div class="controller-help-chip"><strong>A</strong>Select / confirm focused card or button.</div>
+                                <div class="controller-help-chip"><strong>B</strong>Cancel targeting, go back, or close menu.</div>
+                                <div class="controller-help-chip"><strong>X</strong>Inspect the focused card.</div>
+                                <div class="controller-help-chip"><strong>Y</strong>End your turn when allowed.</div>
+                                <div class="controller-help-chip"><strong>D-Pad / Stick</strong>Move selection between cards and buttons.</div>
+                                <div class="controller-help-chip"><strong>LB / RB</strong>Jump between lanes or menu groups.</div>
+                                <div class="controller-help-chip"><strong>LT / RT</strong>Move left/right through cards in the current lane.</div>
+                                <div class="controller-help-chip"><strong>Start</strong>Open the game menu.</div>
+                            </div>
+                        </div>
+                        <div class="rules-section">
                             <h3>Shards</h3>
                             <p>Shards are temporary money for the current turn. Use them to buy Market cards or Arcane Clusters. Unspent shards disappear when your turn ends.</p>
                         </div>
@@ -6790,6 +6904,7 @@
         const safeMode = allowed.has(mode) ? mode : "auto";
         localStorage.setItem(PC_SCALE_KEY, safeMode);
         applyPcScaleMode();
+        if (controllerState.active) setControllerFocus(controllerState.index);
     }
 
     function applyPcScaleMode() {
@@ -7018,6 +7133,7 @@
                                 <div class="pc-shortcut-chip"><strong>F11</strong> Toggle fullscreen</div>
                                 <div class="pc-shortcut-chip"><strong>Enter / Space</strong> End your turn</div>
                                 <div class="pc-shortcut-chip"><strong>Right Click</strong> Inspect a card or cancel</div>
+                                <div class="pc-shortcut-chip"><strong>Controller</strong> A select · B back · X inspect · Y end turn</div>
                             </div>
                             <div class="pc-splash-cta">Press Any Key or Click to Begin</div>
                             <div class="build-version">${BUILD_VERSION}</div>
@@ -7201,6 +7317,213 @@
             overlay.classList.remove("visible");
         }, 170);
     }
+
+
+    const CONTROLLER_AXIS_REPEAT_MS = 220;
+    const CONTROLLER_DEADZONE = 0.55;
+    const controllerState = {
+        active: false,
+        index: 0,
+        lastButtons: [],
+        lastAxisAt: 0,
+        lastGroup: "",
+        connectedName: ""
+    };
+    const GAMEPAD_BUTTONS = Object.freeze({ A:0, B:1, X:2, Y:3, LB:4, RB:5, LT:6, RT:7, VIEW:8, START:9, UP:12, DOWN:13, LEFT:14, RIGHT:15 });
+
+    function setControllerActive(active, name = "") {
+        controllerState.active = Boolean(active);
+        controllerState.connectedName = name || controllerState.connectedName || "Controller";
+        document.body.classList.toggle("controller-active", controllerState.active);
+        const textEl = document.getElementById("controllerStatusText");
+        if (textEl) textEl.textContent = controllerState.active ? `${controllerState.connectedName} Ready` : "Controller Ready";
+    }
+
+    function getControllerFocusables() {
+        const modalItems = Array.from(els.modalRoot.querySelectorAll("button:not(:disabled), input:not(:disabled)"))
+            .filter(el => el.offsetParent !== null);
+        if (modalItems.length) return modalItems.map((el, index) => ({ el, group: "modal", order: index }));
+
+        const items = [];
+        const pushAll = (selector, group) => {
+            document.querySelectorAll(selector).forEach((el, index) => {
+                if (el.disabled || el.hidden || el.offsetParent === null) return;
+                items.push({ el, group, order: index });
+            });
+        };
+
+        pushAll("#aiBattlefield [data-action='field-card']", "enemy-field");
+        pushAll("#aiHand [data-card-id]:not(.face-down)", "enemy-hand");
+        pushAll(".shop-zone [data-action='buy-shop'], .shop-zone [data-action='buy-cluster']", "market");
+        pushAll("#playerBattlefield [data-action='field-card']", "player-field");
+        pushAll("#playerHand [data-action='hand-card']", "player-hand");
+        pushAll(".hp-target.targetable, .floating-hero-button:not([hidden])", "targets");
+        pushAll(".utility-row button:not([hidden]), .action-dock button:not(:disabled)", "controls");
+        return items;
+    }
+
+    function clearControllerFocus() {
+        document.querySelectorAll(".controller-focused").forEach(el => el.classList.remove("controller-focused"));
+    }
+
+    function setControllerFocus(index, preferredGroup = "") {
+        const items = getControllerFocusables();
+        clearControllerFocus();
+        if (!items.length) {
+            controllerState.index = 0;
+            controllerState.lastGroup = "";
+            return null;
+        }
+
+        let nextIndex = index;
+        if (preferredGroup) {
+            const groupIndex = items.findIndex(item => item.group === preferredGroup);
+            if (groupIndex >= 0) nextIndex = groupIndex;
+        }
+
+        nextIndex = ((nextIndex % items.length) + items.length) % items.length;
+        controllerState.index = nextIndex;
+        controllerState.lastGroup = items[nextIndex].group;
+
+        const el = items[nextIndex].el;
+        el.classList.add("controller-focused");
+        el.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+
+        if (el.dataset.cardId && !el.classList.contains("face-down")) renderPcHoverPreview(el.dataset.cardId);
+        else hidePcHoverPreview();
+
+        return el;
+    }
+
+    function moveControllerFocus(delta) {
+        setControllerFocus(controllerState.index + delta);
+    }
+
+    function moveControllerGroup(delta) {
+        const items = getControllerFocusables();
+        if (!items.length) return;
+        const groups = [...new Set(items.map(item => item.group))];
+        const currentGroup = controllerState.lastGroup || items[controllerState.index]?.group || groups[0];
+        const currentIndex = Math.max(0, groups.indexOf(currentGroup));
+        const nextGroup = groups[((currentIndex + delta) % groups.length + groups.length) % groups.length];
+        setControllerFocus(0, nextGroup);
+    }
+
+    function dispatchControllerPress(el) {
+        if (!el) return;
+        unlockAudioFromGesture();
+        playSfx("uiTap");
+        if (el.tagName === "INPUT") {
+            el.focus();
+            return;
+        }
+        el.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true, pointerId: 777, pointerType: "gamepad" }));
+    }
+
+    function controllerInspectFocused() {
+        let el = document.querySelector(".controller-focused") || setControllerFocus(controllerState.index);
+        if (!el) return;
+        const cardEl = el.closest("[data-card-id]");
+        if (cardEl && !cardEl.classList.contains("face-down")) showCardInfo(cardEl.dataset.cardId);
+    }
+
+    function controllerBack() {
+        if (cancelCurrentAction()) return;
+        const backButton = els.modalRoot.querySelector('[data-modal*="back"], [data-modal="cancel"], [data-modal="close-card-info"]');
+        if (backButton && backButton.offsetParent !== null) {
+            dispatchControllerPress(backButton);
+            return;
+        }
+        if (els.modalRoot.innerHTML.trim() && !els.modalRoot.querySelector(".start-screen-modal")) {
+            els.modalRoot.innerHTML = "";
+            return;
+        }
+        if (state.active) showMainMenu();
+    }
+
+    function controllerEndTurn() {
+        if (els.modalRoot.innerHTML.trim()) return;
+        if (state.active && isHumanOwner(state.turn) && !state.awaitingPass && !state.pendingSpell && !state.selectedAttackerUid && !els.endTurnBtn.disabled) {
+            hapticFeedback("endTurn");
+            void handleEndTurn();
+        }
+    }
+
+    function handleControllerButton(buttonIndex) {
+        setControllerActive(true);
+        switch (buttonIndex) {
+            case GAMEPAD_BUTTONS.A:
+                if (els.modalRoot.querySelector(".pc-splash-screen")) dismissPcSplash();
+                else dispatchControllerPress(document.querySelector(".controller-focused") || setControllerFocus(controllerState.index));
+                break;
+            case GAMEPAD_BUTTONS.B: controllerBack(); break;
+            case GAMEPAD_BUTTONS.X: controllerInspectFocused(); break;
+            case GAMEPAD_BUTTONS.Y: controllerEndTurn(); break;
+            case GAMEPAD_BUTTONS.START:
+                if (els.modalRoot.querySelector(".pc-splash-screen")) dismissPcSplash();
+                else if (state.active && !els.modalRoot.innerHTML.trim()) showMainMenu();
+                else controllerBack();
+                break;
+            case GAMEPAD_BUTTONS.VIEW:
+                if (!els.modalRoot.innerHTML.trim()) showRulesModal(!state.active);
+                break;
+            case GAMEPAD_BUTTONS.LB:
+            case GAMEPAD_BUTTONS.UP:
+                moveControllerGroup(-1);
+                break;
+            case GAMEPAD_BUTTONS.RB:
+            case GAMEPAD_BUTTONS.DOWN:
+                moveControllerGroup(1);
+                break;
+            case GAMEPAD_BUTTONS.LT:
+            case GAMEPAD_BUTTONS.LEFT:
+                moveControllerFocus(-1);
+                break;
+            case GAMEPAD_BUTTONS.RT:
+            case GAMEPAD_BUTTONS.RIGHT:
+                moveControllerFocus(1);
+                break;
+        }
+    }
+
+    function pollGamepads() {
+        const pads = navigator.getGamepads ? Array.from(navigator.getGamepads()).filter(Boolean) : [];
+        if (pads.length) {
+            const pad = pads[0];
+            setControllerActive(true, pad.id ? pad.id.replace(/\s*\(.*?\)\s*/g, "").trim().slice(0, 28) : "Controller");
+
+            pad.buttons.forEach((button, index) => {
+                const pressed = button.pressed || button.value > 0.65;
+                const wasPressed = Boolean(controllerState.lastButtons[index]);
+                if (pressed && !wasPressed) handleControllerButton(index);
+                controllerState.lastButtons[index] = pressed;
+            });
+
+            const now = performance.now();
+            const x = pad.axes[0] || 0;
+            const y = pad.axes[1] || 0;
+            if (now - controllerState.lastAxisAt > CONTROLLER_AXIS_REPEAT_MS) {
+                if (x > CONTROLLER_DEADZONE) { moveControllerFocus(1); controllerState.lastAxisAt = now; }
+                else if (x < -CONTROLLER_DEADZONE) { moveControllerFocus(-1); controllerState.lastAxisAt = now; }
+                else if (y > CONTROLLER_DEADZONE) { moveControllerGroup(1); controllerState.lastAxisAt = now; }
+                else if (y < -CONTROLLER_DEADZONE) { moveControllerGroup(-1); controllerState.lastAxisAt = now; }
+            }
+
+            if (!document.querySelector(".controller-focused") && controllerState.active) setControllerFocus(controllerState.index);
+        }
+        requestAnimationFrame(pollGamepads);
+    }
+
+    window.addEventListener("gamepadconnected", (event) => {
+        setControllerActive(true, event.gamepad?.id || "Controller");
+        setControllerFocus(0);
+    });
+
+    window.addEventListener("gamepaddisconnected", () => {
+        setControllerActive(false);
+        clearControllerFocus();
+    });
+
 
     function showMainMenu() {
         updateAudioButtons();

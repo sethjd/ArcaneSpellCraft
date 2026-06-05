@@ -13,8 +13,6 @@ function resolveIconPath() {
 }
 
 function createWindow() {
-  const iconPath = resolveIconPath();
-
   mainWindow = new BrowserWindow({
     title: "Arcane Spell Craft",
     width: 1600,
@@ -23,9 +21,10 @@ function createWindow() {
     minHeight: 720,
     backgroundColor: "#090d18",
     autoHideMenuBar: true,
+    fullscreenable: true,
     fullscreen: true,
     show: false,
-    icon: iconPath,
+    icon: resolveIconPath(),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -36,7 +35,6 @@ function createWindow() {
 
   mainWindow.removeMenu();
   mainWindow.loadFile(path.join(__dirname, "www", "index.html"));
-
   mainWindow.once("ready-to-show", () => {
     if (mainWindow) mainWindow.show();
   });
@@ -45,7 +43,6 @@ function createWindow() {
 app.whenReady().then(() => {
   app.setName("Arcane Spell Craft");
   createWindow();
-
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
@@ -61,17 +58,10 @@ ipcMain.on("arcane-set-fullscreen", (_event, enabled) => {
   mainWindow.setFullScreen(Boolean(enabled));
 });
 
-ipcMain.handle("arcane-is-fullscreen", () => {
-  if (!mainWindow) return false;
-  return mainWindow.isFullScreen();
-});
+ipcMain.handle("arcane-is-fullscreen", () => mainWindow ? mainWindow.isFullScreen() : false);
 
-ipcMain.on("arcane-quit-game", () => {
-  app.quit();
-});
+ipcMain.on("arcane-quit-game", () => app.quit());
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+  if (process.platform !== "darwin") app.quit();
 });

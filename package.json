@@ -1,40 +1,57 @@
 {
   "name": "arcane-spell-craft",
-  "version": "0.1.0",
-  "description": "Arcane Spell Craft desktop wrapper for Steam/PC testing.",
+  "version": "0.6.2",
+  "description": "Arcane Spell Craft desktop build for PC and Steam testing.",
   "main": "main.js",
   "author": "sethjd",
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
     "start": "electron .",
-    "dist:win": "electron-builder --win portable",
+    "dist:win": "electron-builder --win portable nsis",
+    "dist:win-portable": "electron-builder --win portable",
     "dist:win-installer": "electron-builder --win nsis",
     "dist": "electron-builder"
   },
   "build": {
     "appId": "com.sethjd.arcanespellcraft",
     "productName": "Arcane Spell Craft",
+    "copyright": "Copyright \u00a9 2026 sethjd",
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
     "files": [
       "main.js",
       "preload.js",
-      "www/**/*"
+      "package.json",
+      "www/**/*",
+      "build/icon.ico"
     ],
     "win": {
+      "icon": "build/icon.ico",
       "target": [
-        "portable"
+        "portable",
+        "nsis"
       ],
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "artifactName": "ArcaneSpellCraft-${version}-${arch}.${ext}",
+      "requestedExecutionLevel": "asInvoker"
     },
     "portable": {
-      "artifactName": "${productName}-${version}-portable.${ext}"
+      "artifactName": "ArcaneSpellCraft-${version}-portable.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Arcane Spell Craft",
+      "artifactName": "ArcaneSpellCraft-${version}-setup.${ext}"
     }
   },
   "devDependencies": {
-    "electron": "^31.0.0",
+    "electron": "^31.7.7",
     "electron-builder": "^24.13.3"
   }
 }
