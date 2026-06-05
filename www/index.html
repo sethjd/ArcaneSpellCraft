@@ -3927,6 +3927,23 @@
             line-height: 1.42;
         }
 
+    
+        /* v0.6.3 startup safety: never show the empty board before the menu/splash opens. */
+        body.desktop-build:not(.game-booted) #app,
+        body.desktop-build:not(.game-booted) .action-dock,
+        body.desktop-build:not(.game-booted) .floating-targets,
+        body.desktop-build:not(.game-booted) .controller-status-chip {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        body.desktop-build.game-booted #app,
+        body.desktop-build.game-booted .action-dock,
+        body.desktop-build.game-booted .floating-targets,
+        body.desktop-build.game-booted .controller-status-chip {
+            opacity: 1;
+        }
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -4276,7 +4293,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.6.2 Controller + Steam Cleanup";
+    const BUILD_VERSION = "v0.6.3 Startup Fix";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -7157,11 +7174,34 @@
     }
 
     function bootGameUi() {
+        document.body.classList.add("game-booted");
         ensurePcHoverPreview();
-        applyPcWindowMode(getPcWindowMode());
-        applyPcScaleMode();
-        if (isDesktopBuild()) showPcSplashScreen();
-        else showStartModal();
+
+        try {
+            applyPcScaleMode();
+        } catch (error) {
+            console.warn("PC scale setup failed:", error);
+        }
+
+        try {
+            applyPcWindowMode(getPcWindowMode());
+        } catch (error) {
+            console.warn("PC window mode setup failed:", error);
+        }
+
+        state.active = false;
+        state.turn = "player";
+        state.pendingSpell = null;
+        state.selectedAttackerUid = null;
+        state.awaitingPass = false;
+
+        // Always open on the PC splash/main menu path.
+        // The board behind this is only a background shell until a real match starts.
+        if (isDesktopBuild()) {
+            showPcSplashScreen();
+        } else {
+            showStartModal();
+        }
     }
 
     function toggleDesktopFullscreen() {
@@ -7417,7 +7457,8 @@
             el.focus();
             return;
         }
-        el.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true, pointerId: 777, pointerType: "gamepad" }));
+        const eventCtor = typeof PointerEvent === "function" ? PointerEvent : MouseEvent;
+        el.dispatchEvent(new eventCtor("pointerup", { bubbles: true, cancelable: true, pointerId: 777, pointerType: "gamepad" }));
     }
 
     function controllerInspectFocused() {
@@ -8877,7 +8918,22 @@
         localStorage.setItem(PC_WINDOW_MODE_KEY, mode);
         updatePcWindowModeButtons(document);
     });
-    bootGameUi();
+    requestAnimationFrame(pollGamepads);
+    try {
+        bootGameUi();
+    } catch (error) {
+        console.error("Startup failed, falling back to main menu:", error);
+        document.body.classList.add("game-booted");
+        showStartModal();
+    }
+
+    window.setTimeout(() => {
+        if (!els.modalRoot.innerHTML.trim()) {
+            console.warn("Startup modal missing, restoring main menu.");
+            document.body.classList.add("game-booted");
+            showStartModal();
+        }
+    }, 250);
 })();
 </script>
 
