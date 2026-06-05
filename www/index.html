@@ -3944,6 +3944,159 @@
             opacity: 1;
         }
 
+    
+        /* v0.6.4 clean PC settings */
+        body.desktop-build .settings-modal-card {
+            width: min(94vw, 720px);
+            max-height: min(92dvh, 700px);
+            overflow: hidden;
+            padding: clamp(14px, 2vw, 22px);
+        }
+
+        body.desktop-build .settings-modal-card h2 {
+            margin-bottom: 4px;
+        }
+
+        body.desktop-build .settings-subtitle {
+            margin: 0 0 12px;
+            color: #cfc4ea;
+            font-size: 0.86rem;
+            text-align: center;
+        }
+
+        body.desktop-build .pc-clean-settings {
+            width: 100%;
+            display: grid;
+            gap: 10px;
+            margin: 0 auto;
+        }
+
+        body.desktop-build .settings-section {
+            display: grid;
+            gap: 8px;
+            padding: 10px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.18);
+        }
+
+        body.desktop-build .settings-section-title {
+            color: #ffe2a6;
+            font-size: 0.72rem;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        body.desktop-build .compact-settings-audio {
+            padding: 0;
+            border: 0;
+            background: transparent;
+            gap: 8px;
+        }
+
+        body.desktop-build .compact-settings-audio .audio-toggle {
+            min-height: 38px;
+            font-size: 0.78rem;
+        }
+
+        body.desktop-build .compact-settings-audio input[type="range"] {
+            height: 22px;
+        }
+
+        body.desktop-build .settings-display-row {
+            display: grid;
+            grid-template-columns: minmax(150px, 0.8fr) minmax(240px, 1.2fr);
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        body.desktop-build .settings-display-row > .mode-choice {
+            min-height: 50px;
+            font-size: 0.86rem;
+        }
+
+        body.desktop-build .compact-scale-panel {
+            padding: 8px;
+            gap: 6px;
+        }
+
+        body.desktop-build .compact-scale-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        body.desktop-build .compact-scale-grid button {
+            min-height: 34px;
+            font-size: 0.72rem;
+        }
+
+        body.desktop-build .settings-help-text {
+            color: #bfb4dc;
+            font-size: 0.72rem;
+            line-height: 1.32;
+            margin: 0;
+        }
+
+        body.desktop-build .compact-reset-button {
+            min-height: 38px;
+            font-size: 0.78rem;
+        }
+
+        body.desktop-build .settings-info-row {
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 10px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+
+        body.desktop-build .settings-info-row .build-version {
+            white-space: nowrap;
+            font-size: 0.68rem;
+            margin: 0;
+        }
+
+        body.desktop-build .compact-settings-actions {
+            margin-top: 10px;
+        }
+
+        body.desktop-build .compact-settings-actions button {
+            min-height: 40px;
+            min-width: 150px;
+        }
+
+        @media (max-width: 760px), (max-height: 650px) {
+            body.desktop-build .settings-modal-card {
+                width: min(96vw, 680px);
+                max-height: 94dvh;
+                overflow: auto;
+                padding: 12px;
+            }
+
+            body.desktop-build .pc-clean-settings {
+                gap: 8px;
+            }
+
+            body.desktop-build .settings-section {
+                padding: 8px;
+            }
+
+            body.desktop-build .settings-display-row {
+                grid-template-columns: 1fr;
+            }
+
+            body.desktop-build .settings-info-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 1000px) and (min-height: 720px) {
+            body.desktop-build .settings-modal-card {
+                max-height: 680px;
+            }
+        }
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -4293,7 +4446,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.6.3 Startup Fix";
+    const BUILD_VERSION = "v0.6.4 Clean PC Settings";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -6731,48 +6884,57 @@
 
     function showSettingsModal(returnToStart = false) {
         const backAction = returnToStart ? "settings-back-start" : "settings-back-menu";
+        const windowModeLabel = getPcWindowMode() === "fullscreen" ? "Fullscreen" : "Windowed";
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
-                <div class="modal-card">
+                <div class="modal-card settings-modal-card">
                     <h2>Settings</h2>
-                    <p>Adjust music, game sounds, and desktop options.</p>
-                    <div class="settings-panel">
-                        <div class="settings-audio-grid">
-                            <div class="settings-audio-column">
-                                <button type="button" class="audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
-                                ${audioControlHtml("music")}
+                    <p class="settings-subtitle">Audio, display, and tutorial options.</p>
+
+                    <div class="settings-panel pc-clean-settings">
+                        <section class="settings-section">
+                            <div class="settings-section-title">Audio</div>
+                            <div class="settings-audio-grid compact-settings-audio">
+                                <div class="settings-audio-column">
+                                    <button type="button" class="audio-toggle" data-modal="toggle-music"><span class="button-inline">Music ${audioState.musicEnabled ? "On" : "Off"}</span></button>
+                                    ${audioControlHtml("music")}
+                                </div>
+                                <div class="settings-audio-column">
+                                    <button type="button" class="audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
+                                    ${audioControlHtml("sfx")}
+                                </div>
                             </div>
-                            <div class="settings-audio-column">
-                                <button type="button" class="audio-toggle" data-modal="toggle-sfx"><span class="button-inline">Game Sounds ${audioState.sfxEnabled ? "On" : "Off"}</span></button>
-                                ${audioControlHtml("sfx")}
+                        </section>
+
+                        <section class="settings-section desktop-only-menu-button">
+                            <div class="settings-section-title">Display</div>
+                            <div class="settings-display-row">
+                                <button type="button" class="mode-choice" data-modal="settings-toggle-fullscreen"><span class="button-inline">${windowModeLabel}</span></button>
+                                <div class="pc-scale-panel compact-scale-panel">
+                                    <div class="pc-scale-title">Scale</div>
+                                    <div class="pc-scale-grid compact-scale-grid">
+                                        <button type="button" class="mode-choice" data-pc-scale="auto"><span class="button-inline">Auto</span></button>
+                                        <button type="button" class="mode-choice" data-pc-scale="90"><span class="button-inline">90%</span></button>
+                                        <button type="button" class="mode-choice" data-pc-scale="80"><span class="button-inline">80%</span></button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        ${installButtonHtml("btn-wide")}
-                        <div class="desktop-only-menu-button pc-mode-panel">
-                            <div class="pc-mode-title">PC Window Mode</div>
-                            <div class="pc-mode-grid">
-                                <button type="button" class="mode-choice" data-display-mode="fullscreen"><span class="button-inline">Fullscreen</span></button>
-                                <button type="button" class="mode-choice" data-display-mode="windowed"><span class="button-inline">Windowed</span></button>
-                            </div>
-                        </div>
-                        <button type="button" class="mode-choice desktop-only-menu-button" data-modal="settings-toggle-fullscreen"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Toggle Fullscreen</span></button>
-                        <div class="desktop-only-menu-button pc-scale-panel">
-                            <div class="pc-scale-title">PC Display Scale</div>
-                            <div class="pc-scale-grid">
-                                <button type="button" class="mode-choice" data-pc-scale="auto"><span class="button-inline">Auto Fit</span></button>
-                                <button type="button" class="mode-choice" data-pc-scale="100"><span class="button-inline">100%</span></button>
-                                <button type="button" class="mode-choice" data-pc-scale="90"><span class="button-inline">90%</span></button>
-                                <button type="button" class="mode-choice" data-pc-scale="80"><span class="button-inline">80%</span></button>
-                                <button type="button" class="mode-choice" data-pc-scale="70"><span class="button-inline">70%</span></button>
-                            </div>
-                        </div>
-                        <button type="button" class="mode-choice" data-modal="reset-chapter-one-tutorial"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Reset Chapter 1 Tutorial</span></button>
-                        <p class="menu-note" id="tutorialResetNote">Replay the guided tutorial next time you start Story Mode Chapter 1.</p>
-                        <p class="menu-note">Desktop controls: Esc = menu, F11 = fullscreen, Enter / Space = end turn, Right Click = inspect or cancel.</p>
-                        <p class="steam-note">Online note: multiplayer rooms use Firebase connection services to create and sync room codes. Solo and Story Mode can be played without creating an online room.</p>
-                        <div class="build-version">${BUILD_VERSION}</div>
+                            <p class="settings-help-text">Auto is recommended for PC and Steam Deck.</p>
+                        </section>
+
+                        <section class="settings-section">
+                            <div class="settings-section-title">Tutorial</div>
+                            <button type="button" class="mode-choice compact-reset-button" data-modal="reset-chapter-one-tutorial"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Reset Chapter 1 Tutorial</span></button>
+                            <p class="settings-help-text" id="tutorialResetNote">Replay the guided tutorial next time you start Story Mode Chapter 1.</p>
+                        </section>
+
+                        <section class="settings-section settings-info-row">
+                            <div class="settings-help-text">Controls: Esc menu · F11 fullscreen · Right Click inspect · Controller supported.</div>
+                            <div class="build-version">${BUILD_VERSION}</div>
+                        </section>
                     </div>
-                    <div class="modal-actions">
+
+                    <div class="modal-actions compact-settings-actions">
                         <button type="button" class="btn-orange" data-modal="${backAction}"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Back</span></button>
                     </div>
                 </div>
@@ -6780,9 +6942,7 @@
 
         updateAudioButtons();
         bindAudioVolumeControls(els.modalRoot);
-        bindInstallButtons(els.modalRoot);
         bindPcScaleButtons(els.modalRoot);
-        bindPcWindowModeButtons(els.modalRoot);
 
         els.modalRoot.querySelector('[data-modal="toggle-music"]').addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
         els.modalRoot.querySelector('[data-modal="toggle-sfx"]').addEventListener("pointerup", () => setSfxEnabled(!audioState.sfxEnabled));
@@ -6792,7 +6952,7 @@
             settingsFullscreenBtn.addEventListener("pointerup", () => {
                 playSfx("uiTap");
                 toggleDesktopFullscreen();
-                updatePcWindowModeButtons(els.modalRoot);
+                window.setTimeout(() => showSettingsModal(returnToStart), 120);
             });
         }
 
