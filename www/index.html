@@ -4395,6 +4395,70 @@
             }
         }
 
+    
+        /* v0.7.3 visible brightness fix */
+        :root {
+            --pc-brightness: 1;
+        }
+
+        body.desktop-build #app,
+        body.desktop-build .action-dock,
+        body.desktop-build .story-map-frame,
+        body.desktop-build .start-screen-card,
+        body.desktop-build .pc-splash-art {
+            filter: brightness(var(--pc-brightness));
+        }
+
+        body.desktop-build .modal:not(.pc-splash-screen) .modal-card {
+            filter: brightness(var(--pc-brightness));
+        }
+
+        body.desktop-build .settings-brightness-row,
+        body.desktop-build .brightness-control {
+            display: grid !important;
+            grid-template-columns: auto minmax(120px, 1fr) 48px !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 7px 8px !important;
+            border-radius: 12px !important;
+            background: rgba(255,255,255,0.04) !important;
+            border: 1px solid rgba(255,255,255,0.07) !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        body.desktop-build .brightness-control label {
+            color: #ffe3af;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        body.desktop-build .brightness-control input[type="range"] {
+            display: block !important;
+            width: 100% !important;
+            accent-color: #9d7cff;
+        }
+
+        body.desktop-build .brightness-control output {
+            color: #f5eeff;
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-align: right;
+        }
+
+        @media (max-width: 700px) {
+            body.desktop-build .settings-brightness-row,
+            body.desktop-build .brightness-control {
+                grid-template-columns: 1fr !important;
+            }
+
+            body.desktop-build .brightness-control output {
+                text-align: center;
+            }
+        }
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -4744,7 +4808,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.7.2 Brightness Restored";
+    const BUILD_VERSION = "v0.7.3 Visible Brightness Fix";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -7327,11 +7391,19 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="brightness-control settings-brightness-row">
+                                <label for="pcBrightnessSlider">Brightness</label>
+                                <input id="pcBrightnessSlider" type="range" min="70" max="135" step="5" value="100" data-brightness-control>
+                                <output>100%</output>
+                            </div>
+
                             <div class="settings-extra-row">
                                 <button type="button" class="mode-choice settings-compact-button settings-toggle-button" data-modal="toggle-controller-hints"><span class="button-inline">Controller Hints On</span></button>
                                 <button type="button" class="mode-choice settings-compact-button settings-reset-display-button" data-modal="reset-display-settings"><span class="button-inline">Reset Display</span></button>
                             </div>
-                            <p class="settings-help-text"><span id="settingsDisplayStatus">Current: Fullscreen • Scale Auto</span><br />Auto is recommended for PC and Steam Deck.</p>
+
+                            <p class="settings-help-text"><span id="settingsDisplayStatus">Current: Fullscreen • Scale Auto • Brightness 100%</span><br />Auto is recommended for PC and Steam Deck.</p>
                         </section>
 
                         <section class="settings-section">
