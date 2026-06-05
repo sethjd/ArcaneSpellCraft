@@ -59,9 +59,5 @@ ipcMain.on("arcane-set-fullscreen", (_event, enabled) => {
 });
 
 ipcMain.handle("arcane-is-fullscreen", () => mainWindow ? mainWindow.isFullScreen() : false);
-
 ipcMain.on("arcane-quit-game", () => app.quit());
-
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
-});
+app.on("window-all-closed", () => { if (process.platform !== "darwin") app.quit(); });
