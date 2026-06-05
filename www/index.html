@@ -4268,6 +4268,30 @@
             pointer-events: auto !important;
         }
 
+    
+        /* v0.6.8 settings state visuals */
+        body.desktop-build .settings-toggle-button.selected,
+        body.desktop-build .settings-scale-button.selected,
+        body.desktop-build .settings-compact-button.selected {
+            --btn-bg: url('assets/ui/button_small_blue.webp') !important;
+            box-shadow: none !important;
+            filter: saturate(1.12) brightness(1.03) !important;
+        }
+
+        body.desktop-build .settings-toggle-button.is-off,
+        body.desktop-build .settings-scale-button.is-off {
+            --btn-bg: url('assets/ui/button_small_dark.webp') !important;
+            filter: saturate(0.82) brightness(0.94);
+            opacity: 0.92;
+        }
+
+        body.desktop-build #settingsDisplayStatus {
+            display: inline-block;
+            color: #ffe3af;
+            font-weight: 800;
+            margin-bottom: 2px;
+        }
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -4617,7 +4641,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.6.7 Hard Settings Back Fix";
+    const BUILD_VERSION = "v0.6.8 Settings State Visuals";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -7081,7 +7105,6 @@
     function showSettingsModal(returnToStart = false, returnContext = null) {
         pcSettingsReturnContext = returnContext || (returnToStart || !state.active ? "start" : "game-menu");
         const backAction = pcSettingsReturnContext === "start" ? "settings-back-start" : "settings-back-menu";
-        const windowModeLabel = getPcWindowMode() === "fullscreen" ? "Fullscreen" : "Windowed";
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card settings-modal-card">
@@ -7106,7 +7129,7 @@
                         <section class="settings-section desktop-only-menu-button settings-display-section">
                             <div class="settings-section-title">Display</div>
                             <div class="settings-display-row">
-                                <button type="button" class="mode-choice settings-compact-button" data-modal="settings-toggle-fullscreen"><span class="button-inline">${windowModeLabel}</span></button>
+                                <button type="button" class="mode-choice settings-compact-button settings-toggle-button" data-modal="settings-toggle-fullscreen"><span class="button-inline">Fullscreen On</span></button>
                                 <div class="pc-scale-panel compact-scale-panel">
                                     <div class="pc-scale-title">Scale</div>
                                     <div class="pc-scale-grid compact-scale-grid">
@@ -7116,7 +7139,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="settings-help-text">Auto is recommended for PC and Steam Deck.</p>
+                            <p class="settings-help-text"><span id="settingsDisplayStatus">Current: Fullscreen • Scale Auto</span><br />Auto is recommended for PC and Steam Deck.</p>
                         </section>
 
                         <section class="settings-section">
@@ -7140,6 +7163,7 @@
         updateAudioButtons();
         bindAudioVolumeControls(els.modalRoot);
         bindPcScaleButtons(els.modalRoot);
+        updateSettingsStateButtons(els.modalRoot);
 
         const musicBtn = els.modalRoot.querySelector('[data-modal="toggle-music"]');
         if (musicBtn) musicBtn.addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
@@ -7152,7 +7176,7 @@
             settingsFullscreenBtn.addEventListener("pointerup", () => {
                 playSfx("uiTap");
                 toggleDesktopFullscreen();
-                window.setTimeout(() => showSettingsModal(false, pcSettingsReturnContext), 120);
+                window.setTimeout(() => showSettingsModal(false, pcSettingsReturnContext), 140);
             });
         }
 
@@ -7323,8 +7347,31 @@
     function updatePcScaleButtons(root = document) {
         const mode = getPcScaleMode();
         root.querySelectorAll("[data-pc-scale]").forEach(button => {
-            button.classList.toggle("selected", button.dataset.pcScale === mode);
+            const isActive = button.dataset.pcScale === mode;
+            button.classList.toggle("selected", isActive);
+            button.classList.toggle("is-off", !isActive);
+            button.setAttribute("aria-pressed", isActive ? "true" : "false");
         });
+    }
+
+
+    function updateSettingsStateButtons(root = document) {
+        const fullscreenActive = getPcWindowMode() === "fullscreen";
+        root.querySelectorAll('[data-modal="settings-toggle-fullscreen"]').forEach(button => {
+            button.innerHTML = `<span class="button-inline">Fullscreen ${fullscreenActive ? "On" : "Off"}</span>`;
+            button.classList.toggle("selected", fullscreenActive);
+            button.classList.toggle("is-off", !fullscreenActive);
+            button.setAttribute("aria-pressed", fullscreenActive ? "true" : "false");
+        });
+
+        const status = root.querySelector("#settingsDisplayStatus");
+        if (status) {
+            const scaleMode = getPcScaleMode();
+            const scaleLabel = scaleMode === "auto" ? "Auto" : `${scaleMode}%`;
+            status.textContent = `Current: ${fullscreenActive ? "Fullscreen" : "Windowed"} • Scale ${scaleLabel}`;
+        }
+
+        updatePcScaleButtons(root);
     }
 
     function bindPcScaleButtons(root = document) {
