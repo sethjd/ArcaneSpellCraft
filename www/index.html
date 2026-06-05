@@ -4292,6 +4292,22 @@
             margin-bottom: 2px;
         }
 
+    
+        /* v0.6.9 settings button click safety */
+        body.desktop-build .settings-modal-card button,
+        body.desktop-build .settings-modal-card [data-pc-scale] {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            position: relative !important;
+            z-index: 30 !important;
+        }
+
+        body.desktop-build .settings-modal-card .settings-section,
+        body.desktop-build .settings-modal-card .pc-scale-panel,
+        body.desktop-build .settings-modal-card .pc-scale-grid {
+            pointer-events: auto !important;
+        }
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -4641,7 +4657,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.6.8 Settings State Visuals";
+    const BUILD_VERSION = "v0.6.9 Settings Buttons Fix";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -7078,6 +7094,67 @@
     }
 
 
+
+    function handleGlobalSettingsActions(event) {
+        const settingsModal = els.modalRoot?.querySelector?.(".settings-modal-card");
+        if (!settingsModal) return;
+
+        const target = event.target?.closest?.("button, [data-pc-scale]");
+        if (!target || !settingsModal.contains(target)) return;
+
+        const modalAction = target.dataset.modal;
+        const scaleAction = target.dataset.pcScale;
+
+        if (!modalAction && !scaleAction) return;
+
+        event.preventDefault?.();
+        event.stopPropagation?.();
+        event.stopImmediatePropagation?.();
+
+        if (target.classList.contains("settings-back-button") || modalAction === "settings-back-menu" || modalAction === "settings-back-start") {
+            returnFromSettingsMenu(event);
+            return;
+        }
+
+        if (modalAction === "toggle-music") {
+            setMusicEnabled(!audioState.musicEnabled);
+            updateSettingsStateButtons(els.modalRoot);
+            return;
+        }
+
+        if (modalAction === "toggle-sfx") {
+            setSfxEnabled(!audioState.sfxEnabled);
+            updateSettingsStateButtons(els.modalRoot);
+            return;
+        }
+
+        if (modalAction === "settings-toggle-fullscreen") {
+            playSfx("uiTap");
+            toggleDesktopFullscreen();
+            window.setTimeout(() => {
+                showSettingsModal(false, pcSettingsReturnContext);
+            }, 140);
+            return;
+        }
+
+        if (scaleAction) {
+            playSfx("uiTap");
+            setPcScaleMode(scaleAction);
+            updateSettingsStateButtons(els.modalRoot);
+            return;
+        }
+
+        if (modalAction === "reset-chapter-one-tutorial") {
+            playSfx("uiTap");
+            hapticFeedback("select");
+            localStorage.removeItem(CHAPTER_ONE_TUTORIAL_KEY);
+            target.innerHTML = `<span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Tutorial Reset Done</span>`;
+            target.classList.add("selected");
+            const note = els.modalRoot.querySelector("#tutorialResetNote");
+            if (note) note.textContent = "Done. Start Story Mode Chapter 1 to see the tutorial again.";
+        }
+    }
+
     function returnFromSettingsMenu(event = null) {
         if (event) {
             event.preventDefault?.();
@@ -9349,6 +9426,8 @@
     document.addEventListener("pointerdown", handlePointerDown, { passive: true });
     document.addEventListener("pointermove", handlePointerMove, { passive: true });
     document.addEventListener("pointercancel", handlePointerCancel, { passive: true });
+    document.addEventListener("pointerup", handleGlobalSettingsActions, { capture: true, passive: false });
+    document.addEventListener("click", handleGlobalSettingsActions, { capture: true, passive: false });
     document.addEventListener("pointerup", handleGlobalSettingsBack, { capture: true, passive: false });
     document.addEventListener("click", handleGlobalSettingsBack, { capture: true, passive: false });
     document.addEventListener("pointerup", handleTap, { passive: false });
