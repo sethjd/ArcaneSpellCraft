@@ -4459,6 +4459,229 @@
             }
         }
 
+    
+        /* v0.7.4 PC layout + settings fix */
+        html, body.desktop-build {
+            width: 100%;
+            height: 100%;
+            overflow: hidden !important;
+        }
+
+        body.desktop-build .modal.start-screen-modal {
+            inset: 0 !important;
+            padding: 0 !important;
+            place-items: stretch !important;
+            align-items: stretch !important;
+            justify-items: stretch !important;
+            overflow: hidden !important;
+            background: #03040a !important;
+        }
+
+        body.desktop-build .start-screen-card {
+            width: 100vw !important;
+            height: 100dvh !important;
+            min-height: 100dvh !important;
+            max-width: none !important;
+            max-height: none !important;
+            overflow: hidden !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            padding: max(14px, var(--safe-top)) 16px max(14px, var(--safe-bottom)) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+        }
+
+        body.desktop-build .start-menu-panel {
+            width: min(88vw, 330px) !important;
+            max-height: calc(100dvh - 26px) !important;
+            padding: 8px 10px 10px !important;
+            margin: 0 auto !important;
+        }
+
+        body.desktop-build .start-menu-list {
+            gap: 6px !important;
+        }
+
+        body.desktop-build .start-menu-list .mode-choice {
+            min-height: 38px !important;
+            padding: 7px 10px !important;
+            font-size: 0.76rem !important;
+            max-width: 270px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        body.desktop-build .start-screen-card .build-version {
+            margin-top: 6px !important;
+            font-size: 0.62rem !important;
+        }
+
+        body.desktop-build .settings-modal-card {
+            width: min(90vw, 540px) !important;
+            max-height: calc(100dvh - 36px) !important;
+            overflow: visible !important;
+            padding: 12px !important;
+            border-radius: 20px !important;
+        }
+
+        body.desktop-build .settings-modal-card h2 {
+            margin: 0 0 2px !important;
+            font-size: clamp(1.12rem, 1.8vw, 1.45rem) !important;
+        }
+
+        body.desktop-build .settings-subtitle {
+            margin: 0 0 6px !important;
+            font-size: 0.72rem !important;
+        }
+
+        body.desktop-build .pc-clean-settings {
+            gap: 5px !important;
+        }
+
+        body.desktop-build .settings-section {
+            padding: 6px !important;
+            gap: 5px !important;
+            border-radius: 13px !important;
+        }
+
+        body.desktop-build .settings-section-title {
+            font-size: 0.62rem !important;
+        }
+
+        body.desktop-build .compact-settings-audio {
+            gap: 6px !important;
+        }
+
+        body.desktop-build .settings-compact-button,
+        body.desktop-build .settings-back-button,
+        body.desktop-build .compact-reset-button {
+            max-width: 210px !important;
+            min-height: 30px !important;
+            padding: 5px 8px !important;
+            font-size: 0.66rem !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        body.desktop-build .settings-display-row {
+            grid-template-columns: 125px 1fr !important;
+            gap: 6px !important;
+        }
+
+        body.desktop-build .compact-scale-panel {
+            padding: 5px !important;
+        }
+
+        body.desktop-build .compact-scale-grid {
+            gap: 4px !important;
+        }
+
+        body.desktop-build .settings-scale-button {
+            min-height: 27px !important;
+            padding: 4px 5px !important;
+            font-size: 0.62rem !important;
+        }
+
+        body.desktop-build .brightness-control {
+            grid-template-columns: 76px minmax(100px, 1fr) 42px !important;
+            padding: 5px 6px !important;
+            gap: 6px !important;
+        }
+
+        body.desktop-build .brightness-control label,
+        body.desktop-build .brightness-control output,
+        body.desktop-build .settings-help-text {
+            font-size: 0.61rem !important;
+            line-height: 1.15 !important;
+        }
+
+        body.desktop-build .settings-extra-row {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 6px !important;
+        }
+
+        body.desktop-build .settings-info-row {
+            display: none !important;
+        }
+
+        body.desktop-build .compact-settings-actions {
+            margin-top: 6px !important;
+        }
+
+        body.desktop-build .compact-settings-actions .settings-back-button {
+            max-width: 145px !important;
+            min-height: 32px !important;
+        }
+
+        body.desktop-build .pc-card-preview {
+            left: 50% !important;
+            right: auto !important;
+            top: 58px !important;
+            width: min(300px, 72vw) !important;
+            transform: translateX(-50%) translateY(10px) !important;
+            z-index: 96 !important;
+        }
+
+        body.desktop-build .pc-card-preview.visible {
+            transform: translateX(-50%) translateY(0) !important;
+        }
+
+        body.desktop-build .card-info-card {
+            width: min(92vw, 900px) !important;
+            max-height: calc(100dvh - 42px) !important;
+            overflow: auto !important;
+        }
+
+        body.desktop-build .card-info-layout {
+            display: grid !important;
+            grid-template-columns: minmax(220px, 320px) minmax(260px, 1fr) !important;
+            gap: 16px !important;
+            align-items: start !important;
+        }
+
+        body.desktop-build .card-info-art {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+            aspect-ratio: 3 / 4 !important;
+            background-size: contain !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            background-color: rgba(4, 6, 13, 0.68) !important;
+            border-radius: 18px !important;
+        }
+
+        @media (max-height: 690px) {
+            body.desktop-build .settings-modal-card {
+                max-height: calc(100dvh - 20px) !important;
+                overflow: auto !important;
+            }
+
+            body.desktop-build .settings-help-text {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 760px) {
+            body.desktop-build .settings-display-row,
+            body.desktop-build .settings-extra-row,
+            body.desktop-build .card-info-layout {
+                grid-template-columns: 1fr !important;
+            }
+
+            body.desktop-build .settings-modal-card {
+                overflow: auto !important;
+            }
+
+            body.desktop-build .card-info-art {
+                max-width: 320px !important;
+                margin: 0 auto !important;
+            }
+        }
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -4808,7 +5031,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.7.3 Visible Brightness Fix";
+    const BUILD_VERSION = "v0.7.4 PC Layout + Settings Fix";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -7254,6 +7477,8 @@
         setPcBrightness(input.value);
     }
 
+    let pcLastSettingsAction = { key: "", time: 0 };
+
     function handleGlobalSettingsActions(event) {
         const settingsModal = els.modalRoot?.querySelector?.(".settings-modal-card");
         if (!settingsModal) return;
@@ -7265,6 +7490,16 @@
         const scaleAction = target.dataset.pcScale;
 
         if (!modalAction && !scaleAction) return;
+
+        const actionKey = `${modalAction || "scale"}:${scaleAction || ""}`;
+        const now = performance.now();
+        if (event.type === "click" && pcLastSettingsAction.key === actionKey && now - pcLastSettingsAction.time < 450) {
+            event.preventDefault?.();
+            event.stopPropagation?.();
+            event.stopImmediatePropagation?.();
+            return;
+        }
+        pcLastSettingsAction = { key: actionKey, time: now };
 
         event.preventDefault?.();
         event.stopPropagation?.();
@@ -7290,15 +7525,17 @@
         if (modalAction === "settings-toggle-fullscreen") {
             playSfx("uiTap");
             toggleDesktopFullscreen();
+            updateSettingsStateButtons(els.modalRoot);
             window.setTimeout(() => {
                 showSettingsModal(false, pcSettingsReturnContext);
-            }, 140);
+            }, 180);
             return;
         }
 
         if (scaleAction) {
             playSfx("uiTap");
             setPcScaleMode(scaleAction);
+            applyPcScaleMode();
             updateSettingsStateButtons(els.modalRoot);
             return;
         }
@@ -7429,6 +7666,11 @@
         bindPcScaleButtons(els.modalRoot);
         bindPcBrightnessControls(els.modalRoot);
         updateSettingsStateButtons(els.modalRoot);
+
+        const settingsModalRootGuard = els.modalRoot.querySelector(".settings-modal-card");
+        if (settingsModalRootGuard) {
+            settingsModalRootGuard.addEventListener("pointerup", handleGlobalSettingsActions, { capture: true });
+        }
 
         const musicBtn = els.modalRoot.querySelector('[data-modal="toggle-music"]');
         if (musicBtn) musicBtn.addEventListener("pointerup", () => setMusicEnabled(!audioState.musicEnabled));
@@ -9702,7 +9944,6 @@
     document.addEventListener("input", handleGlobalBrightnessChange, { capture: true, passive: true });
     document.addEventListener("change", handleGlobalBrightnessChange, { capture: true, passive: true });
     document.addEventListener("pointerup", handleGlobalSettingsActions, { capture: true, passive: false });
-    document.addEventListener("click", handleGlobalSettingsActions, { capture: true, passive: false });
     document.addEventListener("pointerup", handleGlobalSettingsBack, { capture: true, passive: false });
     document.addEventListener("click", handleGlobalSettingsBack, { capture: true, passive: false });
     document.addEventListener("pointerup", handleTap, { passive: false });
