@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
+app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
+
 let mainWindow = null;
 
 function resolveIconPath() {

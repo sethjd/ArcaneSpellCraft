@@ -5036,6 +5036,397 @@
             }
         }
 
+        /* Menu clarity and accessibility */
+        body.desktop-build button:focus-visible,
+        body.desktop-build input:focus-visible,
+        body.desktop-build [tabindex]:focus-visible,
+        body.desktop-build .controller-focused {
+            outline: 3px solid #ffe08a !important;
+            outline-offset: 3px !important;
+            filter: brightness(1.13) saturate(1.12) !important;
+            box-shadow:
+                0 0 0 2px rgba(44, 20, 77, 0.92),
+                0 0 22px rgba(255, 211, 105, 0.72) !important;
+        }
+
+        body.desktop-build .story-map-card .chapter-pin:focus-visible,
+        body.desktop-build .story-map-card .chapter-pin.controller-focused {
+            transform: translate(-50%, -50%) !important;
+        }
+
+        body.desktop-build .start-menu-panel {
+            width: min(92vw, 410px) !important;
+            padding: 10px 14px 12px !important;
+        }
+
+        body.desktop-build .start-menu-list {
+            width: min(86vw, 390px) !important;
+            max-width: 390px !important;
+            gap: 10px !important;
+        }
+
+        body.desktop-build .start-menu-primary {
+            display: grid;
+            gap: 8px;
+            width: 100%;
+        }
+
+        body.desktop-build .start-menu-primary .mode-choice {
+            width: 100% !important;
+            max-width: 330px !important;
+            min-height: 50px !important;
+            padding: 9px 16px !important;
+            font-size: 0.9rem !important;
+        }
+
+        body.desktop-build .start-menu-primary .story-entry {
+            min-height: 58px !important;
+            font-size: 1rem !important;
+        }
+
+        body.desktop-build .start-menu-secondary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            width: min(100%, 330px);
+            margin: 0 auto;
+        }
+
+        body.desktop-build .start-menu-secondary .mode-choice {
+            width: 100% !important;
+            max-width: none !important;
+            min-height: 42px !important;
+            padding: 7px 10px !important;
+            font-size: 0.78rem !important;
+        }
+
+        body.desktop-build .start-menu-quit {
+            width: min(100%, 210px) !important;
+            max-width: 210px !important;
+            min-height: 38px !important;
+            margin: 0 auto !important;
+            font-size: 0.72rem !important;
+            opacity: 0.86;
+        }
+
+        body.desktop-build .pause-menu-card {
+            width: min(90vw, 460px) !important;
+            padding: 22px !important;
+        }
+
+        body.desktop-build .pause-menu-panel {
+            width: min(100%, 350px) !important;
+            gap: 10px !important;
+        }
+
+        body.desktop-build .pause-menu-panel .menu-primary {
+            width: 100% !important;
+            max-width: 350px !important;
+            min-height: 46px !important;
+            font-size: 0.86rem !important;
+        }
+
+        body.desktop-build .pause-resume-button {
+            --btn-bg: url('assets/ui/button_orange.webp') !important;
+            min-height: 54px !important;
+            font-size: 0.94rem !important;
+        }
+
+        body.desktop-build .pause-exit-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        body.desktop-build .pause-exit-row .menu-primary {
+            min-height: 40px !important;
+            font-size: 0.74rem !important;
+            opacity: 0.9;
+        }
+
+        body.desktop-build .pause-shortcut-note {
+            margin: 4px 0 0 !important;
+            color: #c5badf !important;
+            font-size: 0.72rem !important;
+        }
+
+        body.desktop-build .settings-modal-card {
+            width: min(92vw, 680px) !important;
+            padding: 18px !important;
+        }
+
+        body.desktop-build .settings-modal-card .settings-section {
+            padding: 9px !important;
+            gap: 8px !important;
+        }
+
+        body.desktop-build .settings-modal-card .settings-section-title {
+            font-size: 0.72rem !important;
+        }
+
+        body.desktop-build .settings-modal-card .settings-compact-button,
+        body.desktop-build .settings-modal-card .settings-back-button,
+        body.desktop-build .settings-modal-card .compact-reset-button {
+            min-height: 38px !important;
+            font-size: 0.74rem !important;
+        }
+
+        body.desktop-build .settings-modal-card .settings-scale-button {
+            min-height: 34px !important;
+            font-size: 0.7rem !important;
+        }
+
+        body.desktop-build .settings-modal-card .settings-toggle-button.selected,
+        body.desktop-build .settings-modal-card .settings-scale-button.selected {
+            position: relative;
+            filter: brightness(1.12) saturate(1.24) !important;
+            box-shadow:
+                0 0 0 2px rgba(255, 222, 138, 0.72),
+                0 0 16px rgba(124, 92, 255, 0.5) !important;
+        }
+
+        body.desktop-build .settings-modal-card .settings-toggle-button.selected::after,
+        body.desktop-build .settings-modal-card .settings-scale-button.selected::after {
+            content: "Selected";
+            position: absolute;
+            right: 8px;
+            top: -8px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: #ffe08a;
+            color: #24132f;
+            font-size: 0.48rem;
+            font-weight: 1000;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            text-shadow: none;
+        }
+
+        body.desktop-build .settings-modal-card button[aria-pressed="true"] {
+            filter: brightness(1.12) saturate(1.24) !important;
+            box-shadow:
+                0 0 0 2px rgba(255, 222, 138, 0.72),
+                0 0 16px rgba(124, 92, 255, 0.5) !important;
+        }
+
+        body.desktop-build #settingsDisplayStatus {
+            font-size: 0.68rem !important;
+        }
+
+        body.desktop-build .settings-info-row {
+            display: grid !important;
+            grid-template-columns: 1fr auto !important;
+            align-items: center;
+            gap: 10px !important;
+        }
+
+        body.desktop-build .settings-info-row .build-version {
+            margin: 0 !important;
+            font-size: 0.66rem !important;
+            white-space: nowrap;
+        }
+
+        body.desktop-build .multiplayer-card {
+            width: min(92vw, 520px) !important;
+            padding: 22px !important;
+        }
+
+        .multiplayer-fields {
+            display: grid;
+            gap: 6px;
+            width: min(100%, 340px);
+            margin: 12px auto 0;
+            text-align: left;
+        }
+
+        .multiplayer-fields label {
+            color: #ffe7ad;
+            font-size: 0.74rem;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .multiplayer-fields input {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid rgba(255, 224, 138, 0.34);
+            border-radius: 12px;
+            background: rgba(5, 8, 17, 0.86);
+            color: #f7f2ff;
+            padding: 9px 12px;
+            font: inherit;
+            box-shadow: inset 0 0 18px rgba(0,0,0,0.28);
+        }
+
+        .multiplayer-section {
+            display: grid;
+            gap: 8px;
+            width: min(100%, 340px);
+            margin: 12px auto 0;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .multiplayer-section-title {
+            color: #ffe08a;
+            font-size: 0.72rem;
+            font-weight: 950;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .multiplayer-section button {
+            width: 100% !important;
+            max-width: 340px !important;
+            min-height: 44px !important;
+        }
+
+        .multiplayer-online-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .multiplayer-back-button {
+            width: min(100%, 210px) !important;
+            margin: 14px auto 0;
+        }
+
+        body.desktop-build .help-modal-card {
+            width: min(92vw, 780px) !important;
+            height: min(82dvh, 580px);
+            max-height: min(82dvh, 580px) !important;
+            overflow: hidden !important;
+            display: grid;
+            grid-template-rows: auto auto minmax(0, 1fr) auto;
+            gap: 10px;
+            padding: 18px !important;
+            text-align: left;
+        }
+
+        .help-modal-card h2 {
+            text-align: center;
+        }
+
+        .help-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+        }
+
+        .help-tab {
+            --btn-bg: url('assets/ui/button_small_dark.webp');
+            min-height: 40px;
+            padding: 7px 9px;
+            font-size: 0.74rem;
+        }
+
+        .help-tab.selected {
+            --btn-bg: url('assets/ui/button_small_blue.webp');
+            filter: brightness(1.1) saturate(1.18);
+        }
+
+        .help-content {
+            min-height: 0;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .help-panel {
+            display: none;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .help-panel.selected {
+            display: grid;
+        }
+
+        .help-panel .rules-section {
+            margin: 0;
+        }
+
+        .help-panel .rules-section.wide {
+            grid-column: 1 / -1;
+        }
+
+        .help-modal-actions {
+            display: flex;
+            justify-content: center;
+        }
+
+        .help-modal-actions button {
+            width: min(100%, 210px);
+            min-height: 42px;
+        }
+
+        body.desktop-build .chapter-pin {
+            border: 1px solid rgba(255, 224, 138, 0.28) !important;
+            border-radius: 12px !important;
+            background: linear-gradient(180deg, rgba(13, 10, 24, 0.88), rgba(5, 8, 17, 0.8)) !important;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.42) !important;
+            backdrop-filter: blur(3px);
+        }
+
+        body.desktop-build .chapter-pin.available {
+            border-color: rgba(255, 224, 138, 0.78) !important;
+            box-shadow:
+                0 0 0 2px rgba(124, 92, 255, 0.3),
+                0 8px 22px rgba(0,0,0,0.5) !important;
+        }
+
+        body.desktop-build .chapter-pin.locked {
+            opacity: 0.76 !important;
+        }
+
+        @media (max-width: 760px), (max-height: 720px) {
+            body.desktop-build .start-menu-primary .mode-choice {
+                min-height: 44px !important;
+                font-size: 0.82rem !important;
+            }
+
+            body.desktop-build .start-menu-primary .story-entry {
+                min-height: 50px !important;
+                font-size: 0.9rem !important;
+            }
+
+            body.desktop-build .help-modal-card {
+                height: min(90dvh, 580px);
+                max-height: min(90dvh, 580px) !important;
+                padding: 12px !important;
+            }
+
+            .help-tab {
+                min-height: 36px;
+                font-size: 0.66rem;
+            }
+
+            .help-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .help-panel .rules-section.wide {
+                grid-column: auto;
+            }
+
+            body.desktop-build .settings-info-row {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (min-width: 761px) and (max-height: 720px) {
+            .help-panel {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .help-panel .rules-section.wide {
+                grid-column: 1 / -1;
+            }
+        }
+
     </style>
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#12091f">
@@ -5385,7 +5776,7 @@
     const MAX_HP = 99;
     const HAND_DRAW = 5;
     const MAX_LOGS = 14;
-    const BUILD_VERSION = "v0.7.6 Fullscreen Story Fix";
+    const BUILD_VERSION = "v0.7.6";
 
     const STORY_PROGRESS_KEY = "arcaneSpellCraftStoryProgress";
     const CHAPTER_ONE_TUTORIAL_KEY = "arcaneSpellCraftChapterOneBoardTutorialDone";
@@ -5919,8 +6310,10 @@
     }
 
     const MAIN_MUSIC_FILE = "assets/music/main_game_arcane_duel.ogg";
+    const MENU_MUSIC_FILE = "assets/music/main_menu_arcane_shroud_piano_v2.ogg";
 
     function currentMusicFile() {
+        if (!state.active) return MENU_MUSIC_FILE;
         if (state.mode === "story" && state.story?.chapterId) {
             const chapter = storyChapterById(state.story.chapterId);
             if (chapter?.musicFile) return chapter.musicFile;
@@ -6004,7 +6397,7 @@
     }
 
     function startMusic() {
-        if (!audioState.musicEnabled || !state.active) return;
+        if (!audioState.musicEnabled) return;
         const fileMusic = currentMusicFile();
         if (fileMusic) {
             startMusicFile(fileMusic);
@@ -6030,7 +6423,7 @@
     function setMusicEnabled(enabled) {
         audioState.musicEnabled = enabled;
         localStorage.setItem("arcaneSpellCraftMusic", enabled ? "on" : "off");
-        if (enabled && state.active) startMusic();
+        if (enabled) startMusic();
         else stopMusic();
         updateAudioButtons();
     }
@@ -6122,7 +6515,7 @@
     function unlockAudioFromGesture() {
         getAudioContext();
         updateAudioButtons();
-        if (audioState.musicEnabled && state.active) startMusic();
+        if (audioState.musicEnabled) startMusic();
     }
 
 
@@ -7495,6 +7888,9 @@
     }
 
     function handlePointerDown(event) {
+        if (!state.active && audioState.musicEnabled && (!audioState.musicElement || audioState.musicElement.paused)) {
+            unlockAudioFromGesture();
+        }
         clearLongPressTimer();
         longPressTriggered = false;
         const actionTarget = event.target.closest("[data-action]");
@@ -7773,19 +8169,32 @@
     function showMultiplayerMenu() {
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
-                <div class="modal-card">
+                <div class="modal-card multiplayer-card">
                     <h2>Multiplayer</h2>
                     <p class="polish-title-note">Play on one device, or create a room code for online play.</p>
-                    <div class="name-grid">
-                        <input id="multiPlayerOne" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_NAME_KEY) || state.names?.player || "Player 1")}" aria-label="Player 1 name" placeholder="Player 1" />
-                        <input id="multiPlayerTwo" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_TWO_NAME_KEY) || state.names?.ai || "Player 2")}" aria-label="Player 2 name" placeholder="Player 2" />
+                    <div class="multiplayer-fields">
+                        <label for="multiPlayerOne">Your Name</label>
+                        <input id="multiPlayerOne" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_NAME_KEY) || state.names?.player || "Player 1")}" aria-label="Your name" placeholder="Player 1" />
                     </div>
-                    <div class="polish-menu-panel">
+
+                    <section class="multiplayer-section">
+                        <div class="multiplayer-section-title">Local Match</div>
+                        <div class="multiplayer-fields">
+                            <label for="multiPlayerTwo">Player 2 Name</label>
+                            <input id="multiPlayerTwo" maxlength="18" value="${escapeHtml(localStorage.getItem(PLAYER_TWO_NAME_KEY) || state.names?.ai || "Player 2")}" aria-label="Player 2 name" placeholder="Player 2" />
+                        </div>
                         <button type="button" class="mode-choice" data-modal="start-pass"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_passplay.webp" alt="" /> Pass &amp; Play</span></button>
-                        <button type="button" class="mode-choice" data-modal="host-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Host Room</span></button>
-                        <button type="button" class="mode-choice" data-modal="join-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Join Room</span></button>
-                        <button type="button" class="btn-orange" data-modal="multiplayer-back"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Back</span></button>
-                    </div>
+                    </section>
+
+                    <section class="multiplayer-section">
+                        <div class="multiplayer-section-title">Online Match</div>
+                        <div class="multiplayer-online-row">
+                            <button type="button" class="mode-choice" data-modal="host-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Host Room</span></button>
+                            <button type="button" class="mode-choice" data-modal="join-online"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Join Room</span></button>
+                        </div>
+                    </section>
+
+                    <button type="button" class="btn-orange multiplayer-back-button" data-modal="multiplayer-back"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Back</span></button>
                 </div>
             </div>`;
 
@@ -7948,6 +8357,9 @@
     function showSettingsModal(returnToStart = false, returnContext = null) {
         pcSettingsReturnContext = returnContext || (returnToStart || !state.active ? "start" : "game-menu");
         const backAction = pcSettingsReturnContext === "start" ? "settings-back-start" : "settings-back-menu";
+        const fullscreenActive = getPcWindowMode() === "fullscreen";
+        const scaleMode = getPcScaleMode();
+        const controllerHintsActive = getControllerHintsEnabled();
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
                 <div class="modal-card settings-modal-card">
@@ -7972,13 +8384,13 @@
                         <section class="settings-section desktop-only-menu-button settings-display-section">
                             <div class="settings-section-title">Display</div>
                             <div class="settings-display-row">
-                                <button type="button" class="mode-choice settings-compact-button settings-toggle-button" data-modal="settings-toggle-fullscreen"><span class="button-inline">Fullscreen On</span></button>
+                                <button type="button" class="mode-choice settings-compact-button settings-toggle-button ${fullscreenActive ? "selected" : "is-off"}" data-modal="settings-toggle-fullscreen" aria-pressed="${fullscreenActive ? "true" : "false"}"><span class="button-inline">Fullscreen ${fullscreenActive ? "On" : "Off"}</span></button>
                                 <div class="pc-scale-panel compact-scale-panel">
                                     <div class="pc-scale-title">Scale</div>
                                     <div class="pc-scale-grid compact-scale-grid">
-                                        <button type="button" class="mode-choice settings-scale-button" data-pc-scale="auto"><span class="button-inline">Auto</span></button>
-                                        <button type="button" class="mode-choice settings-scale-button" data-pc-scale="90"><span class="button-inline">90%</span></button>
-                                        <button type="button" class="mode-choice settings-scale-button" data-pc-scale="80"><span class="button-inline">80%</span></button>
+                                        <button type="button" class="mode-choice settings-scale-button ${scaleMode === "auto" ? "selected" : "is-off"}" data-pc-scale="auto" aria-pressed="${scaleMode === "auto" ? "true" : "false"}"><span class="button-inline">Auto</span></button>
+                                        <button type="button" class="mode-choice settings-scale-button ${scaleMode === "90" ? "selected" : "is-off"}" data-pc-scale="90" aria-pressed="${scaleMode === "90" ? "true" : "false"}"><span class="button-inline">90%</span></button>
+                                        <button type="button" class="mode-choice settings-scale-button ${scaleMode === "80" ? "selected" : "is-off"}" data-pc-scale="80" aria-pressed="${scaleMode === "80" ? "true" : "false"}"><span class="button-inline">80%</span></button>
                                     </div>
                                 </div>
                             </div>
@@ -7990,11 +8402,11 @@
                             </div>
 
                             <div class="settings-extra-row">
-                                <button type="button" class="mode-choice settings-compact-button settings-toggle-button" data-modal="toggle-controller-hints"><span class="button-inline">Controller Hints On</span></button>
+                                <button type="button" class="mode-choice settings-compact-button settings-toggle-button ${controllerHintsActive ? "selected" : "is-off"}" data-modal="toggle-controller-hints" aria-pressed="${controllerHintsActive ? "true" : "false"}"><span class="button-inline">Controller Hints ${controllerHintsActive ? "On" : "Off"}</span></button>
                                 <button type="button" class="mode-choice settings-compact-button settings-reset-display-button" data-modal="reset-display-settings"><span class="button-inline">Reset Display</span></button>
                             </div>
 
-                            <p class="settings-help-text"><span id="settingsDisplayStatus">Current: Fullscreen • Scale Auto • Brightness 100%</span><br />Auto is recommended for PC and Steam Deck.</p>
+                            <p class="settings-help-text"><span id="settingsDisplayStatus">Fullscreen | Auto scale | Brightness 100%</span><br />Auto is recommended for PC and Steam Deck.</p>
                         </section>
 
                         <section class="settings-section">
@@ -8004,7 +8416,7 @@
                         </section>
 
                         <section class="settings-section settings-info-row">
-                            <div class="settings-help-text">Controls: Esc menu · F11 fullscreen · Right Click inspect · Controller supported.</div>
+                            <div class="settings-help-text">Controls: Esc menu | F11 fullscreen | Right Click inspect | Controller supported.</div>
                             <div class="build-version">${BUILD_VERSION}</div>
                         </section>
                     </div>
@@ -8066,95 +8478,142 @@
         const backAction = returnToStart ? "rules-back-start" : "rules-back-menu";
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
-                <div class="modal-card">
+                <div class="modal-card help-modal-card">
                     <h2>Rules / Help</h2>
-                    <div class="rules-scroll">
-                        <div class="rules-section">
-                            <h3>Goal</h3>
-                            <p>Reduce your opponent's health to 0 before they reduce yours to 0.</p>
-                        </div>
-                        <div class="rules-section">
-                            <h3>Turn Flow</h3>
-                            <ul>
-                                <li>Draw cards at the start of your turn.</li>
-                                <li>Play Shards to gain temporary currency.</li>
-                                <li>Play creatures and spells from your hand.</li>
-                                <li>Buy cards from the Market.</li>
-                                <li>Attack with your creatures.</li>
-                                <li>Press End Turn when finished.</li>
-                            </ul>
-                        </div>
-                        <div class="rules-section">
-                            <h3>PC Controls</h3>
-                            <ul>
-                                <li><strong>Left Click:</strong> play, buy, select, and attack.</li>
-                                <li><strong>Right Click:</strong> inspect a card, or cancel targeting / attack mode.</li>
-                                <li><strong>Esc:</strong> open or close the game menu. If you are targeting something, Esc cancels the action first.</li>
-                                <li><strong>Enter / Space:</strong> end your turn when no menu is open.</li>
-                                <li><strong>F11:</strong> toggle fullscreen.</li>
-                                <li><strong>Hover:</strong> preview cards and highlight targets.</li>
-                            </ul>
-                        </div>
-                        <div class="rules-section">
-                            <h3>Controller / Steam Deck</h3>
-                            <div class="controller-help-grid">
-                                <div class="controller-help-chip"><strong>A</strong>Select / confirm focused card or button.</div>
-                                <div class="controller-help-chip"><strong>B</strong>Cancel targeting, go back, or close menu.</div>
-                                <div class="controller-help-chip"><strong>X</strong>Inspect the focused card.</div>
-                                <div class="controller-help-chip"><strong>Y</strong>End your turn when allowed.</div>
-                                <div class="controller-help-chip"><strong>D-Pad / Stick</strong>Move selection between cards and buttons.</div>
-                                <div class="controller-help-chip"><strong>LB / RB</strong>Jump between lanes or menu groups.</div>
-                                <div class="controller-help-chip"><strong>LT / RT</strong>Move left/right through cards in the current lane.</div>
-                                <div class="controller-help-chip"><strong>Start</strong>Open the game menu.</div>
-                            </div>
-                        </div>
-                        <div class="rules-section">
-                            <h3>Shards</h3>
-                            <p>Shards are temporary money for the current turn. Use them to buy Market cards or Arcane Clusters. Unspent shards disappear when your turn ends.</p>
-                        </div>
-                        <div class="rules-section">
-                            <h3>Market</h3>
-                            <p>Click a Market card to buy it if you have enough shards. Bought cards go to your discard pile and become available after your deck reshuffles.</p>
-                        </div>
-                        <div class="rules-section">
-                            <h3>Creatures</h3>
-                            <p>Creature cards enter your creature area. Each creature has attack and health. If its health reaches 0, it is destroyed.</p>
-                        </div>
-                        <div class="rules-section">
-                            <h3>Attacking</h3>
-                            <p>Click one of your creatures, then click an enemy creature or the enemy hero. Each creature can attack once per turn.</p>
-                        </div>
-                        <div class="rules-section">
-                            <h3>Defender</h3>
-                            <p>If the opponent has a Defender creature, you must deal with the Defender before attacking the opponent directly.</p>
-                        </div>
-                        <div class="rules-section">
-                            <h3>Spells</h3>
-                            <p>Spells create instant effects such as damage, healing, drawing cards, protection, stealing creatures, or reviving creatures.</p>
-                        </div>
-                        <div class="rules-section">
-                            <h3>Card Info</h3>
-                            <p>Right click any visible card to inspect it on PC. Hover cards for a quick preview. You can still press and hold if you prefer.</p>
-                        </div>
-                        <div class="rules-section">
-                            <h3>Deck and Discard</h3>
-                            <p>Played and bought cards usually go to your discard pile. When your deck runs out, your discard pile is shuffled into a new deck.</p>
-                        </div>
-                        <div class="rules-section">
-                            <h3>Online Play</h3>
-                            <p>One player hosts a room and shares the code. The second player joins with that code. Use Forfeit if you need to concede an online match.</p>
-                        </div>
+                    <div class="help-tabs" role="tablist" aria-label="Help categories">
+                        <button type="button" class="help-tab selected" data-help-tab="basics" role="tab" aria-selected="true">Basics</button>
+                        <button type="button" class="help-tab" data-help-tab="cards" role="tab" aria-selected="false">Cards</button>
+                        <button type="button" class="help-tab" data-help-tab="controls" role="tab" aria-selected="false">Controls</button>
+                        <button type="button" class="help-tab" data-help-tab="online" role="tab" aria-selected="false">Online</button>
                     </div>
-                    <div class="modal-actions">
+
+                    <div class="help-content">
+                        <section class="help-panel selected" data-help-panel="basics" role="tabpanel">
+                            <div class="rules-section">
+                                <h3>Goal</h3>
+                                <p>Reduce your opponent's health to 0 before they reduce yours to 0.</p>
+                            </div>
+                            <div class="rules-section">
+                                <h3>Turn Flow</h3>
+                                <ul>
+                                    <li>Draw cards at the start of your turn.</li>
+                                    <li>Play Shards for temporary currency.</li>
+                                    <li>Play cards, buy from the Market, and attack.</li>
+                                    <li>Press End Turn when finished.</li>
+                                </ul>
+                            </div>
+                            <div class="rules-section">
+                                <h3>Shards</h3>
+                                <p>Shards pay for Market cards during the current turn. Any unspent Shards disappear when your turn ends.</p>
+                            </div>
+                            <div class="rules-section">
+                                <h3>Market</h3>
+                                <p>Bought cards go to your discard pile and become available after your deck reshuffles.</p>
+                            </div>
+                            <div class="rules-section wide">
+                                <h3>Attacking and Defenders</h3>
+                                <p>Select one of your creatures, then choose an enemy. Each creature attacks once per turn. Defender creatures must be dealt with before other targets.</p>
+                            </div>
+                        </section>
+
+                        <section class="help-panel" data-help-panel="cards" role="tabpanel">
+                            <div class="rules-section">
+                                <h3>Creatures</h3>
+                                <p>Creatures enter your battlefield with attack and health. A creature is destroyed when its health reaches 0.</p>
+                            </div>
+                            <div class="rules-section">
+                                <h3>Spells</h3>
+                                <p>Spells create instant effects including damage, healing, card draw, protection, stealing, and revival.</p>
+                            </div>
+                            <div class="rules-section">
+                                <h3>Card Info</h3>
+                                <p>Right click a visible card to inspect it. Hover for a quick preview, or press and hold on touch screens.</p>
+                            </div>
+                            <div class="rules-section">
+                                <h3>Deck and Discard</h3>
+                                <p>Played and bought cards usually enter your discard pile. When your deck empties, the discard pile is shuffled into a new deck.</p>
+                            </div>
+                        </section>
+
+                        <section class="help-panel" data-help-panel="controls" role="tabpanel">
+                            <div class="rules-section">
+                                <h3>PC Controls</h3>
+                                <ul>
+                                    <li><strong>Left Click:</strong> play, buy, select, and attack.</li>
+                                    <li><strong>Right Click:</strong> inspect or cancel.</li>
+                                    <li><strong>Esc:</strong> open or close the game menu.</li>
+                                    <li><strong>Enter / Space:</strong> end your turn.</li>
+                                    <li><strong>F11:</strong> toggle fullscreen.</li>
+                                </ul>
+                            </div>
+                            <div class="rules-section">
+                                <h3>Controller / Steam Deck</h3>
+                                <div class="controller-help-grid">
+                                    <div class="controller-help-chip"><strong>A</strong>Select or confirm.</div>
+                                    <div class="controller-help-chip"><strong>B</strong>Cancel or go back.</div>
+                                    <div class="controller-help-chip"><strong>X</strong>Inspect a card.</div>
+                                    <div class="controller-help-chip"><strong>Y</strong>End your turn.</div>
+                                    <div class="controller-help-chip"><strong>D-Pad / Stick</strong>Move selection.</div>
+                                    <div class="controller-help-chip"><strong>LB / RB</strong>Jump between groups.</div>
+                                    <div class="controller-help-chip"><strong>LT / RT</strong>Move through cards.</div>
+                                    <div class="controller-help-chip"><strong>Start</strong>Open the game menu.</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="help-panel" data-help-panel="online" role="tabpanel">
+                            <div class="rules-section">
+                                <h3>Host a Room</h3>
+                                <p>Choose Host Room, then share the generated room code with the second player.</p>
+                            </div>
+                            <div class="rules-section">
+                                <h3>Join a Room</h3>
+                                <p>Choose Join Room and enter the host's room code. Both players need an internet connection.</p>
+                            </div>
+                            <div class="rules-section wide">
+                                <h3>Leaving a Match</h3>
+                                <p>Use the Game Menu to forfeit or leave an online match. Returning to the main menu ends your current room session.</p>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="help-modal-actions">
                         <button type="button" class="btn-orange" data-modal="${backAction}"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Back</span></button>
                     </div>
                 </div>
             </div>`;
 
-        els.modalRoot.querySelector(`[data-modal="${backAction}"]`).addEventListener("pointerup", () => {
+        const activateHelpTab = (tabName) => {
+            els.modalRoot.querySelectorAll("[data-help-tab]").forEach(button => {
+                const selected = button.dataset.helpTab === tabName;
+                button.classList.toggle("selected", selected);
+                button.setAttribute("aria-selected", selected ? "true" : "false");
+            });
+            els.modalRoot.querySelectorAll("[data-help-panel]").forEach(panel => {
+                panel.classList.toggle("selected", panel.dataset.helpPanel === tabName);
+            });
+        };
+
+        els.modalRoot.querySelectorAll("[data-help-tab]").forEach(button => {
+            const selectTab = () => {
+                playSfx("uiTap");
+                activateHelpTab(button.dataset.helpTab);
+            };
+            button.addEventListener("pointerup", selectTab);
+            button.addEventListener("click", event => {
+                if (event.detail === 0) selectTab();
+            });
+        });
+
+        const backButton = els.modalRoot.querySelector(`[data-modal="${backAction}"]`);
+        const goBack = () => {
             playSfx("uiTap");
             if (returnToStart || !state.active) showStartModal();
             else showMainMenu();
+        };
+        backButton.addEventListener("pointerup", goBack, { once: true });
+        backButton.addEventListener("click", event => {
+            if (event.detail === 0) goBack();
         }, { once: true });
     }
 
@@ -8191,7 +8650,9 @@
     const PC_BRIGHTNESS_KEY = "arcane_pc_brightness";
 
     function getPcBrightness() {
-        const saved = Number(localStorage.getItem(PC_BRIGHTNESS_KEY));
+        const stored = localStorage.getItem(PC_BRIGHTNESS_KEY);
+        if (stored === null) return 100;
+        const saved = Number(stored);
         if (!Number.isFinite(saved)) return 100;
         return Math.max(70, Math.min(135, saved));
     }
@@ -8313,7 +8774,7 @@
         if (status) {
             const scaleMode = getPcScaleMode();
             const scaleLabel = scaleMode === "auto" ? "Auto" : `${scaleMode}%`;
-            status.textContent = `Current: ${fullscreenActive ? "Fullscreen" : "Windowed"} • Scale ${scaleLabel} • Brightness ${getPcBrightness()}%`;
+            status.textContent = `${fullscreenActive ? "Fullscreen" : "Windowed"} | ${scaleLabel} scale | Brightness ${getPcBrightness()}%`;
         }
         updatePcBrightnessControls(root);
 
@@ -8334,6 +8795,7 @@
     }
 
     const PC_WINDOW_MODE_KEY = "arcaneSpellCraftPcWindowMode";
+    const PC_SCALE_KEY = "arcaneSpellCraftPcScale";
     let pcSettingsReturnContext = "start";
     let pcHoverPreviewEl = null;
     let pcHoverCardId = "";
@@ -8611,13 +9073,8 @@
         state.selectedAttackerUid = null;
         state.awaitingPass = false;
 
-        // Always open on the PC splash/main menu path.
-        // The board behind this is only a background shell until a real match starts.
-        if (isDesktopBuild()) {
-            showPcSplashScreen();
-        } else {
-            showStartModal();
-        }
+        // Open directly on the main menu. Controls remain available in Rules / Help.
+        showStartModal();
     }
 
     function toggleDesktopFullscreen() {
@@ -8684,6 +9141,23 @@
                 void handleEndTurn();
             }
         }
+    }
+
+    function handleModalKeyboardActivation(event) {
+        if (!isDesktopBuild() || !["Enter", "NumpadEnter", " "].includes(event.key)) return;
+        const button = document.activeElement?.closest?.("button");
+        if (!button || !els.modalRoot.contains(button) || button.disabled) return;
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        unlockAudioFromGesture();
+        const eventCtor = typeof PointerEvent === "function" ? PointerEvent : MouseEvent;
+        button.dispatchEvent(new eventCtor("pointerup", {
+            bubbles: true,
+            cancelable: true,
+            pointerId: 778,
+            pointerType: "keyboard"
+        }));
     }
 
     function handleDesktopContextMenu(event) {
@@ -9003,20 +9477,20 @@
 
         els.modalRoot.innerHTML = `
             <div class="modal" role="dialog" aria-modal="true">
-                <div class="modal-card">
+                <div class="modal-card pause-menu-card">
                     <h2>Game Menu</h2>
-                    <p>${state.online.enabled ? "Online match options and desktop settings." : "Pause, inspect settings, or return to the main menu."}</p>
+                    <p>${state.online.enabled ? "Online match options and settings." : "Game paused."}</p>
                     ${onlineStatus}
                     <div class="pause-menu-panel">
-                        <button type="button" class="menu-primary" data-modal="resume-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Resume Game</span></button>
+                        <button type="button" class="menu-primary pause-resume-button" data-modal="resume-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Resume Game</span></button>
                         <button type="button" class="menu-primary" data-modal="open-settings"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Settings</span></button>
                         <button type="button" class="menu-primary" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules / Help</span></button>
-                        ${matchButton}
-                        <button type="button" class="menu-primary desktop-only-menu-button" data-modal="toggle-fullscreen"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_arrow.webp" alt="" /> Toggle Fullscreen</span></button>
-                        <button type="button" class="menu-primary desktop-only-menu-button" data-modal="quit-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Quit Game</span></button>
-                        <p class="menu-note compact-menu-note">Audio and display options are in Settings.</p>
+                        <div class="pause-exit-row">
+                            ${matchButton}
+                            <button type="button" class="menu-primary desktop-only-menu-button" data-modal="quit-game"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Quit Game</span></button>
+                        </div>
+                        <p class="pause-shortcut-note">Press Esc to resume.</p>
                     </div>
-                    <p class="menu-note">PC Controls: Esc = menu, F11 = fullscreen, Enter / Space = end turn, Right Click = inspect or cancel.</p>
                 </div>
             </div>`;
 
@@ -9038,14 +9512,6 @@
             };
             settingsBtn.addEventListener("pointerup", openSettings);
             settingsBtn.addEventListener("click", openSettings);
-        }
-
-        const fullscreenBtn = els.modalRoot.querySelector('[data-modal="toggle-fullscreen"]');
-        if (fullscreenBtn) {
-            fullscreenBtn.addEventListener("pointerup", () => {
-                playSfx("uiTap");
-                toggleDesktopFullscreen();
-            });
         }
 
         const quitBtn = els.modalRoot.querySelector('[data-modal="quit-game"]');
@@ -9633,7 +10099,7 @@
         state.online = { ...online, enabled: true, version };
         state.online.applyingRemote = false;
         tapLocked = false;
-        if (audioState.musicEnabled) startMusic();
+        if (audioState.musicEnabled && state.active) startMusic();
 
         const onlineModal = els.modalRoot.querySelector(".online-waiting, .online-status");
         if (onlineModal) {
@@ -10109,6 +10575,7 @@
         state.active = false;
         syncPcWindowModeLayout();
         applyGameBackground(true);
+        startMusic();
         document.body.classList.add("story-map-active");
         document.body.classList.remove("menu-bg-active");
         const progress = getStoryProgress();
@@ -10172,6 +10639,7 @@
 
     function showStoryChapterDetail(chapterId) {
         syncPcWindowModeLayout();
+        startMusic();
         const chapter = storyChapterById(chapterId);
         els.modalRoot.innerHTML = `
             <div class="modal chapter-detail-modal" role="dialog" aria-modal="true">
@@ -10206,20 +10674,24 @@
         syncPcWindowModeLayout();
         if (state.tutorial?.active) finishChapterOneTutorial(false);
         applyGameBackground(true);
+        startMusic();
         els.modalRoot.innerHTML = `
             <div class="modal start-screen-modal" role="dialog" aria-modal="true">
                 <div class="modal-card start-screen-card">
                     <div class="start-menu-panel">
                         <div class="start-menu-list">
-                            <button type="button" class="mode-choice story-entry" data-modal="story-mode"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Story Mode</span></button>
-                            <button type="button" class="mode-choice" data-modal="start-solo"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_helmet.webp" alt="" /> Solo vs AI</span></button>
-                            <button type="button" class="mode-choice" data-modal="multiplayer-menu"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_passplay.webp" alt="" /> Multiplayer</span></button>
-                            <button type="button" class="mode-choice rules-entry" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules</span></button>
-                            <button type="button" class="mode-choice settings-entry" data-modal="settings"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Settings</span></button>
+                            <div class="start-menu-primary">
+                                <button type="button" class="mode-choice story-entry" data-modal="story-mode"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Story Mode</span></button>
+                                <button type="button" class="mode-choice" data-modal="start-solo"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_helmet.webp" alt="" /> Solo vs AI</span></button>
+                                <button type="button" class="mode-choice" data-modal="multiplayer-menu"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_passplay.webp" alt="" /> Multiplayer</span></button>
+                            </div>
+                            <div class="start-menu-secondary">
+                                <button type="button" class="mode-choice rules-entry" data-modal="rules"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Rules / Help</span></button>
+                                <button type="button" class="mode-choice settings-entry" data-modal="settings"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_restart.webp" alt="" /> Settings</span></button>
+                            </div>
                             ${installButtonHtml("mode-choice")}
-                            <button type="button" class="mode-choice desktop-only-menu-button" data-modal="quit-desktop-start"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Quit Game</span></button>
+                            <button type="button" class="mode-choice start-menu-quit desktop-only-menu-button" data-modal="quit-desktop-start"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_target.webp" alt="" /> Quit Game</span></button>
                         </div>
-                        <div class="build-version">${BUILD_VERSION}</div>
                     </div>
                 </div>
             </div>`;
@@ -10324,6 +10796,7 @@
     document.addEventListener("pointerup", handleGlobalSettingsBack, { capture: true, passive: false });
     document.addEventListener("click", handleGlobalSettingsBack, { capture: true, passive: false });
     document.addEventListener("pointerup", handleTap, { passive: false });
+    document.addEventListener("keydown", handleModalKeyboardActivation, { capture: true, passive: false });
     document.addEventListener("keydown", handleDesktopKeyboard, { passive: false });
     document.addEventListener("contextmenu", handleDesktopContextMenu);
     document.addEventListener("mouseover", handlePcHoverIn, { passive: true });
