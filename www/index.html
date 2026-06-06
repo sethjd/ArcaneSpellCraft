@@ -5187,23 +5187,6 @@
                 0 0 16px rgba(124, 92, 255, 0.5) !important;
         }
 
-        body.desktop-build .settings-modal-card .settings-toggle-button.selected::after,
-        body.desktop-build .settings-modal-card .settings-scale-button.selected::after {
-            content: "Selected";
-            position: absolute;
-            right: 8px;
-            top: -8px;
-            padding: 2px 6px;
-            border-radius: 999px;
-            background: #ffe08a;
-            color: #24132f;
-            font-size: 0.48rem;
-            font-weight: 1000;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            text-shadow: none;
-        }
-
         body.desktop-build .settings-modal-card button[aria-pressed="true"] {
             filter: brightness(1.12) saturate(1.24) !important;
             box-shadow:
@@ -5424,6 +5407,386 @@
 
             .help-panel .rules-section.wide {
                 grid-column: 1 / -1;
+            }
+        }
+
+        /* Story campaign presentation */
+        body.desktop-build .story-map-header {
+            width: min(94vw, 860px) !important;
+            max-height: none !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 20px !important;
+            padding: 9px 14px !important;
+            text-align: left !important;
+            background:
+                linear-gradient(135deg, rgba(8, 9, 20, 0.9), rgba(18, 10, 32, 0.72)) !important;
+            border-color: rgba(255, 215, 106, 0.28) !important;
+            box-shadow:
+                0 12px 28px rgba(0,0,0,0.34),
+                inset 0 1px rgba(255,255,255,0.05) !important;
+            backdrop-filter: blur(8px) !important;
+        }
+
+        .story-map-header-copy {
+            min-width: 0;
+        }
+
+        .story-map-kicker,
+        .chapter-detail-kicker,
+        .chapter-brief-label {
+            color: #dfc777;
+            font-size: 0.58rem;
+            font-weight: 950;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        body.desktop-build .story-map-header h2 {
+            color: #fff5d6;
+            letter-spacing: 0.01em;
+        }
+
+        .story-progress {
+            flex: 0 0 auto;
+            min-width: 164px;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: center;
+            column-gap: 7px;
+            padding-left: 14px;
+            border-left: 1px solid rgba(255, 215, 106, 0.22);
+        }
+
+        .story-progress-count {
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+            color: #cfc6ec;
+        }
+
+        .story-progress-count strong {
+            color: #ffe08a;
+            font-size: 1.35rem;
+            line-height: 1;
+        }
+
+        .story-progress-count span,
+        .story-progress-label {
+            font-size: 0.62rem;
+            font-weight: 850;
+        }
+
+        .story-progress-label {
+            color: #eee8ff;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .story-progress-track {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            margin-top: 5px;
+        }
+
+        .story-progress-track span {
+            height: 4px;
+            border-radius: 999px;
+            background: rgba(174, 159, 211, 0.22);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+        }
+
+        .story-progress-track span.complete {
+            background: linear-gradient(90deg, #8a66ff, #ffe08a);
+            box-shadow: 0 0 8px rgba(157, 112, 255, 0.52);
+        }
+
+        .story-progress-track span.current {
+            background: #f7edf9;
+            box-shadow: 0 0 10px rgba(255, 224, 138, 0.75);
+        }
+
+        body.desktop-build .chapter-pin {
+            width: clamp(136px, 13.5vw, 184px) !important;
+            min-height: 56px !important;
+            padding: 6px 10px 7px !important;
+            gap: 1px !important;
+            background:
+                linear-gradient(180deg, rgba(18, 12, 30, 0.94), rgba(5, 8, 17, 0.9)) !important;
+            border-color: rgba(209, 190, 238, 0.38) !important;
+            box-shadow:
+                0 10px 24px rgba(0,0,0,0.52),
+                inset 0 1px rgba(255,255,255,0.05) !important;
+        }
+
+        .chapter-pin-number {
+            color: #bbaed6;
+            font-size: 0.5rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        body.desktop-build .chapter-pin-title {
+            color: #fff7e6 !important;
+            font-size: clamp(0.72rem, 0.94vw, 0.88rem) !important;
+        }
+
+        body.desktop-build .chapter-pin-action {
+            margin-top: 2px;
+            font-size: clamp(0.48rem, 0.68vw, 0.6rem) !important;
+        }
+
+        body.desktop-build .chapter-pin.completed {
+            border-color: rgba(128, 226, 184, 0.62) !important;
+            background:
+                linear-gradient(180deg, rgba(12, 39, 38, 0.94), rgba(5, 16, 23, 0.92)) !important;
+        }
+
+        body.desktop-build .chapter-pin.completed .chapter-pin-action {
+            color: #a9f2ce;
+        }
+
+        body.desktop-build .chapter-pin.available {
+            border-color: rgba(255, 224, 138, 0.95) !important;
+            background:
+                linear-gradient(180deg, rgba(49, 27, 68, 0.97), rgba(13, 10, 29, 0.94)) !important;
+            box-shadow:
+                0 0 0 2px rgba(124, 92, 255, 0.34),
+                0 0 22px rgba(139, 81, 255, 0.44),
+                0 10px 24px rgba(0,0,0,0.54) !important;
+            animation: story-current-pulse 2.4s ease-in-out infinite;
+        }
+
+        body.desktop-build .chapter-pin.locked {
+            opacity: 0.64 !important;
+            filter: grayscale(0.68) brightness(0.78) !important;
+        }
+
+        @keyframes story-current-pulse {
+            0%, 100% {
+                box-shadow:
+                    0 0 0 2px rgba(124, 92, 255, 0.28),
+                    0 0 16px rgba(139, 81, 255, 0.34),
+                    0 10px 24px rgba(0,0,0,0.54);
+            }
+            50% {
+                box-shadow:
+                    0 0 0 2px rgba(255, 224, 138, 0.46),
+                    0 0 28px rgba(139, 81, 255, 0.58),
+                    0 10px 24px rgba(0,0,0,0.54);
+            }
+        }
+
+        body.desktop-build .chapter-detail-card::before {
+            background:
+                linear-gradient(180deg, rgba(3,4,10,0.05) 0%, rgba(3,4,10,0.12) 38%, rgba(3,4,10,0.78) 78%, rgba(3,4,10,0.94) 100%),
+                radial-gradient(circle at 50% 30%, transparent 0 42%, rgba(0,0,0,0.18) 72%, rgba(0,0,0,0.58) 100%) !important;
+        }
+
+        body.desktop-build .chapter-detail-content {
+            width: min(720px, calc(100vw - 32px)) !important;
+            max-width: 720px !important;
+            padding: 13px 15px 14px !important;
+            border-radius: 20px !important;
+            border-color: rgba(255, 215, 106, 0.48) !important;
+            background:
+                linear-gradient(145deg, rgba(8, 10, 20, 0.94), rgba(10, 7, 20, 0.88)) !important;
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.56),
+                inset 0 1px rgba(255,255,255,0.05) !important;
+            backdrop-filter: blur(10px) !important;
+        }
+
+        .chapter-detail-heading {
+            text-align: center;
+        }
+
+        .chapter-detail-kicker {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+
+        .chapter-status {
+            padding: 2px 6px;
+            border: 1px solid rgba(255, 224, 138, 0.35);
+            border-radius: 999px;
+            color: #fff1b8;
+            background: rgba(124, 92, 255, 0.18);
+            letter-spacing: 0.06em;
+        }
+
+        body.desktop-build .chapter-detail-content h2 {
+            margin: 0 0 4px !important;
+            color: #fff4d2;
+            font-size: clamp(1.25rem, 2vw, 1.7rem) !important;
+        }
+
+        body.desktop-build .chapter-detail-content .chapter-intro {
+            max-width: 640px;
+            margin: 0 auto 10px !important;
+            color: #e1daf7;
+            font-size: clamp(0.72rem, 0.9vw, 0.82rem) !important;
+            line-height: 1.3 !important;
+        }
+
+        .chapter-briefing {
+            display: grid;
+            grid-template-columns: minmax(190px, 0.78fr) minmax(0, 1.35fr);
+            gap: 9px;
+            text-align: left;
+        }
+
+        .chapter-opponent-stats,
+        .chapter-mission {
+            display: grid;
+            gap: 7px;
+        }
+
+        .chapter-brief-card,
+        .chapter-focus,
+        .chapter-rewards {
+            padding: 7px 9px;
+            border: 1px solid rgba(174, 151, 222, 0.18);
+            border-radius: 11px;
+            background: rgba(22, 18, 38, 0.56);
+        }
+
+        .chapter-brief-card {
+            display: grid;
+            gap: 3px;
+        }
+
+        .chapter-brief-card strong {
+            color: #fff5d7;
+            font-size: 0.78rem;
+        }
+
+        .chapter-health-card > span:last-child {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .chapter-health-card i {
+            color: #8f83ad;
+            font-size: 0.58rem;
+            font-style: normal;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .chapter-focus p {
+            margin: 3px 0 0 !important;
+            color: #ded6f5;
+            font-size: 0.7rem !important;
+            line-height: 1.25 !important;
+            text-align: left;
+        }
+
+        .chapter-reward-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .chapter-reward-chip {
+            padding: 3px 6px;
+            border: 1px solid rgba(255, 215, 106, 0.28);
+            border-radius: 999px;
+            color: #ffe8a3;
+            background: rgba(106, 67, 24, 0.2);
+            font-size: 0.57rem;
+            font-weight: 850;
+            line-height: 1.15;
+        }
+
+        body.desktop-build .chapter-detail-content .modal-actions {
+            display: grid !important;
+            grid-template-columns: minmax(150px, 0.75fr) minmax(220px, 1.25fr) !important;
+            gap: 9px !important;
+            margin-top: 10px !important;
+        }
+
+        body.desktop-build .chapter-detail-content .modal-actions button {
+            width: 100% !important;
+            max-width: none !important;
+            min-height: 40px !important;
+            font-size: 0.76rem !important;
+        }
+
+        body.desktop-build .chapter-start-button {
+            filter: brightness(1.08) saturate(1.08);
+        }
+
+        @media (max-height: 720px) {
+            body.desktop-build .story-map-header {
+                max-height: none !important;
+                padding-top: 7px !important;
+                padding-bottom: 7px !important;
+            }
+
+            body.desktop-build .story-map-header p {
+                display: block !important;
+                font-size: 0.62rem !important;
+            }
+
+            body.desktop-build .chapter-detail-content {
+                padding: 10px 12px 11px !important;
+            }
+
+            body.desktop-build .chapter-detail-content .chapter-intro {
+                margin-bottom: 7px !important;
+                font-size: 0.7rem !important;
+            }
+
+            .chapter-brief-card,
+            .chapter-focus,
+            .chapter-rewards {
+                padding: 6px 8px;
+            }
+
+            body.desktop-build .chapter-detail-content .modal-actions {
+                margin-top: 7px !important;
+            }
+        }
+
+        @media (max-width: 760px) {
+            body.desktop-build .story-map-header {
+                width: min(94vw, 680px) !important;
+                gap: 10px !important;
+            }
+
+            .story-progress {
+                min-width: 126px;
+                padding-left: 10px;
+            }
+
+            .story-progress-label {
+                font-size: 0.54rem;
+            }
+
+            .chapter-briefing {
+                grid-template-columns: 1fr;
+            }
+
+            body.desktop-build .chapter-detail-content .modal-actions {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body.desktop-build .chapter-pin.available {
+                animation: none;
             }
         }
 
@@ -10579,6 +10942,7 @@
         document.body.classList.add("story-map-active");
         document.body.classList.remove("menu-bg-active");
         const progress = getStoryProgress();
+        const completedPages = Math.min(STORY_CHAPTERS.length, Math.max(0, progress - 1));
         const pinPositions = [
             { x: 50, y: 88 },  // Moonlit Market - bottom city
             { x: 50, y: 74 },  // Tidal Sanctum - water shrine
@@ -10590,22 +10954,36 @@
             const chapterNumber = index + 1;
             const completed = chapterNumber < progress;
             const available = chapterNumber <= progress;
-            const status = completed ? "Complete" : available ? "Start" : "Locked";
+            const status = completed ? "Page Recovered" : available ? "Begin Duel" : "Locked";
             const cls = completed ? "completed" : available ? "available" : "locked";
             const pos = pinPositions[index] || { x: 50, y: 50 };
             return `
-                <button type="button" class="chapter-pin ${cls}" style="--pin-x:${pos.x}%;--pin-y:${pos.y}%;" ${available ? `data-story-chapter="${chapter.id}"` : "disabled"}>
+                <button type="button" class="chapter-pin ${cls}" style="--pin-x:${pos.x}%;--pin-y:${pos.y}%;" ${available ? `data-story-chapter="${chapter.id}"` : "disabled"} aria-label="Chapter ${chapterNumber}: ${escapeAttr(chapter.shortTitle || chapter.title)}. ${status}.">
+                    <span class="chapter-pin-number">Chapter ${chapterNumber}</span>
                     <span class="chapter-pin-title">${escapeHtml(chapter.shortTitle || chapter.title)}</span>
                     <span class="chapter-pin-action">${status}</span>
                 </button>`;
+        }).join("");
+        const progressMarks = STORY_CHAPTERS.map((chapter, index) => {
+            const chapterNumber = index + 1;
+            const cls = chapterNumber < progress ? "complete" : chapterNumber === progress ? "current" : "";
+            return `<span class="${cls}" aria-hidden="true"></span>`;
         }).join("");
 
         els.modalRoot.innerHTML = `
             <div class="modal story-map-modal" role="dialog" aria-modal="true">
                 <div class="modal-card story-map-card">
                     <div class="story-map-header">
-                        <h2>The Shattered Grimoire</h2>
-                        <p>Choose a chapter. Win each duel to recover a lost page and unlock the next location.</p>
+                        <div class="story-map-header-copy">
+                            <span class="story-map-kicker">Story Campaign</span>
+                            <h2>The Shattered Grimoire</h2>
+                            <p>Follow the arcane path, defeat each guardian, and restore the five lost pages.</p>
+                        </div>
+                        <div class="story-progress" aria-label="${completedPages} of ${STORY_CHAPTERS.length} pages recovered">
+                            <div class="story-progress-count"><strong>${completedPages}</strong><span>/ ${STORY_CHAPTERS.length}</span></div>
+                            <span class="story-progress-label">Pages Recovered</span>
+                            <div class="story-progress-track">${progressMarks}</div>
+                        </div>
                     </div>
                     <div class="story-map-stage">
                         <div class="story-map-frame">
@@ -10633,29 +11011,54 @@
         els.modalRoot.querySelector('[data-modal="back-start"]').addEventListener("pointerup", showStartModal, { once: true });
     }
 
-    function storyListText(items = []) {
-        return items.join(", ");
-    }
-
     function showStoryChapterDetail(chapterId) {
         syncPcWindowModeLayout();
         startMusic();
         const chapter = storyChapterById(chapterId);
+        const chapterIndex = Math.max(0, STORY_CHAPTERS.findIndex(item => item.id === chapter.id));
+        const chapterNumber = chapterIndex + 1;
+        const progress = getStoryProgress();
+        const chapterStatus = chapterNumber < progress ? "Page Recovered" : "Current Chapter";
+        const rewardChips = chapter.unlocks
+            .map(item => `<span class="chapter-reward-chip">${escapeHtml(item)}</span>`)
+            .join("");
         els.modalRoot.innerHTML = `
             <div class="modal chapter-detail-modal" role="dialog" aria-modal="true">
                 <div class="modal-card chapter-detail-card" style="background-image:url('${chapter.locationImage}')">
                     <div class="chapter-detail-content">
-                        <h2>${escapeHtml(chapter.title)}</h2>
-                        <p>${escapeHtml(chapter.intro)}</p>
-                        <div class="story-detail-grid">
-                            <div><strong>Enemy:</strong> ${escapeHtml(chapter.enemyName)}</div>
-                            <div><strong>Health:</strong> You ${chapter.playerHp || STARTING_HP} / Enemy ${chapter.enemyHp || STARTING_HP}</div>
-                            <div><strong>Focus:</strong> ${escapeHtml(chapter.theme)}</div>
-                            <div class="story-unlocks">Unlocks: ${escapeHtml(storyListText(chapter.unlocks))}</div>
+                        <div class="chapter-detail-heading">
+                            <div class="chapter-detail-kicker">
+                                <span>Chapter ${chapterNumber}</span>
+                                <span class="chapter-status">${chapterStatus}</span>
+                            </div>
+                            <h2>${escapeHtml(chapter.shortTitle || chapter.title)}</h2>
+                            <p class="chapter-intro">${escapeHtml(chapter.intro)}</p>
+                        </div>
+                        <div class="chapter-briefing">
+                            <div class="chapter-opponent-stats">
+                                <div class="chapter-brief-card">
+                                    <span class="chapter-brief-label">Opponent</span>
+                                    <strong>${escapeHtml(chapter.enemyName)}</strong>
+                                </div>
+                                <div class="chapter-brief-card chapter-health-card">
+                                    <span class="chapter-brief-label">Starting Life</span>
+                                    <span><strong>You ${chapter.playerHp || STARTING_HP}</strong><i>vs</i><strong>Enemy ${chapter.enemyHp || STARTING_HP}</strong></span>
+                                </div>
+                            </div>
+                            <div class="chapter-mission">
+                                <div class="chapter-focus">
+                                    <span class="chapter-brief-label">Battle Focus</span>
+                                    <p>${escapeHtml(chapter.theme)}</p>
+                                </div>
+                                <div class="chapter-rewards">
+                                    <span class="chapter-brief-label">Victory Rewards</span>
+                                    <div class="chapter-reward-list">${rewardChips}</div>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-actions">
-                            <button type="button" class="btn-dark" data-modal="story-map-back"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Map</span></button>
-                            <button type="button" class="btn-orange" data-modal="start-story-chapter"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Start Chapter</span></button>
+                            <button type="button" class="btn-dark chapter-map-button" data-modal="story-map-back"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_book.webp" alt="" /> Return to Map</span></button>
+                            <button type="button" class="btn-orange chapter-start-button" data-modal="start-story-chapter"><span class="button-inline"><img class="ui-icon" src="assets/ui/icon_crown.webp" alt="" /> Begin Chapter ${chapterNumber}</span></button>
                         </div>
                     </div>
                 </div>
